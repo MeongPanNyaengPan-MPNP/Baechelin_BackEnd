@@ -1,0 +1,33 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://springboot-database.cewr8xgvhofg.ap-northeast-2.rds.amazonaws.com:3306/homework?serverTimezone=Asia/Seoul
+    username: admin
+    password: cz_hyy6848
+
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+
+  jpa:
+    open-in-view: false
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
+      use-new-id-generator-mappings: false
+    properties:
+      hibernate.format_sql: true
+
+  devtools:
+    restart:
+      enabled: true
+      poll-interval: 2s
+      quiet-period: 1s
+
+  jackson:
+    serialization:
+      fail-on-empty-beans: false
+
+logging.level:
+  org.hibernate.SQL: debug
+# org.hibernate.type: trace
