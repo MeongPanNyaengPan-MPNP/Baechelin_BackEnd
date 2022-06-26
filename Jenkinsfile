@@ -71,7 +71,7 @@ pipeline {
             echo 'Push Docker'
             script {
                 docker.withRegistry( '', registryCredential) {
-                    dockerImage.push("docker tag name")  // ex) "1.0"
+                    dockerImage.push("1.0")  // ex) "1.0"
                 }
             }
           }
