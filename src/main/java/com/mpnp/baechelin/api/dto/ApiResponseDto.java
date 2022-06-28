@@ -1,33 +1,42 @@
 package com.mpnp.baechelin.api.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 
 import java.util.List;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
 public class ApiResponseDto {
     private TouristFoodInfo touristFoodInfo;
-
-    public static class TouristFoodInfo {
-        private int list_total_count;
-        private Result RESULT;
-        private List<Row> rows;
-    }
-
-    public static class Result {
-        private String CODE;
-        private String MESSAGE;
-    }
 
     @Getter
     @Setter
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
+    public static class TouristFoodInfo {
+        private int list_total_count;
+        private Result RESULT;
+        private List<Row> rows;
+    }
+
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    public static class Result {
+        private String CODE;
+        private String MESSAGE;
+    }
+
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter @Setter
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Row {
         private int SEQ;
         private String SISULNAME;

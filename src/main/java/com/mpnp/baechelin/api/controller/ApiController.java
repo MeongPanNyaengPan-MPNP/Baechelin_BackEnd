@@ -17,6 +17,5 @@ public class ApiController {
     @GetMapping("/api")
     public ApiResponseDto findPublicApi(@ModelAttribute ApiRequestDto apiRequestDto) throws  IOException {
         return apiService.processApiToDB(apiRequestDto);
-
     }
 }
