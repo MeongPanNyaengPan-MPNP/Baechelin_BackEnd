@@ -15,8 +15,5 @@ public class UserRestController {
 
     private final UserService userService;
 
-    @RequestMapping("")
-    public List<User> test() {
-        return userService.test();
-    }
+
 }
