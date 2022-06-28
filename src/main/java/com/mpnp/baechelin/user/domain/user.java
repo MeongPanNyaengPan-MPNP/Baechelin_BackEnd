@@ -10,7 +10,7 @@ import javax.persistence.*;
 @Entity
 @Getter
 @NoArgsConstructor
-public class user extends TimeStamped {
+public class User extends TimeStamped {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -26,7 +26,7 @@ public class user extends TimeStamped {
     private String profileImageUrl;
 
     @Builder
-    public user(int id, String email, String name, String profileImageUrl) {
+    public User(int id, String email, String name, String profileImageUrl) {
         this.id = id;
         this.email = email;
         this.name = name;
