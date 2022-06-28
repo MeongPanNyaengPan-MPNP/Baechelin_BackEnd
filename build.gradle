@@ -31,12 +31,9 @@ dependencies {
 	testImplementation 'org.springframework.security:spring-security-test'
 	// gson 라이브러리
 	implementation 'com.google.code.gson:gson:2.9.0'
-	// gson 라이브러리
-	implementation 'com.google.code.gson:gson:2.9.0'
 	//JSON 변환을 위한 Jackson Library
 	implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.3'
 }
-
 tasks.named('test') {
 	useJUnitPlatform()
 }
