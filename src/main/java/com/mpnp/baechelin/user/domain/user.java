@@ -16,6 +16,9 @@ public class User extends TimeStamped {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
 
+    @Column(nullable = false, unique = true)
+    private int kakaoId;
+
     @Column(nullable = false, length = 50)
     private String email;
 
@@ -26,8 +29,8 @@ public class User extends TimeStamped {
     private String profileImageUrl;
 
     @Builder
-    public User(int id, String email, String name, String profileImageUrl) {
-        this.id = id;
+    public User(int kakaoId, String email, String name, String profileImageUrl) {
+        this.kakaoId = kakaoId;
         this.email = email;
         this.name = name;
         this.profileImageUrl = profileImageUrl;
