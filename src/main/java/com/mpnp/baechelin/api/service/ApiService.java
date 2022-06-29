@@ -45,7 +45,7 @@ public class ApiService {
      * @throws IOException
      */
 
-    public String processApiToDBWithWebclient(ApiRequestDto apiRequestDto) throws IOException {
+    public ApiResponseDto processApiToDBWithWebclient(ApiRequestDto apiRequestDto) throws IOException {
 
         // 타임아웃 설정
         HttpClient httpClient = HttpClient.create()
@@ -82,8 +82,44 @@ public class ApiService {
                 -> uriBuilder.path("/" + key + "/" + type + "/" + service + "/" + start + "/" + end)
                 .build()).retrieve().bodyToMono(String.class).block());
 
-        return sb.toString();
+        return resultMappingToDto(sb.toString());
 
+    }
+    private ApiResponseDto resultMappingToDto(String resultStr){
+        ObjectMapper objectMapper = new ObjectMapper();
+        //private field라서 설정해줘야 한다.
+        objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+
+        ApiResponseDto.TouristFoodInfo tfi = null;
+        try {
+            JsonNode jsonNode = objectMapper.readTree(resultStr).get("touristFoodInfo");
+            // list_total_count 생성
+            int list_total_count = Integer.parseInt(String.valueOf(jsonNode.get("list_total_count")));
+            // Result 생성
+            ApiResponseDto.Result result = ApiResponseDto.Result.builder()
+                    .CODE(String.valueOf(jsonNode.get("RESULT").get("CODE")))
+                    .MESSAGE(String.valueOf(jsonNode.get("RESULT").get("MESSAGE")))
+                    .build();
+            // Rows 매핑
+            Iterator<JsonNode> iterator = jsonNode.withArray("row").iterator();
+            List<ApiResponseDto.Row> rows = new ArrayList<>();
+            while (iterator.hasNext()) {
+                JsonNode target = iterator.next();
+                ApiResponseDto.Row row = objectMapper.treeToValue(target, ApiResponseDto.Row.class);
+                rows.add(row);
+            }
+
+            tfi = ApiResponseDto.TouristFoodInfo.builder().list_total_count(list_total_count).RESULT(result).rows(rows).build();
+
+            List<Store> storeList = rows.stream().map(Store::new).collect(Collectors.toList());
+            // storeRepository 구현 시 save 호출하기
+//            for(Store store : storeList){
+//                storeRepository.save(store);
+//            }
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return ApiResponseDto.builder().touristFoodInfo(tfi).build();
     }
 
     public ApiResponseDto processApiToDB(ApiRequestDto apiRequestDto) throws IOException {
