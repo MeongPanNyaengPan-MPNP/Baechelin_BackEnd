@@ -8,7 +8,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mpnp.baechelin.api.dto.ApiRequestDto;
 import com.mpnp.baechelin.api.dto.ApiResponseDto;
 import com.mpnp.baechelin.store.domain.Store;
+import io.netty.channel.ChannelOption;
+import io.netty.handler.timeout.ReadTimeoutHandler;
+import io.netty.handler.timeout.WriteTimeoutHandler;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.netty.http.client.HttpClient;
 
 import javax.transaction.Transactional;
 import java.io.BufferedReader;
@@ -17,22 +26,66 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 
 @Service
 @Transactional
+@Slf4j
 public class ApiService {
     /**
      * @param apiRequestDto : 유저가 등록하는 업소 정보들을 담은 DTO
      * @return ApiResponseDto - 응답 형태에 맞는 객체 반환
      * @throws IOException
      */
+
+    public String processApiToDBWithWebclient(ApiRequestDto apiRequestDto) throws IOException {
+
+        // 타임아웃 설정
+        HttpClient httpClient = HttpClient.create()
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000)
+                .responseTimeout(Duration.ofMillis(5000))
+                .doOnConnected(conn ->
+                        conn.addHandlerLast(new ReadTimeoutHandler(5000, TimeUnit.MILLISECONDS))
+                                .addHandlerLast(new WriteTimeoutHandler(5000, TimeUnit.MILLISECONDS)));
+
+        // client 기본설정
+        WebClient client = WebClient.builder()
+                .baseUrl("http://openapi.seoul.go.kr:8088")
+//                .defaultCookie("cookieKey", "cookieValue")
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML_VALUE)
+                .defaultUriVariables(Collections.singletonMap("url", "http://openapi.seoul.go.kr:8088"))
+                .clientConnector(new ReactorClientHttpConnector(httpClient))
+                .build();
+
+        // 메서드 설정
+//        String key = URLEncoder.encode("5274616b45736f7933376e6c525658", "UTF-8"); /*인증키 (sample사용시에는 호출시 제한됩니다.)*/
+//        String type = URLEncoder.encode("json", "UTF-8"); /*요청파일타입 (xml,xmlf,xls,json) */
+//        String service = URLEncoder.encode("touristFoodInfo", "UTF-8"); /*서비스명 (대소문자 구분 필수입니다.)*/
+//        String start = URLEncoder.encode("1", "UTF-8"); /*요청시작위치 (sample인증키 사용시 5이내 숫자)*/
+//        String end = URLEncoder.encode("4", "UTF-8"); /*요청종료위치(sample인증키 사용시 5이상 숫자 선택 안 됨)*/
+
+        String key = URLEncoder.encode(apiRequestDto.getKey(), "UTF-8"); /*인증키 (sample사용시에는 호출시 제한됩니다.)*/
+        String type = URLEncoder.encode(apiRequestDto.getType(), "UTF-8"); /*요청파일타입 (xml,xmlf,xls,json) */
+        String service = URLEncoder.encode(apiRequestDto.getService(), "UTF-8"); /*서비스명 (대소문자 구분 필수입니다.)*/
+        String start = URLEncoder.encode(String.valueOf(apiRequestDto.getStartIndex()), "UTF-8"); /*요청시작위치 (sample인증키 사용시 5이내 숫자)*/
+        String end = URLEncoder.encode(String.valueOf(apiRequestDto.getEndIndex()), "UTF-8"); /*요청종료위치(sample인증키 사용시 5이상 숫자 선택 안 됨)*/
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(client.get().uri(uriBuilder
+                -> uriBuilder.path("/" + key + "/" + type + "/" + service + "/" + start + "/" + end)
+                .build()).retrieve().bodyToMono(String.class).block());
+
+        return sb.toString();
+
+    }
+
     public ApiResponseDto processApiToDB(ApiRequestDto apiRequestDto) throws IOException {
         StringBuilder urlBuilder = new StringBuilder("http://openapi.seoul.go.kr:8088"); /*URL*/
         urlBuilder.append("/" + URLEncoder.encode("5274616b45736f7933376e6c525658", "UTF-8")); /*인증키 (sample사용시에는 호출시 제한됩니다.)*/
