@@ -1,11 +1,13 @@
 package com.mpnp.baechelin.user.domain;
 
+import com.mpnp.baechelin.review.domain.Review;
 import com.mpnp.baechelin.util.TimeStamped;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Getter
@@ -35,4 +37,7 @@ public class User extends TimeStamped {
         this.name = name;
         this.profileImageUrl = profileImageUrl;
     }
+
+    @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Review> reviewList;
 }
