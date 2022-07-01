@@ -20,7 +20,7 @@ public class Store {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
 
-    @Column(nullable = false)
+//    @Column(nullable = false)
     private String category;
 
     @Column(nullable = false)
@@ -44,7 +44,7 @@ public class Store {
     @Column(nullable = false)
     private String parking;
 
-    @Column(nullable = false)
+//    @Column(nullable = false)
     private String phoneNumber;
 
     @Column(nullable = false)

@@ -11,6 +11,7 @@ import com.mpnp.baechelin.store.domain.Store;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -38,12 +39,15 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 @Slf4j
+@RequiredArgsConstructor
 public class ApiService {
     /**
      * @param apiRequestDto : 유저가 등록하는 업소 정보들을 담은 DTO
      * @return ApiResponseDto - 응답 형태에 맞는 객체 반환
      * @throws IOException
      */
+    // store repo 구현 시 쓸 예정!
+    private final StoreRepository storeRepository;
 
     public ApiResponseDto processApiToDBWithWebclient(ApiRequestDto apiRequestDto) throws IOException {
 
@@ -61,7 +65,7 @@ public class ApiService {
 //                .defaultCookie("cookieKey", "cookieValue")
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML_VALUE)
                 .defaultUriVariables(Collections.singletonMap("url", "http://openapi.seoul.go.kr:8088"))
-                .clientConnector(new ReactorClientHttpConnector(httpClient))
+                .clientConnector(new ReactorClientHttpConnector(httpClient)) // 위의 타임아웃 적용
                 .build();
 
         // 메서드 설정
@@ -79,13 +83,15 @@ public class ApiService {
 
         StringBuilder sb = new StringBuilder();
         sb.append(client.get().uri(uriBuilder
-                -> uriBuilder.path("/" + key + "/" + type + "/" + service + "/" + start + "/" + end)
+                //-> uriBuilder.path("/" + key + "/" + type + "/" + service + "/" + start + "/" + end)
+                -> uriBuilder.pathSegment(key, type, service, start, end).path("/")
                 .build()).retrieve().bodyToMono(String.class).block());
 
         return resultMappingToDto(sb.toString());
 
     }
-    private ApiResponseDto resultMappingToDto(String resultStr){
+
+    private ApiResponseDto resultMappingToDto(String resultStr) {
         ObjectMapper objectMapper = new ObjectMapper();
         //private field라서 설정해줘야 한다.
         objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
@@ -113,15 +119,17 @@ public class ApiService {
 
             List<Store> storeList = rows.stream().map(Store::new).collect(Collectors.toList());
             // storeRepository 구현 시 save 호출하기
-//            for(Store store : storeList){
-//                storeRepository.save(store);
-//            }
+            storeList.forEach(a-> System.out.println("a.toString() = " + a.toString()));
+            storeRepository.saveAll(storeList);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
         return ApiResponseDto.builder().touristFoodInfo(tfi).build();
     }
 
+    /**
+     * 쓰지는 않지만 java로 구현한 코드를 Ref로 삼습니다
+     */
     public ApiResponseDto processApiToDB(ApiRequestDto apiRequestDto) throws IOException {
         StringBuilder urlBuilder = new StringBuilder("http://openapi.seoul.go.kr:8088"); /*URL*/
         urlBuilder.append("/" + URLEncoder.encode("5274616b45736f7933376e6c525658", "UTF-8")); /*인증키 (sample사용시에는 호출시 제한됩니다.)*/
@@ -154,39 +162,6 @@ public class ApiService {
         rd.close();
         conn.disconnect();
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        //private field라서 설정해줘야 한다.
-        objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
-
-        ApiResponseDto.TouristFoodInfo tfi = null;
-        try {
-            JsonNode jsonNode = objectMapper.readTree(sb.toString()).get("touristFoodInfo");
-            // list_total_count 생성
-            int list_total_count = Integer.parseInt(String.valueOf(jsonNode.get("list_total_count")));
-            // Result 생성
-            ApiResponseDto.Result result = ApiResponseDto.Result.builder()
-                    .CODE(String.valueOf(jsonNode.get("RESULT").get("CODE")))
-                    .MESSAGE(String.valueOf(jsonNode.get("RESULT").get("MESSAGE")))
-                    .build();
-            // Rows 매핑
-            Iterator<JsonNode> iterator = jsonNode.withArray("row").iterator();
-            List<ApiResponseDto.Row> rows = new ArrayList<>();
-            while (iterator.hasNext()) {
-                JsonNode target = iterator.next();
-                ApiResponseDto.Row row = objectMapper.treeToValue(target, ApiResponseDto.Row.class);
-                rows.add(row);
-            }
-
-            tfi = ApiResponseDto.TouristFoodInfo.builder().list_total_count(list_total_count).RESULT(result).rows(rows).build();
-
-            List<Store> storeList = rows.stream().map(Store::new).collect(Collectors.toList());
-            // storeRepository 구현 시 save 호출하기
-//            for(Store store : storeList){
-//                storeRepository.save(store);
-//            }
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-        return ApiResponseDto.builder().touristFoodInfo(tfi).build();
+        return resultMappingToDto(sb.toString());
     }
 }
