@@ -1,6 +1,7 @@
 package com.mpnp.baechelin.store.domain;
 
 import com.mpnp.baechelin.api.dto.ApiResponseDto;
+import com.mpnp.baechelin.bookmark.domain.Bookmark;
 import com.mpnp.baechelin.review.domain.Review;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -76,5 +77,7 @@ public class Store {
     @OneToMany(mappedBy = "storeId", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Review> reviewList;
 
+    @OneToMany(mappedBy = "storeId", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Bookmark> BookmarkList;
 
 }
