@@ -1,0 +1,12 @@
+# jwt secret key setting
+jwt.secret: 'MeongPanNyaengPanBaechelinhanghae99secretKey'
+
+# Token secret Key & RedirectUri setting
+app:
+  auth:
+    tokenSecret: thisToken2sforMeongPanNyaengPanBaechelin
+    tokenExpiry: 1800000
+    refreshTokenExpiry: 604800000
+  oauth2:
+    authorizedRedirectUris:
+      - http://localhost:12345/oauth/redirect

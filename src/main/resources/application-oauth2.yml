@@ -1,0 +1,44 @@
+spring:
+  security:
+    oauth2.client:
+      registration:
+        google:
+          clientId: '1024820989252-osui4ppvp6d26qg5cpb5ap19c93ombpv.apps.googleusercontent.com'
+          clientSecret: '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'
+          scope:
+            - email
+            - profile
+        naver:
+          clientId: 'lnfBJwiFCXxf4KDtCUjK'
+          clientSecret: 'S99V7ezlik'
+          clientAuthenticationMethod: post
+          authorizationGrantType: authorization_code
+          redirectUri: http://localhost:8080/user/oauth2/code/naver
+          scope:
+            - nickname
+            - email
+            - profile_image
+          clientName: Naver
+        kakao:
+          clientId: '708d5b42ebe5e4a252a73873a9cc475c'
+          clientSecret: 'iXUbULiZk7O6ODw1SKGws7KUNfF0BGmM4e'
+          clientAuthenticationMethod: post
+          authorizationGrantType: authorization_code
+          redirectUri: http://localhost:8080/user/oauth2/code/kakao
+          scope:
+            - profile_nickname
+            - profile_image
+            - account_email
+          clientName: Kakao
+      # Provider ??
+      provider:
+        naver:
+          authorizationUri: https://nid.naver.com/oauth2.0/authorize
+          tokenUri: https://nid.naver.com/oauth2.0/token
+          userInfoUri: https://openapi.naver.com/v1/nid/me
+          userNameAttribute: response
+        kakao:
+          authorizationUri: https://kauth.kakao.com/oauth/authorize
+          tokenUri: https://kauth.kakao.com/oauth/token
+          userInfoUri: https://kapi.kakao.com/v2/user/me
+          userNameAttribute: id
