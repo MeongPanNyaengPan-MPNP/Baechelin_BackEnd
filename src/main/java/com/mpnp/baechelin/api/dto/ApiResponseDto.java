@@ -9,7 +9,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ApiResponseDto {
+public class  ApiResponseDto {
     private TouristFoodInfo touristFoodInfo;
 
     @Getter
@@ -39,6 +39,9 @@ public class ApiResponseDto {
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Row {
         private int SEQ;
+        private String latitude;
+        private String longitude;
+        private String category;
         private String SISULNAME;
         private String GU;
         private String ADDR;
