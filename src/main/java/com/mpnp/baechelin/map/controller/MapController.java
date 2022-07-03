@@ -3,6 +3,9 @@ package com.mpnp.baechelin.map.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mpnp.baechelin.map.service.MapService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -18,18 +21,24 @@ import java.util.Iterator;
 import java.util.Map;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/map")
 public class MapController {
+    private final MapService mapService;
+
     @GetMapping
-    public String callMap(@RequestParam Integer latitude, @RequestParam Integer longitude) {
-        return "check";
+    public ResponseEntity<Map<String, Object>> callMap(@RequestParam String keyword) {
+        return ResponseEntity.ok().body(mapService.giveInfoByKeyword(keyword));
     }
+
 
     /**
      * @param storeInfo : 검색에 이용할 키워드 - 주소와 업장명을 합치면 범위가 좁아져 조회가 쉬워질 것 같습니다!
      * @return API 호출 결과값 - API 호출 결과 중 카테고리를 리턴
+     * 그런데 KakaoAPI로 갈아 타서 쓸모가 없어짐..
      */
-    @GetMapping("/store")
+
+//    @GetMapping("/store")
     public String checkStoreTag(@RequestParam String storeInfo) {
 //        public JsonNode checkStoreTag(@RequestParam String storeInfo) {
         String clientId = "fJLCJG1qPVhGJcOgFOfi"; //애플리케이션 클라이언트 아이디값"
@@ -49,11 +58,12 @@ public class MapController {
         requestHeaders.put("X-Naver-Client-Secret", clientSecret);
         String responseBody = get(apiURL, requestHeaders);
         ObjectMapper objectMapper = new ObjectMapper();
+
         JsonNode jsonNode = null;
         String category = null;
+
         try {
             jsonNode = objectMapper.readTree(responseBody);
-            Iterator<JsonNode> iterator = jsonNode.iterator();
             category = jsonNode.get("items").get(0).get("category").asText().split(">")[0];
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);

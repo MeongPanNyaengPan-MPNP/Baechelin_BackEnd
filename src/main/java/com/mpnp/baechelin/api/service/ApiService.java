@@ -79,13 +79,12 @@ public class ApiService {
         // 메서드 설정
         StringBuilder sb = new StringBuilder();
         sb.append(client.get().uri(uriBuilder
-                        //-> uriBuilder.path("/" + key + "/" + type + "/" + service + "/" + start + "/" + end)
                         -> uriBuilder.pathSegment(key, type, service, start, end).path("/")
                         .build())
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .bodyToMono(String.class)
-                .block());
+                .block()); // 해당 결과가
 
         ApiResponseDto result = resultMappingToDto(sb.toString());
 
@@ -93,6 +92,10 @@ public class ApiService {
 
     }
 
+    /**
+     * @Param String resultStr :
+     * @Return
+     * */
     private ApiResponseDto resultMappingToDto(String resultStr) {
         ObjectMapper objectMapper = new ObjectMapper();
         //private field라서 설정해줘야 한다.
@@ -101,23 +104,23 @@ public class ApiService {
         ApiResponseDto.TouristFoodInfo touristFoodInfo = null;
         try {
             JsonNode jsonNode = objectMapper.readTree(resultStr).get("touristFoodInfo");
-            // list_total_count 생성
-            int list_total_count = Integer.parseInt(jsonNode.get("list_total_count").asText());
-            // Result 생성
-            ApiResponseDto.Result result = ApiResponseDto.Result.builder()
-                    .CODE(String.valueOf(jsonNode.get("RESULT").get("CODE")))
-                    .MESSAGE(String.valueOf(jsonNode.get("RESULT").get("MESSAGE")))
-                    .build();
-            // Rows 매핑
-            Iterator<JsonNode> iterator = jsonNode.withArray("row").iterator();
-            List<ApiResponseDto.Row> rows = new ArrayList<>();
-            while (iterator.hasNext()) {
-                JsonNode target = iterator.next();
-                ApiResponseDto.Row row = objectMapper.treeToValue(target, ApiResponseDto.Row.class);
+                // list_total_count 생성
+                int list_total_count = Integer.parseInt(jsonNode.get("list_total_count").asText());
+                // Result 생성
+                ApiResponseDto.Result result = ApiResponseDto.Result.builder()
+                        .CODE(jsonNode.get("RESULT").get("CODE").asText())
+                        .MESSAGE(jsonNode.get("RESULT").get("MESSAGE").asText())
+                        .build();
+
+                // Rows 매핑
+                Iterator<JsonNode> iterator = jsonNode.withArray("row").iterator();
+                List<ApiResponseDto.Row> rows = new ArrayList<>();
+                while (iterator.hasNext()) {
+                    JsonNode target = iterator.next();
+                    ApiResponseDto.Row row = objectMapper.treeToValue(target, ApiResponseDto.Row.class);
                 Map<String, Object> infos = mapService.giveInfoByKeyword(row.getADDR());
 
-                log.info("map check : {}", infos.toString());
-                log.info("class check : {}", infos.get("message").getClass());
+                // 값을 찾았다면 ( Map 내의 "message"가 true 일 경우 )
                 if ((Boolean) infos.get("message")) {
                     row.setLatitude(infos.get("latitude").toString());
                     row.setLongitude(infos.get("longitude").toString());
@@ -126,7 +129,11 @@ public class ApiService {
                 }  // 주소로 값이 조회되지 않을 때 - 버릴 것인가 생각해 보기
             }
 
-            touristFoodInfo = ApiResponseDto.TouristFoodInfo.builder().list_total_count(list_total_count).RESULT(result).rows(rows).build();
+            touristFoodInfo = ApiResponseDto.TouristFoodInfo.builder()
+                    .list_total_count(list_total_count)
+                    .RESULT(result)
+                    .rows(rows)
+                    .build();
 
             List<Store> storeList = rows.stream().map(Store::new).collect(Collectors.toList());
 
