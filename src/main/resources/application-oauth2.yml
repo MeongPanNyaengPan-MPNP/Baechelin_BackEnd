@@ -13,7 +13,7 @@ spring:
           clientSecret: 'S99V7ezlik'
           clientAuthenticationMethod: post
           authorizationGrantType: authorization_code
-          redirectUri: http://localhost:8080/user/oauth2/code/naver
+          redirectUri: http://localhost:9000/user/oauth2/code/naver
           scope:
             - nickname
             - email
@@ -24,7 +24,8 @@ spring:
           clientSecret: 'iXUbULiZk7O6ODw1SKGws7KUNfF0BGmM4e'
           clientAuthenticationMethod: post
           authorizationGrantType: authorization_code
-          redirectUri: http://localhost:8080/user/oauth2/code/kakao
+          # 카카오에서 로그인에 성공하고나면 access token을 보내주는 redirect uri
+          redirectUri: http://localhost:9000/user/oauth2/code/kakao
           scope:
             - profile_nickname
             - profile_image
