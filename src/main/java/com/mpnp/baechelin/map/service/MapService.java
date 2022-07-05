@@ -4,22 +4,19 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mpnp.baechelin.api.config.HttpConfig;
-import io.netty.channel.ChannelOption;
-import io.netty.handler.timeout.ReadTimeoutHandler;
-import io.netty.handler.timeout.WriteTimeoutHandler;
+import com.mpnp.baechelin.map.model.MapKeywordSearchForm;
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.netty.http.client.HttpClient;
 
 import javax.transaction.Transactional;
-import java.time.Duration;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 
 @Service
 @Transactional
@@ -44,17 +41,20 @@ public class MapService {
         // client 기본설정
         WebClient client = WebClient.builder()
                 .baseUrl("https://dapi.kakao.com/v2/local/search/keyword.json")
-                .defaultUriVariables(Collections.singletonMap("url", "https://dapi.kakao.com/v2/local/search/keyword.json"))
-                .clientConnector(new ReactorClientHttpConnector(httpConfig.httpConfig())) // 위의 타임아웃 적용
-                .build();
+                        .defaultUriVariables(Collections.singletonMap("url", "https://dapi.kakao.com/v2/local/search/keyword.json"))
+                        .clientConnector(new ReactorClientHttpConnector(httpConfig.httpConfig())) // 위의 타임아웃 적용
+                        .build();
 
         StringBuilder sb = new StringBuilder();
-        sb.append(client.get().uri(uriBuilder
-                -> uriBuilder.queryParam("query", keyword)
-                        .queryParam("category_group_code","FD6")
-                .build())
-                .header("Authorization","KakaoAK 04940cceefec44d7adb62166b7971cd5")
-                .retrieve().bodyToMono(String.class).block());
+
+        sb.append(
+                client.get().uri(uriBuilder
+                                -> uriBuilder.queryParam("query", keyword)
+                                .queryParam("category_group_code", "FD6") // 음식점으로 특정 - FD6
+                                .build())
+                        .header("Authorization", "KakaoAK 04940cceefec44d7adb62166b7971cd5")
+                        .retrieve().bodyToMono(String.class).block());
+
         try {
             JsonNode jsonNode = objectMapper.readTree(sb.toString()).get("documents");
             if (jsonNode.size() < 1) {
@@ -74,4 +74,38 @@ public class MapService {
         }
         return LatLngMap;
     }
+
+
+    public MapKeywordSearchForm giveInfoByKeywordMono(String keyword) {
+        WebClient client = WebClient.builder()
+                .baseUrl("https://dapi.kakao.com/v2/local/search/keyword.json")
+                .defaultUriVariables(Collections.singletonMap("url", "https://dapi.kakao.com/v2/local/search/keyword.json"))
+                .clientConnector(new ReactorClientHttpConnector(httpConfig.httpConfig())) // 위의 타임아웃 적용
+                .build();
+        return client.get().uri(uriBuilder
+                        -> uriBuilder.queryParam("query", keyword)
+                        .queryParam("category_group_code", "FD6") // 음식점으로 특정 - FD6
+                        .build())
+                .accept(MediaType.APPLICATION_JSON)
+                .header("Authorization", "KakaoAK 04940cceefec44d7adb62166b7971cd5")
+                .retrieve().bodyToMono(MapKeywordSearchForm.class).block();
+
+    }
+    @Builder
+    public MapKeywordSearchForm giveCategoryByLatLngKeyword(String lat, String lng, String storeName) {
+        WebClient client = WebClient.builder()
+                .baseUrl("https://dapi.kakao.com/v2/local/search/keyword.json")
+                .defaultUriVariables(Collections.singletonMap("url", "https://dapi.kakao.com/v2/local/search/keyword.json"))
+                .clientConnector(new ReactorClientHttpConnector(httpConfig.httpConfig())) // 위의 타임아웃 적용
+                .build();
+        return client.get().uri(uriBuilder
+                        -> uriBuilder.queryParam("query", storeName)
+                        .queryParam("category_group_code", "FD6") // 음식점으로 특정 - FD6
+                        .build())
+                .accept(MediaType.APPLICATION_JSON)
+                .header("Authorization", "KakaoAK 04940cceefec44d7adb62166b7971cd5")
+                .retrieve().bodyToMono(MapKeywordSearchForm.class).block();
+
+    }
+
 }

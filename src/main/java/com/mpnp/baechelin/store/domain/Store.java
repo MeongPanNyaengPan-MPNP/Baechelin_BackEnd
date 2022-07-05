@@ -13,14 +13,15 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor
-@Builder @AllArgsConstructor
+@Builder
+@AllArgsConstructor
 public class Store {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
 
-//    @Column(nullable = false)
+    //    @Column(nullable = false)
     private String category;
 
     @Column(nullable = false)
@@ -44,7 +45,7 @@ public class Store {
     @Column(nullable = false)
     private String parking;
 
-//    @Column(nullable = false)
+    //    @Column(nullable = false)
     private String phoneNumber;
 
     @Column(nullable = false)
@@ -71,6 +72,11 @@ public class Store {
         this.elevator = row.getST4();
         //화장실
         this.toilet = row.getST5();
+
+        this.latitude = row.getLatitude();
+        this.longitude = row.getLongitude();
+        this.category = row.getCategory();
+
     }
 
     @OneToMany(mappedBy = "storeId", cascade = CascadeType.ALL, orphanRemoval = true)

@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 
@@ -17,6 +18,6 @@ public class ApiController {
 
     @GetMapping("/api")
     public ApiResponseDto findPublicApi(@RequestBody ApiRequestDto apiRequestDto) throws IOException {
-        return apiService.processApiToDBWithWebclient(apiRequestDto);
+        return apiService.processApiToDBWithWebclientMono(apiRequestDto);
     }
 }

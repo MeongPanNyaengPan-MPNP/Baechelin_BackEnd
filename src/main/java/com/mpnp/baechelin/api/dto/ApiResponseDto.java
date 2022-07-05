@@ -1,65 +1,89 @@
 package com.mpnp.baechelin.api.dto;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 import java.util.List;
 
 @Builder
-@Getter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class  ApiResponseDto {
-    private TouristFoodInfo touristFoodInfo;
+@JsonIgnoreProperties(ignoreUnknown = true) // 무시할 속성이나 속성 목록 표시
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
+public class ApiResponseDto {
+    TouristFoodInfo touristFoodInfo;
 
-    @Getter
-    @Setter
+    @Data
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
     public static class TouristFoodInfo {
-        private int list_total_count;
-        private Result RESULT;
-        private List<Row> rows;
+        int list_total_count;
+        @JsonProperty("RESULT")
+        Result RESULT;
+        List<Row> row;
     }
 
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
-    @Getter
+    @Data
     public static class Result {
-        private String CODE;
-        private String MESSAGE;
+        @JsonProperty("CODE")
+        String CODE;
+        @JsonProperty("MESSAGE")
+        String MESSAGE;
     }
 
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
-    @Getter @Setter
-    @JsonIgnoreProperties(ignoreUnknown = true)
+    @Data
     public static class Row {
-        private int SEQ;
-        private String latitude;
-        private String longitude;
-        private String category;
-        private String SISULNAME;
-        private String GU;
-        private String ADDR;
-        private String TEL;
-        private String HOMEPAGE;
-        private String HIT;
-        private String ST1;
-        private String ST2;
-        private String ST3;
-        private String ST4;
-        private String ST5;
-        private String ST6;
-        private String ST7;
-        private String ST8;
-        private String ST9;
-        private String ST10;
-        private String ST11;
-        private String ST12;
+        @JsonProperty("SEQ")
+        int SEQ;
+        String latitude;
+        String longitude;
+        String category;
+        @JsonProperty("SISULNAME")
+        String SISULNAME;
+        @JsonProperty("GU")
+        String GU;
+        @JsonProperty("ADDR")
+        String ADDR;
+        @JsonProperty("TEL")
+        String TEL;
+        @JsonProperty("HOMEPAGE")
+        String HOMEPAGE;
+        @JsonProperty("HIT")
+        String HIT;
+        @JsonProperty("ST1")
+        String ST1;
+        @JsonProperty("ST2")
+        String ST2;
+        @JsonProperty("ST3")
+        String ST3;
+        @JsonProperty("ST4")
+        String ST4;
+        @JsonProperty("ST5")
+        String ST5;
+        @JsonProperty("ST6")
+        String ST6;
+        @JsonProperty("ST7")
+        String ST7;
+        @JsonProperty("ST8")
+        String ST8;
+        @JsonProperty("ST9")
+        String ST9;
+        @JsonProperty("ST10")
+        String ST10;
+        @JsonProperty("ST11")
+        String ST11;
+        @JsonProperty("ST12")
+        String ST12;
 
     }
 }
