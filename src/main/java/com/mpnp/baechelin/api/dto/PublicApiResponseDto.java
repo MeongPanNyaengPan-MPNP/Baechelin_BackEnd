@@ -13,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true) // 무시할 속성이나 속성 목록 표시
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
-public class ApiResponseDto {
+public class PublicApiResponseDto {
     TouristFoodInfo touristFoodInfo;
 
     @Data

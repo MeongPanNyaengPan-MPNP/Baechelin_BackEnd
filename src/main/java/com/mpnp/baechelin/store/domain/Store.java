@@ -1,6 +1,6 @@
 package com.mpnp.baechelin.store.domain;
 
-import com.mpnp.baechelin.api.dto.ApiResponseDto;
+import com.mpnp.baechelin.api.dto.PublicApiResponseDto;
 import com.mpnp.baechelin.review.domain.Review;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -58,7 +58,7 @@ public class Store {
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<StoreImage> storeImageList;
 
-    public Store(ApiResponseDto.Row row) {
+    public Store(PublicApiResponseDto.Row row) {
         this.name = row.getSISULNAME();
         this.address = row.getADDR();
         this.phoneNumber = row.getTEL();

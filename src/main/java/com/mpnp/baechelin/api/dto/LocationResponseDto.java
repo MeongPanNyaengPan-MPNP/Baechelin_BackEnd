@@ -1,4 +1,4 @@
-package com.mpnp.baechelin.map.dto;
+package com.mpnp.baechelin.api.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class MapResponseDto {
+public class LocationResponseDto {
     public static class LatLongRangePlace{
 
     }

@@ -1,4 +1,4 @@
-package com.mpnp.baechelin.map.model;
+package com.mpnp.baechelin.api.model;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -6,7 +6,7 @@ import lombok.Setter;
 
 @NoArgsConstructor
 @Getter @Setter
-public class MapKeywordSearchForm {
+public class LocationKeywordSearchForm {
     private Meta meta;
     private Documents[] documents;
     @NoArgsConstructor

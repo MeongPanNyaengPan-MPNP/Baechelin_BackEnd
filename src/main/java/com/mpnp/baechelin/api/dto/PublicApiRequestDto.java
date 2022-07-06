@@ -7,7 +7,7 @@ import lombok.*;
 @Builder
 @Getter
 @Setter
-public class ApiRequestDto {
+public class PublicApiRequestDto {
     private String key;
     private String type;
     private String service;

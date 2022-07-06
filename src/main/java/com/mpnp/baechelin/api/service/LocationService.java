@@ -1,11 +1,10 @@
-package com.mpnp.baechelin.map.service;
+package com.mpnp.baechelin.api.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mpnp.baechelin.api.config.HttpConfig;
-import com.mpnp.baechelin.map.model.MapKeywordSearchForm;
-import lombok.Builder;
+import com.mpnp.baechelin.api.model.LocationKeywordSearchForm;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -22,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Transactional
 @Slf4j
 @RequiredArgsConstructor
-public class MapService {
+public class LocationService {
     // 카카오 API를 사용할 예정입니다
     // API KEY : 04940cceefec44d7adb62166b7971cd5
     private final String kakaokey = "04940cceefec44d7adb62166b7971cd5";
@@ -61,7 +60,7 @@ public class MapService {
                 // 결과값이 없을 때 false put
                 LatLngMap.put("message", false);
             } else {
-                // 결과값이 있을 때 false put
+                // 결과값이 있을 때 true put
                 LatLngMap.put("message", true);
                 LatLngMap.put("category", jsonNode.get(0).get("category_group_name").asText());
                 LatLngMap.put("name", jsonNode.get(0).get("place_name").asText());
@@ -76,7 +75,7 @@ public class MapService {
     }
 
 
-    public MapKeywordSearchForm giveInfoByKeywordMono(String keyword) {
+    public LocationKeywordSearchForm giveInfoByKeywordMono(String keyword) {
         WebClient client = WebClient.builder()
                 .baseUrl("https://dapi.kakao.com/v2/local/search/keyword.json")
                 .defaultUriVariables(Collections.singletonMap("url", "https://dapi.kakao.com/v2/local/search/keyword.json"))
@@ -88,24 +87,27 @@ public class MapService {
                         .build())
                 .accept(MediaType.APPLICATION_JSON)
                 .header("Authorization", "KakaoAK 04940cceefec44d7adb62166b7971cd5")
-                .retrieve().bodyToMono(MapKeywordSearchForm.class).block();
-
+                .retrieve().bodyToMono(LocationKeywordSearchForm.class).block();
     }
-    @Builder
-    public MapKeywordSearchForm giveCategoryByLatLngKeyword(String lat, String lng, String storeName) {
+
+    // TODO 위도 경도를 기반으로 키워드 검색하기(필요값 : 업장명, 위도 ,경도)
+    public LocationKeywordSearchForm giveCategoryByLatLngKeyword(String lat, String lng, String storeName) {
         WebClient client = WebClient.builder()
                 .baseUrl("https://dapi.kakao.com/v2/local/search/keyword.json")
                 .defaultUriVariables(Collections.singletonMap("url", "https://dapi.kakao.com/v2/local/search/keyword.json"))
-                .clientConnector(new ReactorClientHttpConnector(httpConfig.httpConfig())) // 위의 타임아웃 적용
+                .clientConnector(new ReactorClientHttpConnector(httpConfig.httpConfig())) // 위의타임아웃 적용
                 .build();
         return client.get().uri(uriBuilder
                         -> uriBuilder.queryParam("query", storeName)
                         .queryParam("category_group_code", "FD6") // 음식점으로 특정 - FD6
+                        .queryParam("x",lng)//위도, 경도 지정
+                        .queryParam("y",lat)
                         .build())
                 .accept(MediaType.APPLICATION_JSON)
                 .header("Authorization", "KakaoAK 04940cceefec44d7adb62166b7971cd5")
-                .retrieve().bodyToMono(MapKeywordSearchForm.class).block();
-
+                .retrieve().bodyToMono(LocationKeywordSearchForm.class).block();
     }
+
+
 
 }
