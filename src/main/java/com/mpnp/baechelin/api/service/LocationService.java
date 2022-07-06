@@ -11,8 +11,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import javax.transaction.Transactional;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -74,24 +76,30 @@ public class LocationService {
         return LatLngMap;
     }
 
-
-    public LocationKeywordSearchForm giveInfoByKeywordMono(String keyword) {
+    /**
+     *
+     * @param address 주소
+     * @return LocationKeywordSearchForm의 규격에 맞는 결과 하나를 가져옴
+     */
+    public Mono<LocationKeywordSearchForm> giveInfoByKeywordMono(String address) {
         WebClient client = WebClient.builder()
                 .baseUrl("https://dapi.kakao.com/v2/local/search/keyword.json")
                 .defaultUriVariables(Collections.singletonMap("url", "https://dapi.kakao.com/v2/local/search/keyword.json"))
                 .clientConnector(new ReactorClientHttpConnector(httpConfig.httpConfig())) // 위의 타임아웃 적용
                 .build();
         return client.get().uri(uriBuilder
-                        -> uriBuilder.queryParam("query", keyword)
+                        -> uriBuilder.queryParam("query", address)
                         .queryParam("category_group_code", "FD6") // 음식점으로 특정 - FD6
+                        .queryParam("page",1)
+                        .queryParam("size",1)
                         .build())
                 .accept(MediaType.APPLICATION_JSON)
                 .header("Authorization", "KakaoAK 04940cceefec44d7adb62166b7971cd5")
-                .retrieve().bodyToMono(LocationKeywordSearchForm.class).block();
+                .retrieve().bodyToMono(LocationKeywordSearchForm.class);
     }
 
     // TODO 위도 경도를 기반으로 키워드 검색하기(필요값 : 업장명, 위도 ,경도)
-    public LocationKeywordSearchForm giveCategoryByLatLngKeyword(String lat, String lng, String storeName) {
+    public Mono<LocationKeywordSearchForm> giveCategoryByLatLngKeyword(String lat, String lng, String storeName) {
         WebClient client = WebClient.builder()
                 .baseUrl("https://dapi.kakao.com/v2/local/search/keyword.json")
                 .defaultUriVariables(Collections.singletonMap("url", "https://dapi.kakao.com/v2/local/search/keyword.json"))
@@ -100,12 +108,15 @@ public class LocationService {
         return client.get().uri(uriBuilder
                         -> uriBuilder.queryParam("query", storeName)
                         .queryParam("category_group_code", "FD6") // 음식점으로 특정 - FD6
-                        .queryParam("x",lng)//위도, 경도 지정
-                        .queryParam("y",lat)
+                        .queryParam("x", lng)//위도, 경도 지정
+                        .queryParam("y", lat)
+                        .queryParam("radius", 200)
+                        .queryParam("page",1)
+                        .queryParam("size",1)
                         .build())
                 .accept(MediaType.APPLICATION_JSON)
                 .header("Authorization", "KakaoAK 04940cceefec44d7adb62166b7971cd5")
-                .retrieve().bodyToMono(LocationKeywordSearchForm.class).block();
+                .retrieve().bodyToMono(LocationKeywordSearchForm.class);
     }
 
 

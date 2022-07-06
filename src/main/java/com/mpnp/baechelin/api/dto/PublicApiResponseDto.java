@@ -3,6 +3,7 @@ package com.mpnp.baechelin.api.dto;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.mpnp.baechelin.api.model.LocationKeywordSearchForm;
 import lombok.*;
 
 import java.util.List;
@@ -84,6 +85,14 @@ public class PublicApiResponseDto {
         String ST11;
         @JsonProperty("ST12")
         String ST12;
-
+        public Row updateLatLng(String lat, String lng){
+            this.latitude = lat;
+            this.longitude = lng;
+            return this;
+        }
+        public Row updateCategory(String category){
+            this.category = category;
+            return this;
+        }
     }
 }

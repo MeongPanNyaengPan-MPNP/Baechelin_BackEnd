@@ -4,6 +4,7 @@ import com.mpnp.baechelin.api.dto.PublicApiRequestDto;
 import com.mpnp.baechelin.api.dto.PublicApiResponseDto;
 import com.mpnp.baechelin.api.service.PublicApiService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,8 +18,8 @@ public class PublicApiController {
     private final PublicApiService publicApiService;
 
     @GetMapping("/api")
-    public PublicApiResponseDto findPublicApi(@RequestBody PublicApiRequestDto publicApiRequestDto) throws IOException {
-        return publicApiService.processApiToDBWithWebclientMono(publicApiRequestDto);
+    public ResponseEntity<?> findPublicApi(@RequestBody PublicApiRequestDto publicApiRequestDto) throws IOException {
+        return ResponseEntity.ok(publicApiService.processApiToDBWithWebclientMono(publicApiRequestDto));
     }
 
     /**
