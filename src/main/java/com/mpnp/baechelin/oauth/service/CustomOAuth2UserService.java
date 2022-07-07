@@ -9,6 +9,7 @@ import com.mpnp.baechelin.oauth.info.OAuth2UserInfoFactory;
 import com.mpnp.baechelin.user.entity.user.User;
 import com.mpnp.baechelin.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -17,11 +18,10 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-
 /* naver의 oauth2 인증을 통해서 불러온 유저 정보를 처리하기 위한 custom 클래스
  * 소셜 api에서 가져온 유저의 정보를 db에 저장하기 위해 구현
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
@@ -50,19 +50,19 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private OAuth2User process(OAuth2UserRequest userRequest, OAuth2User user) {
         // 요청한 유저 정보에 들어있는 provider type을 가져온다.
         ProviderType providerType = ProviderType.valueOf(userRequest.getClientRegistration().getRegistrationId().toUpperCase());
-
+        log.info("providerType : " + providerType);
         // 유저 정보를 가져온다.
         OAuth2UserInfo userInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(providerType, user.getAttributes());
 
         // DB에 저장된 유저 정보를 가져온다.
-        User savedUser = userRepository.findBySocialId(userInfo.getId());
+        User savedUser = userRepository.findByEmail(userInfo.getEmail());
 
         if (savedUser != null) {
             // DB에 유저 정보가 있을 때
             if (providerType != savedUser.getProviderType()) {
                 throw new OAuthProviderMissMatchException(
                         providerType + "계정으로 로그인된 것 같네요." +
-                                savedUser.getProviderType() + "으로 로그인해주세요"
+                                savedUser.getProviderType() + "계정으로 로그인해주세요"
                 );
             }
             updateUser(savedUser, userInfo);
