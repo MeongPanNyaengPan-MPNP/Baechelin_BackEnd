@@ -46,6 +46,7 @@ public class PublicApiResponseDto {
     public static class Row {
         @JsonProperty("SEQ")
         int SEQ;
+        String storeId;
         String latitude;
         String longitude;
         String category;

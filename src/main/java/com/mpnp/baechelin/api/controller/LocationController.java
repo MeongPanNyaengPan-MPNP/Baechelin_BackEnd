@@ -17,7 +17,7 @@ public class LocationController {
     @GetMapping
     public ResponseEntity<?> callMap(@RequestParam String keyword) {
         //return ResponseEntity.ok().body(mapService.giveInfoByKeyword(keyword));
-        return ResponseEntity.ok().body(locationService.giveInfoByKeywordMono(keyword));
+        return ResponseEntity.ok().body(locationService.giveLatLngByAddress(keyword));
     }
 
 }

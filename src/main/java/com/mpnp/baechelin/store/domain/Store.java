@@ -1,5 +1,6 @@
 package com.mpnp.baechelin.store.domain;
 
+import com.mpnp.baechelin.api.dto.LocationResponseDto;
 import com.mpnp.baechelin.api.dto.PublicApiResponseDto;
 import com.mpnp.baechelin.review.domain.Review;
 import lombok.AllArgsConstructor;
@@ -18,8 +19,8 @@ import java.util.List;
 public class Store {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
+
 
     //    @Column(nullable = false)
     private String category;
@@ -59,6 +60,8 @@ public class Store {
     private List<StoreImage> storeImageList;
 
     public Store(PublicApiResponseDto.Row row) {
+        //storeId - 임시
+        this.id = Integer.parseInt(row.getStoreId());
         this.name = row.getSISULNAME();
         this.address = row.getADDR();
         this.phoneNumber = row.getTEL();
@@ -76,7 +79,6 @@ public class Store {
         this.latitude = row.getLatitude();
         this.longitude = row.getLongitude();
         this.category = row.getCategory();
-
     }
 
     @OneToMany(mappedBy = "storeId", cascade = CascadeType.ALL, orphanRemoval = true)
