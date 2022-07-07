@@ -8,7 +8,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.PropertySources;
 
 @SpringBootApplication(exclude = {SecurityAutoConfiguration.class})
-@PropertySources({ @PropertySource("classpath:application-key.yml") })
+@PropertySources({@PropertySource("classpath:application-key.properties")})
 public class BaechelinApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(BaechelinApplication.class, args);
