@@ -10,4 +10,4 @@ app:
   oauth2:
     # 서버에서 인증을 마치고 프론트엔드로 돌아가는 uri
     authorizedRedirectUris:
-      - http://localhost:9000/user/oauth/redirect
+      - http://localhost:12345/user/oauth/redirect

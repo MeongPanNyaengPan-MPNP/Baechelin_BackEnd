@@ -1,5 +1,6 @@
 package com.mpnp.baechelin.oauth.info.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mpnp.baechelin.oauth.info.OAuth2UserInfo;
 
 import java.util.Map;

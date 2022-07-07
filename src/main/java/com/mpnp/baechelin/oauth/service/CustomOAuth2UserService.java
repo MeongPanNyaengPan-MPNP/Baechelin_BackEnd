@@ -3,6 +3,7 @@ package com.mpnp.baechelin.oauth.service;
 import com.mpnp.baechelin.oauth.entity.ProviderType;
 import com.mpnp.baechelin.oauth.entity.RoleType;
 import com.mpnp.baechelin.oauth.entity.UserPrincipal;
+import com.mpnp.baechelin.oauth.exception.ErrorCode;
 import com.mpnp.baechelin.oauth.exception.OAuthProviderMissMatchException;
 import com.mpnp.baechelin.oauth.info.OAuth2UserInfo;
 import com.mpnp.baechelin.oauth.info.OAuth2UserInfoFactory;
@@ -50,7 +51,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private OAuth2User process(OAuth2UserRequest userRequest, OAuth2User user) {
         // 요청한 유저 정보에 들어있는 provider type을 가져온다.
         ProviderType providerType = ProviderType.valueOf(userRequest.getClientRegistration().getRegistrationId().toUpperCase());
-        log.info("providerType : " + providerType);
+
         // 유저 정보를 가져온다.
         OAuth2UserInfo userInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(providerType, user.getAttributes());
 
@@ -60,10 +61,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         if (savedUser != null) {
             // DB에 유저 정보가 있을 때
             if (providerType != savedUser.getProviderType()) {
-                throw new OAuthProviderMissMatchException(
-                        providerType + "계정으로 로그인된 것 같네요." +
-                                savedUser.getProviderType() + "계정으로 로그인해주세요"
-                );
+                throw new OAuthProviderMissMatchException(ErrorCode.ALREADY_LOGIN_ACCOUNT.getMessage());
             }
             updateUser(savedUser, userInfo);
         } else {

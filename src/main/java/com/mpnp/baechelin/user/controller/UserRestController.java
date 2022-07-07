@@ -18,7 +18,7 @@ public class UserRestController {
     private final UserService userService;
 
     @GetMapping("/oauth/redirect")
-    public AuthResponse<String> loginTest(@RequestParam String token) {
+    public AuthResponse<String> loginTest(@RequestParam(required = false) String token) {
         return AuthResponse.success("access_token", token);
     }
 
