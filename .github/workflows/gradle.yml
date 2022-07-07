@@ -14,7 +14,7 @@ on:
     branches: [ "main" ]
 
 env:
-  PROJECT_NAME: mpnp
+  PROJECT_NAME: baechelin
   BUCKET_NAME: mpnp-s3
   CODE_DEPLOY_APP_NAME: mpnp-cicd
   DEPLOYMENT_GROUP_NAME: mpnp-cicd
@@ -36,8 +36,8 @@ jobs:
         if: true # branch가 develop일 때
         run: |
           cd ./src/main/resources
-          touch ./application-aws.properties
-          echo "${{ secrets.PROPERTIES }}" > ./application-aws.properties
+          touch ./application-key.yml
+          echo "${{ secrets.PROPERTIES }}" > ./application-key.yml
         shell: bash
 
       - name: Grant execute permission for gradlew
