@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mpnp.baechelin.api.config.HttpConfig;
+import com.mpnp.baechelin.config.httpclient.HttpConfig;
 import com.mpnp.baechelin.api.dto.*;
 import com.mpnp.baechelin.api.model.LocationKeywordSearchForm;
 import com.mpnp.baechelin.store.domain.Store;
@@ -48,7 +48,7 @@ public class PublicApiService {
 //                .defaultCookie("cookieKey", "cookieValue")
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML_VALUE)
                 .defaultUriVariables(Collections.singletonMap("url", "http://openapi.seoul.go.kr:8088"))
-                .clientConnector(new ReactorClientHttpConnector(httpConfig.httpConfig())) // 위의 타임아웃 적용
+                .clientConnector(new ReactorClientHttpConnector(httpConfig.httpClient())) // 위의 타임아웃 적용
                 .build();
 
         String key = URLEncoder.encode(publicApiRequestDto.getKey(), "UTF-8"); /*인증키 (sample사용시에는 호출시 제한됩니다.)*/

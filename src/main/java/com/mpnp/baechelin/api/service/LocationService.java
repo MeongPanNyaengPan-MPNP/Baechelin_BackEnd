@@ -3,7 +3,7 @@ package com.mpnp.baechelin.api.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mpnp.baechelin.api.config.HttpConfig;
+import com.mpnp.baechelin.config.httpclient.HttpConfig;
 import com.mpnp.baechelin.api.model.LocationKeywordSearchForm;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,7 +41,7 @@ public class LocationService {
         WebClient client = WebClient.builder()
                 .baseUrl("https://dapi.kakao.com/v2/local/search/keyword.json")
                 .defaultUriVariables(Collections.singletonMap("url", "https://dapi.kakao.com/v2/local/search/keyword.json"))
-                .clientConnector(new ReactorClientHttpConnector(httpConfig.httpConfig())) // 위의 타임아웃 적용
+                .clientConnector(new ReactorClientHttpConnector(httpConfig.httpClient())) // 위의 타임아웃 적용
                 .build();
 
         StringBuilder sb = new StringBuilder();
@@ -82,7 +82,7 @@ public class LocationService {
         WebClient client = WebClient.builder()
                 .baseUrl("https://dapi.kakao.com/v2/local/search/keyword.json")
                 .defaultUriVariables(Collections.singletonMap("url", "https://dapi.kakao.com/v2/local/search/keyword.json"))
-                .clientConnector(new ReactorClientHttpConnector(httpConfig.httpConfig())) // 위의 타임아웃 적용
+                .clientConnector(new ReactorClientHttpConnector(httpConfig.httpClient())) // 위의 타임아웃 적용
                 .build();
         return client.get().uri(uriBuilder
                         -> uriBuilder.queryParam("query", address)
@@ -100,7 +100,7 @@ public class LocationService {
         WebClient client = WebClient.builder()
                 .baseUrl("https://dapi.kakao.com/v2/local/search/keyword.json")
                 .defaultUriVariables(Collections.singletonMap("url", "https://dapi.kakao.com/v2/local/search/keyword.json"))
-                .clientConnector(new ReactorClientHttpConnector(httpConfig.httpConfig())) // 위의타임아웃 적용
+                .clientConnector(new ReactorClientHttpConnector(httpConfig.httpClient())) // 위의타임아웃 적용
                 .build();
         return client.get().uri(uriBuilder
                         -> uriBuilder.queryParam("query", storeName)
