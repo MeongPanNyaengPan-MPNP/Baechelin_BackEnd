@@ -60,7 +60,7 @@ public class SecurityConfig {
                 .and()
                 .authorizeRequests()
                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll() // cors 요청 허용
-                .antMatchers("/user/**", "/store/**", "/api/**").permitAll()
+                .antMatchers("/**").permitAll()
                 .antMatchers("/review/**", "/store/bookmark/**", "/store/register").hasAnyAuthority(RoleType.USER.getCode())
                 .antMatchers("/admin/**").hasAnyAuthority(RoleType.ADMIN.getCode())
                 .anyRequest().authenticated()
