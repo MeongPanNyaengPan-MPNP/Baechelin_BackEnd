@@ -17,12 +17,10 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 public class Store {
-
     @Id
     private int id;
 
-
-    //    @Column(nullable = false)
+    @Column(nullable = false)
     private String category;
 
     @Column(nullable = false)

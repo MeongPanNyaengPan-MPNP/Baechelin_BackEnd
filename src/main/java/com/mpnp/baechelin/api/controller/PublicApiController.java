@@ -6,6 +6,7 @@ import com.mpnp.baechelin.api.service.PublicApiService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
@@ -17,7 +18,7 @@ import java.io.IOException;
 public class PublicApiController {
     private final PublicApiService publicApiService;
 
-    @GetMapping("/api")
+    @PostMapping("/api")
     public ResponseEntity<?> findPublicApi(@RequestBody PublicApiRequestDto publicApiRequestDto) throws IOException {
         return ResponseEntity.ok(publicApiService.processApiToDBWithWebclientMono(publicApiRequestDto));
     }
