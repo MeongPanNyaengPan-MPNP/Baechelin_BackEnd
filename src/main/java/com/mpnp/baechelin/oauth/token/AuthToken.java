@@ -69,7 +69,7 @@ public class AuthToken {
         } catch (UnsupportedJwtException e) {
             log.info("지원되지 않는 형식이나 구성의 JWT 토큰입니다.");
         } catch (IllegalArgumentException e) {
-            log.info("JWT token compact of handler are invalid.");
+            log.info(e.toString().split(":")[1].trim());
         }
         return null;
     }

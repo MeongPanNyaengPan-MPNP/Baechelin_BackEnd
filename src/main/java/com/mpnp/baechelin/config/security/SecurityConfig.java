@@ -10,7 +10,6 @@ import com.mpnp.baechelin.oauth.handler.OAuth2AuthenticationSuccessHandler;
 import com.mpnp.baechelin.oauth.handler.TokenAccessDeniedHandler;
 import com.mpnp.baechelin.oauth.repository.OAuth2AuthorizationRequestBasedOnCookieRepository;
 import com.mpnp.baechelin.oauth.service.CustomOAuth2UserService;
-import com.mpnp.baechelin.oauth.service.CustomUserDetailsService;
 import com.mpnp.baechelin.oauth.token.AuthTokenProvider;
 import com.mpnp.baechelin.user.repository.UserRefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +17,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.BeanIds;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -107,7 +105,7 @@ public class SecurityConfig {
      * 토큰 필터 설정
      * */
     @Bean
-    public TokenAuthenticationFilter tokenAuthenticationFilter() {
+    public  TokenAuthenticationFilter tokenAuthenticationFilter() {
         return new TokenAuthenticationFilter(tokenProvider);
     }
 

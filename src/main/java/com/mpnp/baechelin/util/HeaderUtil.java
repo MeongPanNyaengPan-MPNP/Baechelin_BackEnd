@@ -6,7 +6,7 @@ import javax.servlet.http.HttpServletRequest;
 public class HeaderUtil {
 
     private final static String HEADER_AUTHORIZATION = "Authorization";
-    private final static String TOKEN_PREFIX = "Bearer "; // Bearer 다음에 스페이스바 한번 잊지 말기
+    private final static String TOKEN_PREFIX = "Bearer ";
 
     public static String getAccessToken(HttpServletRequest request) {
         String headerValue = request.getHeader(HEADER_AUTHORIZATION);

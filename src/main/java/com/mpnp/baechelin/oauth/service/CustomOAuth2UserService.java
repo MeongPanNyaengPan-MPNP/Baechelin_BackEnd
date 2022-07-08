@@ -3,12 +3,14 @@ package com.mpnp.baechelin.oauth.service;
 import com.mpnp.baechelin.oauth.entity.ProviderType;
 import com.mpnp.baechelin.oauth.entity.RoleType;
 import com.mpnp.baechelin.oauth.entity.UserPrincipal;
+import com.mpnp.baechelin.oauth.exception.ErrorCode;
 import com.mpnp.baechelin.oauth.exception.OAuthProviderMissMatchException;
 import com.mpnp.baechelin.oauth.info.OAuth2UserInfo;
 import com.mpnp.baechelin.oauth.info.OAuth2UserInfoFactory;
 import com.mpnp.baechelin.user.entity.user.User;
 import com.mpnp.baechelin.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -17,11 +19,10 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-
 /* naver의 oauth2 인증을 통해서 불러온 유저 정보를 처리하기 위한 custom 클래스
  * 소셜 api에서 가져온 유저의 정보를 db에 저장하기 위해 구현
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
@@ -55,15 +56,12 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         OAuth2UserInfo userInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(providerType, user.getAttributes());
 
         // DB에 저장된 유저 정보를 가져온다.
-        User savedUser = userRepository.findBySocialId(userInfo.getId());
+        User savedUser = userRepository.findByEmail(userInfo.getEmail());
 
         if (savedUser != null) {
             // DB에 유저 정보가 있을 때
             if (providerType != savedUser.getProviderType()) {
-                throw new OAuthProviderMissMatchException(
-                        providerType + "계정으로 로그인된 것 같네요." +
-                                savedUser.getProviderType() + "으로 로그인해주세요"
-                );
+                throw new OAuthProviderMissMatchException(ErrorCode.ALREADY_LOGIN_ACCOUNT.getMessage());
             }
             updateUser(savedUser, userInfo);
         } else {

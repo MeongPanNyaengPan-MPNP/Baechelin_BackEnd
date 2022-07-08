@@ -1,7 +1,5 @@
 package com.mpnp.baechelin.oauth.info;
 
-import lombok.Getter;
-
 import java.util.Map;
 
 public abstract class OAuth2UserInfo {

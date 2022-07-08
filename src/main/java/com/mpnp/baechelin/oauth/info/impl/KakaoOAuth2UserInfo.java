@@ -1,5 +1,6 @@
 package com.mpnp.baechelin.oauth.info.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mpnp.baechelin.oauth.info.OAuth2UserInfo;
 
 import java.util.Map;
@@ -29,7 +30,13 @@ public class KakaoOAuth2UserInfo extends OAuth2UserInfo {
 
     @Override
     public String getEmail() {
-        return (String) attributes.get("account_email");
+        Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
+
+        if (kakaoAccount == null) {
+            return null;
+        }
+
+        return (String) kakaoAccount.get("email");
     }
 
     @Override

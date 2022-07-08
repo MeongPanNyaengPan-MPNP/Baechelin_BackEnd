@@ -90,6 +90,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
                 new Date(now.getTime() + appProperties.getAuth().getTokenExpiry())
         );
 
+
         // refresh 토큰 설정
         long refreshTokenExpiry = appProperties.getAuth().getRefreshTokenExpiry();
 
@@ -116,6 +117,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         CookieUtil.deleteCookie(request, response, REFRESH_TOKEN);
         CookieUtil.addCookie(response, REFRESH_TOKEN, refreshToken.getToken(), cookieMaxAge);
 
+        // URL로 토큰 전송
         return UriComponentsBuilder.fromUriString(targetUrl)
                 .queryParam("token", accessToken.getToken())
                 .build().toUriString();
