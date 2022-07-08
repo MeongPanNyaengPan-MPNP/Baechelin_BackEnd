@@ -13,10 +13,10 @@ import java.io.IOException;
 @RestController
 @RequiredArgsConstructor
 public class ApiController {
-//    private final ApiService apiService;
-//
-//    @GetMapping("/api")
-//    public ApiResponseDto findPublicApi(@RequestBody ApiRequestDto apiRequestDto) throws IOException {
-//        return apiService.processApiToDBWithWebclient(apiRequestDto);
-//    }
+    private final ApiService apiService;
+
+    @GetMapping("/api")
+    public ApiResponseDto findPublicApi(@RequestBody ApiRequestDto apiRequestDto) throws IOException {
+        return apiService.processApiToDBWithWebclient(apiRequestDto);
+    }
 }
