@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StopWatch;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -95,7 +96,7 @@ public class PublicApiService {
         RestTemplate restTemplate = new RestTemplate();
         log.warn(uri.toString());
         ResponseEntity<PublicApiResponseDto> resultRe = restTemplate.exchange(
-                uri,HttpMethod.GET,new HttpEntity<>(headers),PublicApiResponseDto.class
+                uri, HttpMethod.GET, new HttpEntity<>(headers), PublicApiResponseDto.class
         );
         PublicApiResponseDto result = resultRe.getBody();
         if (result == null) {
@@ -126,7 +127,7 @@ public class PublicApiService {
 
     private boolean setRowLngLat(PublicApiResponseDto.Row row) throws JsonProcessingException {
         LocationKeywordSearchForm latLngSearchForm = locationService.giveLatLngByAddressRest(row.getADDR());
-        //        LocationKeywordSearchForm latLngSearchForm = locationService.giveLatLngByAddress(row.getADDR());
+//        LocationKeywordSearchForm latLngSearchForm = locationService.giveLatLngByAddress(row.getADDR());
         if (latLngSearchForm == null) return false;
         LocationKeywordSearchForm.Documents latLngDoc = Arrays.stream(latLngSearchForm.getDocuments()).findFirst().orElse(null);
         if (latLngDoc == null)
@@ -139,8 +140,8 @@ public class PublicApiService {
     }
 
     private void setRowCategoryAndId(PublicApiResponseDto.Row row) throws JsonProcessingException {
-        //LocationKeywordSearchForm categorySearchForm = locationService.giveCategoryByLatLngKeyword(row.getLatitude(), row.getLongitude(), row.getSISULNAME());
         LocationKeywordSearchForm categorySearchForm = locationService.giveCategoryByLatLngKeywordRest(row.getLatitude(), row.getLongitude(), row.getSISULNAME());
+//        LocationKeywordSearchForm categorySearchForm = locationService.giveCategoryByLatLngKeyword(row.getLatitude(), row.getLongitude(), row.getSISULNAME());
         LocationKeywordSearchForm.Documents categoryDoc = Arrays.stream(categorySearchForm.getDocuments()).findFirst().orElse(null);
         if (categoryDoc == null || !Arrays.asList("FD6", "CE7").contains(categoryDoc.getCategory_group_code()))
             return;
@@ -155,7 +156,7 @@ public class PublicApiService {
                 .map(Store::new).collect(Collectors.toList());
         // storeRepository 구현 시 save 호출하기
         for (Store store : storeList) {
-            log.debug("miniRow print : {}", store.toString());
+//            log.debug("miniRow print : {}", store.toString());
             if (!storeRepository.existsById(store.getId())) {
                 storeRepository.save(store);
             }

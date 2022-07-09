@@ -45,7 +45,7 @@ public class LocationService {
                         .build())
                 .accept(MediaType.APPLICATION_JSON)
                 .header("Authorization", "KakaoAK 04940cceefec44d7adb62166b7971cd5")
-                .retrieve().bodyToMono(LocationKeywordSearchForm.class).log().flux()
+                .retrieve().bodyToMono(LocationKeywordSearchForm.class).flux()
                 .toStream()
                 .findFirst()
                 .orElse(null);
@@ -69,7 +69,8 @@ public class LocationService {
                         .build())
                 .accept(MediaType.APPLICATION_JSON)
                 .header("Authorization", "KakaoAK 04940cceefec44d7adb62166b7971cd5")
-                .retrieve().bodyToMono(LocationKeywordSearchForm.class).flux()
+                .retrieve().bodyToMono(LocationKeywordSearchForm.class)
+                .flux()
                 .toStream().findFirst()
                 .orElse(null);
     }

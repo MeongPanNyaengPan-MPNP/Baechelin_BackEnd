@@ -14,10 +14,5 @@ import org.springframework.web.bind.annotation.RestController;
 public class LocationController {
     private final LocationService locationService;
 
-    @GetMapping
-    public ResponseEntity<?> callMap(@RequestParam String keyword) {
-        //return ResponseEntity.ok().body(mapService.giveInfoByKeyword(keyword));
-        return ResponseEntity.ok().body(locationService.giveLatLngByAddress(keyword));
-    }
 
 }
