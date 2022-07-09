@@ -12,16 +12,18 @@ import com.mpnp.baechelin.store.domain.Store;
 import com.mpnp.baechelin.store.repository.StoreRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
+import org.springframework.http.*;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StopWatch;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.net.URLEncoder;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -68,7 +70,10 @@ public class PublicApiService {
                 .onStatus(HttpStatus::is5xxServerError, response -> {
                     throw new IllegalAccessError("500");
                 })
-                .bodyToMono(PublicApiResponseDto.class).block();
+                .bodyToMono(PublicApiResponseDto.class).flux()
+                .toStream()
+                .findFirst()
+                .orElse(null);
         if (result == null) {
             return null;
         }
@@ -78,18 +83,52 @@ public class PublicApiService {
 
     }
 
+    public PublicApiResponseDto processApiToDBWithRestTemplate(PublicApiRequestDto publicApiRequestDto) throws UnsupportedEncodingException, JsonProcessingException {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_XML);
+        headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+        URI uri = UriComponentsBuilder
+                .fromUriString("http://openapi.seoul.go.kr:8088")
+                .path("/{key}/{type}/{service}/{start}/{end}")
+                .buildAndExpand(publicApiRequestDto.getKey(), publicApiRequestDto.getType(), publicApiRequestDto.getService(), publicApiRequestDto.getStartIndex(), publicApiRequestDto.getEndIndex())
+                .encode()
+                .toUri();
+        RestTemplate restTemplate = new RestTemplate();
+        log.warn(uri.toString());
+        ResponseEntity<PublicApiResponseDto> resultRe = restTemplate.exchange(
+                uri, HttpMethod.GET, new HttpEntity<>(headers), PublicApiResponseDto.class
+        );
+        PublicApiResponseDto result = resultRe.getBody();
+        if (result == null) {
+            return null;
+        }
+        setInfos(result);
+        saveDTO(result.getTouristFoodInfo().getRow());
+        return result;
+    }
+
     private void setInfos(PublicApiResponseDto publicApiResponseDto) {
         publicApiResponseDto.getTouristFoodInfo().getRow().forEach(row -> {
-                    if (!setRowLngLat(row)) return;
-                    setRowCategoryAndId(row);
+                    try {
+                        if (!setRowLngLat(row)) return;
+                    } catch (JsonProcessingException e) {
+                        throw new RuntimeException(e);
+                    }
+                    try {
+                        setRowCategoryAndId(row);
+                    } catch (JsonProcessingException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
         );
         saveDTO(publicApiResponseDto.getTouristFoodInfo().getRow());
     }
 
 
-    private boolean setRowLngLat(PublicApiResponseDto.Row row) {
-        LocationKeywordSearchForm latLngSearchForm = locationService.giveLatLngByAddress(row.getADDR());
+    private boolean setRowLngLat(PublicApiResponseDto.Row row) throws JsonProcessingException {
+        LocationKeywordSearchForm latLngSearchForm = locationService.giveLatLngByAddressRest(row.getADDR());
+//        LocationKeywordSearchForm latLngSearchForm = locationService.giveLatLngByAddress(row.getADDR());
+        if (latLngSearchForm == null) return false;
         LocationKeywordSearchForm.Documents latLngDoc = Arrays.stream(latLngSearchForm.getDocuments()).findFirst().orElse(null);
         if (latLngDoc == null)
             return false;
@@ -100,12 +139,14 @@ public class PublicApiService {
         return true;
     }
 
-    private void setRowCategoryAndId(PublicApiResponseDto.Row row) {
-        LocationKeywordSearchForm categorySearchForm = locationService.giveCategoryByLatLngKeyword(row.getLatitude(), row.getLongitude(), row.getSISULNAME());
+    private void setRowCategoryAndId(PublicApiResponseDto.Row row) throws JsonProcessingException {
+        LocationKeywordSearchForm categorySearchForm = locationService.giveCategoryByLatLngKeywordRest(row.getLatitude(), row.getLongitude(), row.getSISULNAME());
+//        LocationKeywordSearchForm categorySearchForm = locationService.giveCategoryByLatLngKeyword(row.getLatitude(), row.getLongitude(), row.getSISULNAME());
         LocationKeywordSearchForm.Documents categoryDoc = Arrays.stream(categorySearchForm.getDocuments()).findFirst().orElse(null);
         if (categoryDoc == null || !Arrays.asList("FD6", "CE7").contains(categoryDoc.getCategory_group_code()))
             return;
         row.setStoreId(categoryDoc.getId());
+        row.setSISULNAME(categoryDoc.getPlace_name());
         row.setCategory(categoryFilter(Optional.of(categoryDoc.getCategory_name()).orElse(null)));
     }
 
@@ -115,7 +156,7 @@ public class PublicApiService {
                 .map(Store::new).collect(Collectors.toList());
         // storeRepository 구현 시 save 호출하기
         for (Store store : storeList) {
-            log.debug("miniRow print : {}", store.toString());
+//            log.debug("miniRow print : {}", store.toString());
             if (!storeRepository.existsById(store.getId())) {
                 storeRepository.save(store);
             }
@@ -133,61 +174,7 @@ public class PublicApiService {
     }
 
     private boolean storeValidation(PublicApiResponseDto.Row row) {
-        return row.getLatitude() != null && row.getLongitude() != null &&row.getCategory() != null && row.getStoreId() != null;
-    }
-
-
-    /**
-     * @Param String resultStr :
-     * @Return
-     */
-    private PublicApiResponseDto resultMappingToDto(String resultStr) {
-
-        //private field라서 설정해줘야 한다.
-        objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
-
-        PublicApiResponseDto.TouristFoodInfo touristFoodInfo = null;
-        try {
-            JsonNode jsonNode = objectMapper.readTree(resultStr).get("touristFoodInfo");
-            // list_total_count 생성
-            int list_total_count = Integer.parseInt(jsonNode.get("list_total_count").asText());
-            // Result 생성
-            PublicApiResponseDto.Result result = PublicApiResponseDto.Result.builder()
-                    .CODE(jsonNode.get("RESULT").get("CODE").asText())
-                    .MESSAGE(jsonNode.get("RESULT").get("MESSAGE").asText())
-                    .build();
-
-            // Rows 매핑
-            Iterator<JsonNode> iterator = jsonNode.withArray("row").iterator();
-            List<PublicApiResponseDto.Row> rows = new ArrayList<>();
-            while (iterator.hasNext()) {
-                JsonNode target = iterator.next();
-                PublicApiResponseDto.Row row = objectMapper.treeToValue(target, PublicApiResponseDto.Row.class);
-                Map<String, Object> infos = locationService.giveInfoByKeyword(row.getADDR());
-
-                // 값을 찾았다면 ( Map 내의 "message"가 true 일 경우 )
-                if ((Boolean) infos.get("message")) {
-                    row.setLatitude(infos.get("latitude").toString());
-                    row.setLongitude(infos.get("longitude").toString());
-                    // TODO 카테고리 API 한 번 더 호출
-                    //
-                    row.setCategory(infos.get("category").toString());
-                    rows.add(row);
-                }  // TODO 주소로 값이 조회되지 않을 때 - 버릴 것인가 생각해 보기
-            }
-
-            touristFoodInfo = PublicApiResponseDto.TouristFoodInfo.builder()
-                    .list_total_count(list_total_count)
-                    .RESULT(result)
-                    .row(rows)
-                    .build();
-
-            saveDTO(rows);
-
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-        return PublicApiResponseDto.builder().touristFoodInfo(touristFoodInfo).build();
+        return row.getLatitude() != null && row.getLongitude() != null && row.getCategory() != null && row.getStoreId() != null;
     }
 
 }
