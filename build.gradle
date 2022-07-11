@@ -1,6 +1,14 @@
+buildscript {
+	ext {
+		queryDslVersion = "5.0.0"
+	}
+}
+
 plugins {
 	id 'org.springframework.boot' version '2.7.1'
 	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+	// 2. querydsl plugins 추가
+	id "com.ewerk.gradle.plugins.querydsl" version "1.0.10"
 	id 'java'
 }
 
@@ -29,8 +37,51 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.batch:spring-batch-test'
 	testImplementation 'org.springframework.security:spring-security-test'
+	// WebClient
+	compileOnly 'org.springframework.boot:spring-boot-starter-webflux'
+	compileOnly 'org.projectreactor:reactor-spring:1.0.1.RELEASE'
+	compileOnly 'org.apache.httpcomponents:httpclient:4.5.13'
+	implementation group: 'io.projectreactor.netty', name: 'reactor-netty', version: '1.0.20'
+	// OAuth2
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client:2.7.0'
+	// jwt
+	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+	// validation
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
+	//queryDSL
+	implementation "com.querydsl:querydsl-jpa:${queryDslVersion}"
+	implementation "com.querydsl:querydsl-apt:${queryDslVersion}"
+	// gson 라이브러리
+	implementation 'com.google.code.gson:gson:2.9.0'
+	//JSON 변환을 위한 Jackson Library
+	implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.3'
+	//s3 파일 업로드
+	implementation 'io.awspring.cloud:spring-cloud-starter-aws:2.4.1'
 }
-
 tasks.named('test') {
 	useJUnitPlatform()
+}
+def querydslDir = "$buildDir/generated/querydsl"
+// JPA 사용 여부와 사용할 경로를 설정
+querydsl {
+	jpa = true
+	querydslSourcesDir = querydslDir
+}
+// build 시 사용할 sourceSet 추가
+sourceSets {
+	main.java.srcDir querydslDir
+}
+// querydsl 컴파일시 사용할 옵션 설정
+compileQuerydsl{
+	options.annotationProcessorPath = configurations.querydsl
+}
+// querydsl 이 compileClassPath 를 상속하도록 설정
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+	querydsl.extendsFrom compileClasspath
 }

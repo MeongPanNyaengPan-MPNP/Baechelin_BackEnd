@@ -1,11 +1,12 @@
 package com.mpnp.baechelin;
 
+import com.mpnp.baechelin.config.httpclient.HttpConfig;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.context.annotation.PropertySources;
+import org.springframework.test.context.ContextConfiguration;
 
 @SpringBootTest
+@ContextConfiguration(classes = { HttpConfig.class })
 class BaechelinApplicationTests {
 
 	@Test
