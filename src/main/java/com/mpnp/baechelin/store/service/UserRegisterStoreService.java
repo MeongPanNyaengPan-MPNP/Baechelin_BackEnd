@@ -5,6 +5,8 @@ import com.mpnp.baechelin.store.domain.UserRegisterStoreImg;
 import com.mpnp.baechelin.store.dto.userRegisterStore.UserRegisterStoreRequestDto;
 import com.mpnp.baechelin.store.repository.UserRegisterStoreImgRepository;
 import com.mpnp.baechelin.store.repository.UserRegisterStoreRepository;
+import com.mpnp.baechelin.user.entity.user.User;
+import com.mpnp.baechelin.user.repository.UserRepository;
 import com.mpnp.baechelin.util.AwsS3Manager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,13 +23,16 @@ public class UserRegisterStoreService {
     private final AwsS3Manager awsS3Manager;
     private final UserRegisterStoreRepository userRegisterStoreRepository;
     private final UserRegisterStoreImgRepository userRegisterStoreImgRepository;
+    private final UserRepository userRepository;
 
 
     /**
      * 유저 업장 등록
      * @param userRegisterStoreRequestDto
      */
-    public void registerStore(UserRegisterStoreRequestDto userRegisterStoreRequestDto) {
+    public void registerStore(UserRegisterStoreRequestDto userRegisterStoreRequestDto, String socialId) {
+        User user = userRepository.findBySocialId(socialId);
+
         // 업장 등록
         UserRegisterStore userRegisterStore = UserRegisterStore.builder()
                 .name(userRegisterStoreRequestDto.getName())
@@ -36,6 +41,7 @@ public class UserRegisterStoreService {
                 .toilet(userRegisterStoreRequestDto.getToilet())
                 .heightDifferent(userRegisterStoreRequestDto.getHeightDifferent())
                 .approach(userRegisterStoreRequestDto.getApproach())
+                .user(user)
                 .build();
 
         // 업장의 이미지 여러개 등록

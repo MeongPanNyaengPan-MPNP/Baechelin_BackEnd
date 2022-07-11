@@ -1,5 +1,6 @@
 package com.mpnp.baechelin.store.domain;
 
+import com.mpnp.baechelin.user.entity.user.User;
 import com.mpnp.baechelin.util.TimeStamped;
 import lombok.Builder;
 import lombok.Getter;
@@ -35,8 +36,13 @@ public class UserRegisterStore extends TimeStamped {
     @Column(nullable = false, length = 1)
     private String approach;
 
+    // 연관관계 매핑
     @OneToMany(mappedBy = "userRegisterStore", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserRegisterStoreImg> userRegisterStoreImgList;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "USER_ID", nullable = false)
+    private User user;
 
     @Builder
     public UserRegisterStore(
@@ -45,7 +51,8 @@ public class UserRegisterStore extends TimeStamped {
             String elevator,
             String toilet,
             String heightDifferent,
-            String approach
+            String approach,
+            User user
     ) {
         this.name = name;
         this.address = address;
@@ -53,5 +60,6 @@ public class UserRegisterStore extends TimeStamped {
         this.toilet = toilet;
         this.heightDifferent = heightDifferent;
         this.approach = approach;
+        this.user = user;
     }
 }

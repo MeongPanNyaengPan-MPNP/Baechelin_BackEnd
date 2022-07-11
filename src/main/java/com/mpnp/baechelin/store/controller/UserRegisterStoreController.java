@@ -2,11 +2,11 @@ package com.mpnp.baechelin.store.controller;
 
 import com.mpnp.baechelin.store.dto.userRegisterStore.UserRegisterStoreRequestDto;
 import com.mpnp.baechelin.store.service.UserRegisterStoreService;
-import com.mpnp.baechelin.user.entity.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,8 +26,12 @@ public class UserRegisterStoreController {
      */
     @PostMapping("/register")
     public ResponseEntity<String> registerStore(
-            @ModelAttribute UserRegisterStoreRequestDto userRegisterStoreRequestDto) {
-        userRegisterStoreService.registerStore(userRegisterStoreRequestDto);
+            @ModelAttribute UserRegisterStoreRequestDto userRegisterStoreRequestDto,
+            @AuthenticationPrincipal User userDetails) {
+
+        userRegisterStoreService.registerStore(userRegisterStoreRequestDto, userDetails.getUsername());
         return new ResponseEntity<>("업장 등록 성공", HttpStatus.OK);
     }
+
+
 }
