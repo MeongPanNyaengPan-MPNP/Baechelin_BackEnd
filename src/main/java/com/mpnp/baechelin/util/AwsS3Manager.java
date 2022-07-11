@@ -49,7 +49,7 @@ public class AwsS3Manager {
                 throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다.");
             }
 
-            fileNameList.add(fileName);
+            fileNameList.add(String.format("https://%s.s3.amazonaws.com/%s", bucket, fileName));
         });
 
         return fileNameList;
