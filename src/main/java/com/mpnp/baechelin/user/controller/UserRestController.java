@@ -1,31 +1,31 @@
 package com.mpnp.baechelin.user.controller;
 
-import com.mpnp.baechelin.user.domain.User;
+import com.mpnp.baechelin.oauth.common.AuthResponse;
+import com.mpnp.baechelin.user.entity.user.User;
 import com.mpnp.baechelin.user.service.UserService;
-import com.mpnp.baechelin.util.OAuthService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @RestController
-@RequestMapping("user")
+@RequestMapping("/user")
 @RequiredArgsConstructor
 public class UserRestController {
 
     private final UserService userService;
 
-    private final OAuthService oAuthService;
+    @GetMapping("/oauth/redirect")
+    public AuthResponse<String> loginTest(@RequestParam(required = false) String token) {
+        return AuthResponse.success("access_token", token);
+    }
 
-    @RequestMapping("")
-    public String getTokenTest(@RequestParam String code) {
-        System.out.println("#######" + code);
+    @GetMapping
+    public AuthResponse<User> getUser(@AuthenticationPrincipal org.springframework.security.core.userdetails.User principal) {
+        User user = userService.getUser(principal.getUsername());
 
-        String access_token =oAuthService.getKakaoAccessToken(code);
-        System.out.println("###access_token" + access_token);
-
-        return "index";
+        return AuthResponse.success("user", user);
     }
 }

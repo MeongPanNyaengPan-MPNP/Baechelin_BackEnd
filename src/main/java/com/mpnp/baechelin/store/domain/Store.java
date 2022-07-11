@@ -1,7 +1,7 @@
 package com.mpnp.baechelin.store.domain;
 
-import com.mpnp.baechelin.api.dto.ApiResponseDto;
 import com.mpnp.baechelin.bookmark.domain.Bookmark;
+import com.mpnp.baechelin.api.dto.PublicApiResponseDto;
 import com.mpnp.baechelin.review.domain.Review;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,11 +15,10 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor
-@Builder @AllArgsConstructor
+@Builder
+@AllArgsConstructor
 public class Store {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
 
     @Column(nullable = false)
@@ -46,7 +45,7 @@ public class Store {
     @Column(nullable = false)
     private String parking;
 
-    @Column(nullable = false)
+    //    @Column(nullable = false)
     private String phoneNumber;
 
     @Column(nullable = false)
@@ -59,7 +58,9 @@ public class Store {
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<StoreImage> storeImageList;
 
-    public Store(ApiResponseDto.Row row) {
+    public Store(PublicApiResponseDto.Row row) {
+        //storeId - 임시
+        this.id = Integer.parseInt(row.getStoreId());
         this.name = row.getSISULNAME();
         this.address = row.getADDR();
         this.phoneNumber = row.getTEL();
@@ -73,6 +74,10 @@ public class Store {
         this.elevator = row.getST4();
         //화장실
         this.toilet = row.getST5();
+
+        this.latitude = row.getLatitude();
+        this.longitude = row.getLongitude();
+        this.category = row.getCategory();
     }
 
     @OneToMany(mappedBy = "storeId", cascade = CascadeType.ALL, orphanRemoval = true)

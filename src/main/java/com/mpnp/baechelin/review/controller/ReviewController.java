@@ -18,24 +18,24 @@ public class ReviewController {
     private final ReviewService reviewService;
 
     /**리뷰 작성*/
-    @PostMapping("/api/review")
-    public ReviewResDTO review(@RequestParam double point,
-                               @RequestParam String comment,
-                               @RequestParam int storeId,
-                               @RequestParam int userId,
-                               @RequestParam(required = false) MultipartFile imageFile) throws IOException {
-
-        ReviewReqDTO reviewReqDTO =new ReviewReqDTO();
-        reviewReqDTO
-                .builder()
-                .point(point)
-                .comment(comment)
-                .storeId(storeId)
-                .userId(userId)
-                .imageFile(imageFile)
-                .build();
-
-        reviewService.review(reviewReqDTO);
-        return null;
-    }
+//    @PostMapping("/review")
+//    public ReviewResDTO review(@RequestParam double point,
+//                               @RequestParam String comment,
+//                               @RequestParam int storeId,
+//                               @RequestParam int userId,
+//                               @RequestParam(required = false) MultipartFile imageFile) throws IOException {
+//
+//        ReviewReqDTO reviewReqDTO =new ReviewReqDTO();
+//        reviewReqDTO
+//                .builder()
+//                .point(point)
+//                .comment(comment)
+//                .storeId(storeId)
+//                .userId(userId)
+//                .imageFile(imageFile)
+//                .build();
+//
+//        reviewService.review(reviewReqDTO);
+//        return null;
+//    }
 }
