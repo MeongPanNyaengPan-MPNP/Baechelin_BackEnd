@@ -10,6 +10,7 @@ import com.mpnp.baechelin.api.dto.*;
 import com.mpnp.baechelin.api.model.LocationKeywordSearchForm;
 import com.mpnp.baechelin.store.domain.Store;
 import com.mpnp.baechelin.store.repository.StoreRepository;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
@@ -41,47 +42,46 @@ public class PublicApiService {
      */
     private final StoreRepository storeRepository;
     private final LocationService locationService;
-    private final HttpConfig httpConfig;
-    ObjectMapper objectMapper = new ObjectMapper();
+//    private final HttpConfig httpConfig;
 
-    public PublicApiResponseDto processApiToDBWithWebclientMono(PublicApiRequestDto publicApiRequestDto) throws UnsupportedEncodingException {
-        WebClient client = WebClient.builder()
-                .baseUrl("http://openapi.seoul.go.kr:8088")
-//                .defaultCookie("cookieKey", "cookieValue")
-                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML_VALUE)
-                .defaultUriVariables(Collections.singletonMap("url", "http://openapi.seoul.go.kr:8088"))
-                .clientConnector(new ReactorClientHttpConnector(httpConfig.httpClient())) // 위의 타임아웃 적용
-                .build();
-
-        String key = URLEncoder.encode(publicApiRequestDto.getKey(), "UTF-8"); /*인증키 (sample사용시에는 호출시 제한됩니다.)*/
-        String type = URLEncoder.encode(publicApiRequestDto.getType(), "UTF-8"); /*요청파일타입 (xml,xmlf,xls,json) */
-        String service = URLEncoder.encode(publicApiRequestDto.getService(), "UTF-8"); /*서비스명 (대소문자 구분 필수입니다.)*/
-        String start = URLEncoder.encode(String.valueOf(publicApiRequestDto.getStartIndex()), "UTF-8"); /*요청시작위치 (sample인증키 사용시 5이내 숫자)*/
-        String end = URLEncoder.encode(String.valueOf(publicApiRequestDto.getEndIndex()), "UTF-8"); /*요청종료위치(sample인증키 사용시 5이상 숫자 선택 안 됨)*/
-
-        PublicApiResponseDto result = client.get().uri(
-                        uriBuilder -> uriBuilder.pathSegment(key, type, service, start, end).path("/")
-                                .build())
-                .accept(MediaType.APPLICATION_JSON)
-                .retrieve()
-                .onStatus(HttpStatus::is4xxClientError, response -> {
-                    throw new IllegalAccessError("400");
-                })
-                .onStatus(HttpStatus::is5xxServerError, response -> {
-                    throw new IllegalAccessError("500");
-                })
-                .bodyToMono(PublicApiResponseDto.class).flux()
-                .toStream()
-                .findFirst()
-                .orElse(null);
-        if (result == null) {
-            return null;
-        }
-        setInfos(result);
-        saveDTO(result.getTouristFoodInfo().getRow());
-        return result;
-
-    }
+//    public PublicApiResponseDto processApiToDBWithWebclientMono(PublicApiRequestDto publicApiRequestDto) throws UnsupportedEncodingException {
+//        WebClient client = WebClient.builder()
+//                .baseUrl("http://openapi.seoul.go.kr:8088")
+////                .defaultCookie("cookieKey", "cookieValue")
+//                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML_VALUE)
+//                .defaultUriVariables(Collections.singletonMap("url", "http://openapi.seoul.go.kr:8088"))
+//                .clientConnector(new ReactorClientHttpConnector(httpConfig.httpClient())) // 위의 타임아웃 적용
+//                .build();
+//
+//        String key = URLEncoder.encode(publicApiRequestDto.getKey(), "UTF-8"); /*인증키 (sample사용시에는 호출시 제한됩니다.)*/
+//        String type = URLEncoder.encode(publicApiRequestDto.getType(), "UTF-8"); /*요청파일타입 (xml,xmlf,xls,json) */
+//        String service = URLEncoder.encode(publicApiRequestDto.getService(), "UTF-8"); /*서비스명 (대소문자 구분 필수입니다.)*/
+//        String start = URLEncoder.encode(String.valueOf(publicApiRequestDto.getStartIndex()), "UTF-8"); /*요청시작위치 (sample인증키 사용시 5이내 숫자)*/
+//        String end = URLEncoder.encode(String.valueOf(publicApiRequestDto.getEndIndex()), "UTF-8"); /*요청종료위치(sample인증키 사용시 5이상 숫자 선택 안 됨)*/
+//
+//        PublicApiResponseDto result = client.get().uri(
+//                        uriBuilder -> uriBuilder.pathSegment(key, type, service, start, end).path("/")
+//                                .build())
+//                .accept(MediaType.APPLICATION_JSON)
+//                .retrieve()
+//                .onStatus(HttpStatus::is4xxClientError, response -> {
+//                    throw new IllegalAccessError("400");
+//                })
+//                .onStatus(HttpStatus::is5xxServerError, response -> {
+//                    throw new IllegalAccessError("500");
+//                })
+//                .bodyToMono(PublicApiResponseDto.class).flux()
+//                .toStream()
+//                .findFirst()
+//                .orElse(null);
+//        if (result == null) {
+//            return null;
+//        }
+//        setInfos(result);
+//        saveDTO(result.getTouristFoodInfo().getRow());
+//        return result;
+//
+//    }
 
     public PublicApiResponseDto processApiToDBWithRestTemplate(PublicApiRequestDto publicApiRequestDto) throws UnsupportedEncodingException, JsonProcessingException {
         HttpHeaders headers = new HttpHeaders();
