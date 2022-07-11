@@ -1,6 +1,7 @@
 package com.mpnp.baechelin.user.entity.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.mpnp.baechelin.bookmark.domain.Folder;
 import com.mpnp.baechelin.oauth.entity.ProviderType;
 import com.mpnp.baechelin.oauth.entity.RoleType;
 import com.mpnp.baechelin.review.domain.Review;
@@ -52,6 +53,13 @@ public class User extends TimeStamped {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private RoleType roleType;
+
+    // 연관관계 매핑
+    @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Folder> folderList;
+
+    @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Review> reviewsList;
 
     @Builder
     public User(String socialId,
