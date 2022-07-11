@@ -4,7 +4,7 @@ import com.mpnp.baechelin.review.dto.ReviewReqDTO;
 import com.mpnp.baechelin.review.service.ReviewService;
 import com.mpnp.baechelin.store.domain.Store;
 import com.mpnp.baechelin.tag.domain.Tag;
-import com.mpnp.baechelin.user.domain.User;
+import com.mpnp.baechelin.user.entity.user.User;
 import com.mpnp.baechelin.util.TimeStamped;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

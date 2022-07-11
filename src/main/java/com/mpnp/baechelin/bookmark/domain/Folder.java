@@ -2,7 +2,7 @@ package com.mpnp.baechelin.bookmark.domain;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.mpnp.baechelin.user.domain.User;
+import com.mpnp.baechelin.user.entity.user.User;
 import com.mpnp.baechelin.util.TimeStamped;
 import lombok.*;
 

@@ -6,7 +6,7 @@ import com.mpnp.baechelin.bookmark.dto.BookmarkReqDTO;
 import com.mpnp.baechelin.bookmark.repository.BookmarkRepository;
 import com.mpnp.baechelin.bookmark.repository.FolderRepository;
 import com.mpnp.baechelin.store.domain.Store;
-import com.mpnp.baechelin.store.domain.repository.StoreRepository;
+import com.mpnp.baechelin.store.repository.StoreRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
