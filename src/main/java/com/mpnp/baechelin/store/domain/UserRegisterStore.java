@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Getter
@@ -33,6 +34,9 @@ public class UserRegisterStore extends TimeStamped {
 
     @Column(nullable = false, length = 1)
     private String approach;
+
+    @OneToMany(mappedBy = "userRegisterStore", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserRegisterStoreImg> userRegisterStoreImgList;
 
     @Builder
     public UserRegisterStore(
