@@ -24,7 +24,7 @@ public class UserInfoResponseDto {
 
     public UserInfoResponseDto(User user) {
         this.name = user.getName();
-        this.reviewList = user.getReviewList().stream().map(ReviewResponseDto::new).collect(Collectors.toList());
+        this.reviewList = user.getReviewsList().stream().map(ReviewResponseDto::new).collect(Collectors.toList());
         this.bookmarkFolderList = user.getFolderList().stream().map(BookmarkFolderResponseDto::new).collect(Collectors.toList());
         //folder
 
