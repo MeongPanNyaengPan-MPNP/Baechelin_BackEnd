@@ -37,7 +37,7 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.batch:spring-batch-test'
 	testImplementation 'org.springframework.security:spring-security-test'
-	// WebClient
+// WebClient
 	compileOnly 'org.springframework.boot:spring-boot-starter-webflux'
 	compileOnly 'org.projectreactor:reactor-spring:1.0.1.RELEASE'
 	compileOnly 'org.apache.httpcomponents:httpclient:4.5.13'
@@ -54,9 +54,15 @@ dependencies {
 	//queryDSL
 	implementation "com.querydsl:querydsl-jpa:${queryDslVersion}"
 	implementation "com.querydsl:querydsl-apt:${queryDslVersion}"
-
-
-
+	// gson 라이브러리
+	implementation 'com.google.code.gson:gson:2.9.0'
+	//JSON 변환을 위한 Jackson Library
+	implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.3'
+	//s3 파일 업로드
+	compileOnly 'org.springframework.cloud:spring-cloud-starter-aws:2.0.1.RELEASE'
+	implementation 'com.amazonaws:aws-java-sdk-s3:1.11.475'
+	implementation 'com.amazonaws:aws-java-sdk-secretsmanager:1.11.339'
+	implementation 'com.amazonaws:aws-encryption-sdk-java:1.6.0'
 }
 tasks.named('test') {
 	useJUnitPlatform()
