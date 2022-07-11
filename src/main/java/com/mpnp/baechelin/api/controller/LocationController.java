@@ -2,7 +2,7 @@ package com.mpnp.baechelin.api.controller;
 
 import com.mpnp.baechelin.api.service.LocationService;
 import com.mpnp.baechelin.store.domain.Store;
-import com.mpnp.baechelin.store.repository.StoreQueryRepository;
+import com.mpnp.baechelin.api.repository.MapQueryRepository;
 import com.mpnp.baechelin.store.repository.StoreRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +22,7 @@ import java.util.List;
 @RequestMapping("/map")
 public class LocationController {
     private final LocationService locationService;
-    private final StoreQueryRepository storeQueryRepository;
+    private final MapQueryRepository mapQueryRepository;
     private final StoreRepository storeRepository;
 
     // TODO 위도, 경도를 두 개 받아 해당 범위 안에 있는 Store 리턴하기
