@@ -18,6 +18,7 @@ public class StoreController {
 
     @GetMapping
     public List<StoreResponseDto> getStoreList() {
-        return null;
+        List<StoreResponseDto> storeList = storeService.getStoreList();
+        return storeList;
     }
 }

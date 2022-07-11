@@ -4,7 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.math.BigDecimal;
 import java.util.List;
 
 @Getter
@@ -13,8 +13,8 @@ public class StoreResponseDto {
     private int storeId;
     private String category;
     private String name;
-    private String latitude;
-    private String longitude;
+    private BigDecimal latitude;
+    private BigDecimal longitude;
     private String address;
     private String elevator;
     private String toilet;
@@ -23,7 +23,6 @@ public class StoreResponseDto {
     private String heightDifferent;
     private String approach;
     private List<StoreImgResponseDto> storeImgList;
-    private LocalDateTime storeModifiedAt;
     private double pointAvg;
 //    private List<ReviewResDTO> reviewList;
 
@@ -32,8 +31,8 @@ public class StoreResponseDto {
             int storeId,
             String category,
             String name,
-            String latitude,
-            String longitude,
+            BigDecimal latitude,
+            BigDecimal longitude,
             String address,
             String elevator,
             String toilet,
@@ -42,7 +41,6 @@ public class StoreResponseDto {
             String heightDifferent,
             String approach,
             List<StoreImgResponseDto> storeImgList,
-            LocalDateTime storeModifiedAt,
             double pointAvg) {
 
         this.storeId = storeId;
@@ -58,7 +56,6 @@ public class StoreResponseDto {
         this.heightDifferent = heightDifferent;
         this.approach = approach;
         this.storeImgList = storeImgList;
-        this.storeModifiedAt = storeModifiedAt;
         this.pointAvg = pointAvg;
     }
 }
