@@ -1,6 +1,7 @@
 package com.mpnp.baechelin.user.entity.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.mpnp.baechelin.bookmark.domain.Folder;
 import com.mpnp.baechelin.oauth.entity.ProviderType;
 import com.mpnp.baechelin.oauth.entity.RoleType;
 import com.mpnp.baechelin.review.domain.Review;
@@ -14,6 +15,7 @@ import lombok.Setter;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -70,4 +72,10 @@ public class User extends TimeStamped {
         this.providerType = providerType;
         this.roleType = roleType;
     }
+
+    @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Review> reviewList;
+
+    @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Folder> folderList = new ArrayList<>();
 }

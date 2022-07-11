@@ -7,10 +7,10 @@ import com.mpnp.baechelin.review.domain.Review;
 import com.mpnp.baechelin.review.dto.ReviewReqDTO;
 import com.mpnp.baechelin.review.repository.ReviewRepository;
 import com.mpnp.baechelin.store.domain.Store;
-import com.mpnp.baechelin.store.domain.repository.StoreRepository;
+import com.mpnp.baechelin.store.repository.StoreRepository;
 import com.mpnp.baechelin.tag.domain.Tag;
 import com.mpnp.baechelin.tag.repository.TagRepository;
-import com.mpnp.baechelin.user.domain.User;
+import com.mpnp.baechelin.user.entity.user.User;
 import com.mpnp.baechelin.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +29,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ReviewService {
     private final ReviewRepository  reviewRepository;
-    private final UserRepository    userRepository;
+    private final UserRepository userRepository;
     private final StoreRepository storeRepository;
     private final TagRepository     tagRepository;
     private final AmazonS3Client amazonS3Client;
