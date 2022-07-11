@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,12 +28,11 @@ public class Store {
 
     @Column(nullable = false)
     private String name;
+    @Column(nullable = false, precision = 25, scale = 22)
+    private BigDecimal latitude;
 
-    @Column(nullable = false)
-    private String latitude;
-
-    @Column(nullable = false)
-    private String longitude;
+    @Column(nullable = false, precision = 25, scale = 22)
+    private BigDecimal longitude;
 
     @Column(nullable = false)
     private String address;
@@ -76,8 +76,8 @@ public class Store {
         //화장실
         this.toilet = row.getST5();
 
-        this.latitude = row.getLatitude();
-        this.longitude = row.getLongitude();
+        this.latitude = new BigDecimal(row.getLatitude());
+        this.longitude = new BigDecimal(row.getLongitude());
         this.category = row.getCategory();
     }
 
