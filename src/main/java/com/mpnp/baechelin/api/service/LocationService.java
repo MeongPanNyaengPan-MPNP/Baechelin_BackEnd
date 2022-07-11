@@ -1,14 +1,13 @@
 package com.mpnp.baechelin.api.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mpnp.baechelin.api.dto.PublicApiResponseDto;
 import com.mpnp.baechelin.config.httpclient.HttpConfig;
 import com.mpnp.baechelin.api.model.LocationKeywordSearchForm;
+import com.mpnp.baechelin.store.domain.Store;
+import com.mpnp.baechelin.store.repository.StoreQueryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.*;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
@@ -17,16 +16,17 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.transaction.Transactional;
+import java.math.BigDecimal;
 import java.net.URI;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
-@Transactional
 @Slf4j
 @RequiredArgsConstructor
+@Transactional
 public class LocationService {
     private final HttpConfig httpConfig;
+    private final StoreQueryRepository storeQueryRepository;
         /**
      * @param address 주소
      * @return LocationKeywordSearchForm의 규격에 맞는 결과 하나를 가져옴
@@ -123,5 +123,8 @@ public class LocationService {
         );
         return resultRe.getBody();
 
+    }
+    public List<Store> giveStoresByRange(BigDecimal latStart, BigDecimal latEnd, BigDecimal lngStart, BigDecimal lngEnd, Pageable pageable) {
+        return storeQueryRepository.findBetweenLngLat(latStart, latEnd, lngStart, lngEnd, pageable);
     }
 }
