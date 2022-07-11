@@ -23,3 +23,12 @@ logging.level:
 
 server:
   port: 9000
+
+
+cloud:
+  aws:
+    s3:
+      accessKey: AKIA6F6Q3HYAFQWJW5OB
+      secretKey: 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
+      region: ap-northeast-2
+      bucket: mykokoa

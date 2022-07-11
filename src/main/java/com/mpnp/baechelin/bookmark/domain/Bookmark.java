@@ -1,10 +1,8 @@
 package com.mpnp.baechelin.bookmark.domain;
 
 import com.mpnp.baechelin.store.domain.Store;
-import com.mpnp.baechelin.user.domain.User;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.mpnp.baechelin.util.TimeStamped;
+import lombok.*;
 
 import javax.persistence.*;
 
@@ -12,15 +10,17 @@ import javax.persistence.*;
 @Setter
 @Getter
 @NoArgsConstructor
-public class Bookmark {
+@AllArgsConstructor
+@Builder
+public class Bookmark extends TimeStamped {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="UESR_ID", nullable = false)
-    private User userId;
+    @JoinColumn(name="FOLDER_ID", nullable = false)
+    private Folder folderId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="STORE_ID", nullable = false)

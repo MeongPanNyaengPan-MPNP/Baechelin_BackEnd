@@ -1,6 +1,7 @@
 package com.mpnp.baechelin.user.domain;
 
 import com.mpnp.baechelin.bookmark.domain.Bookmark;
+import com.mpnp.baechelin.bookmark.domain.Folder;
 import com.mpnp.baechelin.review.domain.Review;
 import com.mpnp.baechelin.util.TimeStamped;
 import lombok.Builder;
@@ -8,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -43,6 +45,6 @@ public class User extends TimeStamped {
     private List<Review> reviewList;
 
     @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Bookmark> BookmarkList;
+    private List<Folder> folderList = new ArrayList<>();
 
 }
