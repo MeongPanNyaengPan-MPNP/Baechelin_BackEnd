@@ -34,10 +34,12 @@ public class StoreController {
                                                    @RequestParam BigDecimal latEnd,
                                                    @RequestParam BigDecimal lngStart,
                                                    @RequestParam BigDecimal lngEnd,
+                                                   @RequestParam(required = false) String category,
+                                                   @RequestParam(required = false) List<String> facility,
                                                    // sort 기준 정하기
                                                    //@PageableDefault(sort = {""}, direction = Sort.Direction.DESC) Pageable pageable){
                                                    @PageableDefault Pageable pageable) {
-        List<Store> betweenLngLat = storeQueryRepository.findBetweenLngLat(latStart, latEnd, lngStart, lngEnd, pageable);
-        return betweenLngLat.stream().map(storeService::storeToResDto).collect(Collectors.toList());
+        List<Store> betweenLngLat = storeQueryRepository.findBetweenLngLat(latStart, latEnd, lngStart, lngEnd, category, facility, pageable);
+        return betweenLngLat.parallelStream().map(storeService::storeToResDto).collect(Collectors.toList());// 순서보장
     }
 }
