@@ -16,8 +16,8 @@ public class FolderController {
     private final FolderService folderService;
 
 
-    /* 폴더 신규 생성 */
-    @PostMapping("/api/folder")
+    /** 폴더 신규 생성 */
+    @PostMapping("/folder")
     public void folder (@RequestBody FolderReqDTO folderReqDTO){
 
         folderService.folder(folderReqDTO);
@@ -25,7 +25,7 @@ public class FolderController {
 
     /* 폴더 삭제 -> 삭제 시 안에 담긴 모든 북마크가 삭제됨 */
 
-    @DeleteMapping("/api/folder/{folderId}")
+    @DeleteMapping("/folder/{folderId}")
     public void folderDelete (@PathVariable int folderId){
 
         folderService.folderDelete(folderId);
@@ -33,14 +33,14 @@ public class FolderController {
 
     /* 폴더 명 변경 */
 
-    @PutMapping("/api/folderUpdate/{folderId}")
+    @PutMapping("/folderUpdate/{folderId}")
     public void folderUpdate (@PathVariable int folderId, @RequestParam String newFolderName){
         System.out.println(newFolderName);
 
         folderService.folderUpdate(folderId, newFolderName);
     }
 
-    @PutMapping("/api/folderList/{userId}")
+    @PutMapping("/folderList/{userId}")
     public List<FolderResDTO> folderList (@PathVariable int userId){
 
         return folderService.folderList(userId);

@@ -18,7 +18,7 @@ public class ReviewController {
     private final ReviewService reviewService;
 
     /**리뷰 작성*/
-    @PostMapping("/api/review")
+    @PostMapping("/review")
     public ReviewResDTO review(@RequestParam double point,
                                @RequestParam String comment,
                                @RequestParam int storeId,
@@ -26,7 +26,7 @@ public class ReviewController {
                                @RequestParam(required = false) MultipartFile imageFile) throws IOException {
 
         ReviewReqDTO reviewReqDTO =new ReviewReqDTO();
-        reviewReqDTO
+        ReviewReqDTO
                 .builder()
                 .point(point)
                 .comment(comment)
