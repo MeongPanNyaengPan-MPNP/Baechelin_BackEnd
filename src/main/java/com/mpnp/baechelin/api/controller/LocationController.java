@@ -22,7 +22,6 @@ import java.util.List;
 @RequestMapping("/map")
 public class LocationController {
     private final LocationService locationService;
-    private final MapQueryRepository mapQueryRepository;
     private final StoreRepository storeRepository;
 
     // TODO 위도, 경도를 두 개 받아 해당 범위 안에 있는 Store 리턴하기

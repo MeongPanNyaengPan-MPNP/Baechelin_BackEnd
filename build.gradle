@@ -41,7 +41,8 @@ dependencies {
 	compileOnly 'org.springframework.boot:spring-boot-starter-webflux'
 	compileOnly 'org.projectreactor:reactor-spring:1.0.1.RELEASE'
 	compileOnly 'org.apache.httpcomponents:httpclient:4.5.13'
-	implementation group: 'io.projectreactor.netty', name: 'reactor-netty', version: '1.0.20'
+	implementation 'org.springframework.boot:spring-boot-starter-reactor-netty:2.7.1'
+
 	// OAuth2
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client:2.7.0'
 	// jwt
