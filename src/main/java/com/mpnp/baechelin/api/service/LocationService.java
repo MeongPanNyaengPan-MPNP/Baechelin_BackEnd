@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mpnp.baechelin.config.httpclient.HttpConfig;
 import com.mpnp.baechelin.api.model.LocationKeywordSearchForm;
 import com.mpnp.baechelin.store.domain.Store;
-import com.mpnp.baechelin.store.repository.StoreQueryRepository;
+import com.mpnp.baechelin.api.repository.MapQueryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -26,7 +26,7 @@ import java.util.*;
 @Transactional
 public class LocationService {
     private final HttpConfig httpConfig;
-    private final StoreQueryRepository storeQueryRepository;
+    private final MapQueryRepository mapQueryRepository;
         /**
      * @param address 주소
      * @return LocationKeywordSearchForm의 규격에 맞는 결과 하나를 가져옴
@@ -125,6 +125,6 @@ public class LocationService {
 
     }
     public List<Store> giveStoresByRange(BigDecimal latStart, BigDecimal latEnd, BigDecimal lngStart, BigDecimal lngEnd, Pageable pageable) {
-        return storeQueryRepository.findBetweenLngLat(latStart, latEnd, lngStart, lngEnd, pageable);
+        return mapQueryRepository.findBetweenLngLat(latStart, latEnd, lngStart, lngEnd, pageable);
     }
 }
