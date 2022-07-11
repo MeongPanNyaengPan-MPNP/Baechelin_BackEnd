@@ -60,7 +60,7 @@ public class Store {
 
     public Store(PublicApiResponseDto.Row row) {
         //storeId - 임시
-        this.id = Integer.parseInt(row.getStoreId());
+        this.id = row.getStoreId();
         this.name = row.getSISULNAME();
         this.address = row.getADDR();
         this.phoneNumber = row.getTEL();
@@ -75,8 +75,8 @@ public class Store {
         //화장실
         this.toilet = row.getST5();
 
-        this.latitude = new BigDecimal(row.getLatitude());
-        this.longitude = new BigDecimal(row.getLongitude());
+        this.latitude = row.getLatitude();
+        this.longitude = row.getLongitude();
         this.category = row.getCategory();
     }
 

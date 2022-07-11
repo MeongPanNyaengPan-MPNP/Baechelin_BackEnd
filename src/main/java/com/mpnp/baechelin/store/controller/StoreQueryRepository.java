@@ -1,4 +1,4 @@
-package com.mpnp.baechelin.api.repository;
+package com.mpnp.baechelin.store.controller;
 
 import com.mpnp.baechelin.store.domain.Store;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -14,21 +14,20 @@ import static com.mpnp.baechelin.store.domain.QStore.store;
 
 @Repository
 @Transactional
-public class MapQueryRepository extends QuerydslRepositorySupport {
+public class StoreQueryRepository extends QuerydslRepositorySupport {
     private final JPAQueryFactory queryFactory;
 
-    public MapQueryRepository(JPAQueryFactory  queryFactory) {
+    public StoreQueryRepository(JPAQueryFactory  queryFactory) {
         super(Store.class);
         this.queryFactory = queryFactory;
     }
-
 
     public List<Store> findBetweenLngLat(BigDecimal latStart,
                                          BigDecimal latEnd,
                                          BigDecimal lngStart,
                                          BigDecimal lngEnd,
                                          Pageable pageable) {
-        return queryFactory.selectFrom(store)
+        List<Store> storeList = queryFactory.selectFrom(store)
                 .where(store.latitude.goe(latStart),
                         store.latitude.loe(latEnd),
                         store.longitude.goe(lngStart),
@@ -36,5 +35,6 @@ public class MapQueryRepository extends QuerydslRepositorySupport {
                 .limit(pageable.getPageSize())
                 .offset(pageable.getOffset())
                 .fetch();
+        return storeList;
     }
 }
