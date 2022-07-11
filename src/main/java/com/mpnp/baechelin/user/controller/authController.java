@@ -44,9 +44,9 @@ public class authController {
         // access token 확인
         String accessToken = HeaderUtil.getAccessToken(request);
         AuthToken authToken = tokenProvider.convertAuthToken(accessToken);
-        if (!authToken.validate()) {
-            return AuthResponse.invalidAccessToken();
-        }
+//        if (!authToken.validate()) {
+//            return AuthResponse.invalidAccessToken();
+//        }
 
         // expired access token 인지 확인
         Claims claims = authToken.getExpiredTokenClaims();
@@ -63,7 +63,7 @@ public class authController {
                 .orElse((null));
         AuthToken authRefreshToken = tokenProvider.convertAuthToken(refreshToken);
 
-        if (authRefreshToken.validate()) {
+        if (!authRefreshToken.validate()) {
             return AuthResponse.invalidRefreshToken();
         }
 
