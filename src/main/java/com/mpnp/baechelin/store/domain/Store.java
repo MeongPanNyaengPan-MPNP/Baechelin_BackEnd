@@ -1,7 +1,8 @@
 package com.mpnp.baechelin.store.domain;
 
-import com.mpnp.baechelin.api.dto.LocationResponseDto;
+
 import com.mpnp.baechelin.api.dto.PublicApiResponseDto;
+import com.mpnp.baechelin.bookmark.domain.Bookmark;
 import com.mpnp.baechelin.review.domain.Review;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -80,7 +82,10 @@ public class Store {
     }
 
     @OneToMany(mappedBy = "storeId", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Review> reviewList;
+    private List<Review> reviewList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "storeId", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Bookmark> BookmarkList = new ArrayList<>();
 
 
 }
