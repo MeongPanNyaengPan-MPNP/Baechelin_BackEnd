@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class BookmarkController {
     private final BookmarkService bookmarkService;
 
-    /* 북마크 생성 폴더 담기 */
-    @PostMapping("/api/bookmark")
+    /** 북마크 생성 폴더 담기 */
+    @PostMapping("/bookmark")
     public void bookmark(@RequestBody BookmarkReqDTO bookmarkReqDTO){
 
         bookmarkService.bookmark(bookmarkReqDTO);

@@ -29,7 +29,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ReviewService {
     private final ReviewRepository  reviewRepository;
-    private final UserRepository    userRepository;
+    private final UserRepository userRepository;
     private final StoreRepository storeRepository;
     private final TagRepository     tagRepository;
     private final AmazonS3Client amazonS3Client;

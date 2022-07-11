@@ -1,4 +1,4 @@
-package com.mpnp.baechelin.util;
+package com.mpnp.baechelin.config.s3;
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;

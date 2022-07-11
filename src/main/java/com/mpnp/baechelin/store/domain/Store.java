@@ -56,7 +56,7 @@ public class Store {
 
     // 연관관계 매핑
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<StoreImage> storeImageList;
+    private List<StoreImage> storeImageList = new ArrayList<>();
 
     public Store(PublicApiResponseDto.Row row) {
         //storeId - 임시
