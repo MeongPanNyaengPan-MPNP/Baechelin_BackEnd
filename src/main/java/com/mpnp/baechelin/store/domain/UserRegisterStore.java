@@ -17,10 +17,10 @@ public class UserRegisterStore extends TimeStamped {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
 
-    @Column(nullable = false, length = 1)
+    @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false, length = 1)
+    @Column(nullable = false)
     private String address;
 
     @Column(nullable = false, length = 1)
