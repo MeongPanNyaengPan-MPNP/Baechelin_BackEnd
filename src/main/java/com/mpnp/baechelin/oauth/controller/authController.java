@@ -1,4 +1,4 @@
-package com.mpnp.baechelin.user.controller;
+package com.mpnp.baechelin.oauth.controller;
 
 import com.mpnp.baechelin.config.properties.AppProperties;
 import com.mpnp.baechelin.oauth.common.AuthResponse;
@@ -41,12 +41,8 @@ public class authController {
      */
     @GetMapping("/refresh")
     public AuthResponse refreshToken (HttpServletRequest request, HttpServletResponse response) {
-        // access token 확인
         String accessToken = HeaderUtil.getAccessToken(request);
         AuthToken authToken = tokenProvider.convertAuthToken(accessToken);
-//        if (!authToken.validate()) {
-//            return AuthResponse.invalidAccessToken();
-//        }
 
         // expired access token 인지 확인
         Claims claims = authToken.getExpiredTokenClaims();
