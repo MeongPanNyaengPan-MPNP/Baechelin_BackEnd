@@ -20,17 +20,17 @@ public class BookmarkService {
     private final FolderRepository folderRepository;
     private final StoreRepository storeRepository;
 
-//    public void bookmark(BookmarkReqDTO bookmarkReqDTO) {
-//
-//        Optional<Folder> folder = folderRepository.findById(bookmarkReqDTO.getFolderId());
-//        Optional<Store> store = storeRepository.findById(bookmarkReqDTO.getStoreId());
-//
-//        Bookmark bookmark = Bookmark
-//                .builder()
-//                .folderId(folder.get())
-//                .storeId(store.get())
-//                .build();
-//
-//        bookmarkRepository.save(bookmark);
-//    }
+    public void bookmark(BookmarkReqDTO bookmarkReqDTO) {
+
+        Optional<Folder> folder = folderRepository.findById(bookmarkReqDTO.getFolderId());
+        Optional<Store> store = storeRepository.findById(bookmarkReqDTO.getStoreId());
+
+        Bookmark bookmark = Bookmark
+                .builder()
+                .folderId(folder.get())
+                .storeId(store.get())
+                .build();
+
+        bookmarkRepository.save(bookmark);
+    }
 }

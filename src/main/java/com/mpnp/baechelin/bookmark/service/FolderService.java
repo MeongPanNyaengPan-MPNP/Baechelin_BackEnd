@@ -8,6 +8,7 @@ import com.mpnp.baechelin.bookmark.repository.FolderRepository;
 import com.mpnp.baechelin.user.entity.user.User;
 import com.mpnp.baechelin.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,43 +22,55 @@ public class FolderService {
 
     private final FolderRepository folderRepository;
     private final UserRepository userRepository;
-//
-//    @Transactional
-//    public void folder(FolderReqDTO folderReqDTO) {
-//
-//        Optional<User> user = userRepository.findById(1);
-//
-//        Folder folder = Folder.builder()
-//                .folderName(folderReqDTO.getFolderName())
-//                .userId(user.get())
-//                .build();
-//        folderRepository.save(folder);
-//
-//    }
-//
-//    public void folderDelete(int folderId) {
-//        folderRepository.deleteById(folderId);
-//    }
-//
-//
-//    public void folderUpdate(int folderId, String newFolderName) {
-//        Optional<Folder> folder = folderRepository.findById(folderId);
-//
-//        folder.get().setFolderName(newFolderName);
-//
-//        folderRepository.save(folder.get());
-//    }
-//
-//    @Transactional(readOnly = true)
-//    public List<FolderResDTO> folderList(int userId) {
-//        Optional<User> user = userRepository.findById(userId);
-//
-//        List<FolderResDTO> folderResDTOList = new ArrayList<>();
-//
-//        for(Folder obj : user.get().getFolderList()){
-//            folderResDTOList.add(FolderResDTO.FolderDtoRes(obj));
-//        }
-//
-//        return folderResDTOList;
-//    }
+
+    @Transactional
+    public void folder(FolderReqDTO folderReqDTO) {
+
+        System.out.println("folderReqDTO.getSocialId()====>" + folderReqDTO.getSocialId());
+
+
+//        User user = userRepository.findBySocialId(folderReqDTO.getSocialId());
+        User user = userRepository.findById(1).orElseThrow(
+                ()-> new IllegalArgumentException("User Null point")
+        );
+
+
+
+        System.out.println("user.getEmail()====>" + user.getEmail());
+        System.out.println("user.getEmail22()====>" + user.getId());
+
+        Folder folder = Folder.builder()
+                .folderName(folderReqDTO.getFolderName())
+                .userId(user)
+                .build();
+
+        folderRepository.save(folder);
+
+    }
+
+    public void folderDelete(int folderId) {
+        folderRepository.deleteById(folderId);
+    }
+
+
+    public void folderUpdate(int folderId, String newFolderName) {
+        Optional<Folder> folder = folderRepository.findById(folderId);
+
+        folder.get().setFolderName(newFolderName);
+
+        folderRepository.save(folder.get());
+    }
+
+    @Transactional(readOnly = true)
+    public List<FolderResDTO> folderList(int userId) {
+        Optional<User> user = userRepository.findById(userId);
+
+        List<FolderResDTO> folderResDTOList = new ArrayList<>();
+
+        for(Folder obj : user.get().getFolderList()){
+            folderResDTOList.add(FolderResDTO.FolderDtoRes(obj));
+        }
+
+        return folderResDTOList;
+    }
 }

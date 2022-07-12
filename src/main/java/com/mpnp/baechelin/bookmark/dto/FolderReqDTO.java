@@ -1,16 +1,15 @@
 package com.mpnp.baechelin.bookmark.dto;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString
 public class FolderReqDTO {
 
     private String folderName = "미분류";
+    private String socialId;
 }

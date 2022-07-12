@@ -1,20 +1,20 @@
 package com.mpnp.baechelin.review.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
 
 @Getter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class ReviewReqDTO {
 
     //review 테이블 컬럼
-    private int           userId;       //유저 아이디
+
+    private int           reviewId;
+    private String        socialId;     //소셜 아이디
     private int           storeId;      //업장 아이디
     private String        comment;      //리뷰 코멘트
     private double        point;        //별점
@@ -33,5 +33,14 @@ public class ReviewReqDTO {
     private char fQuantity   = 'N';     //양이 많은
     private char fGoodToEat  = 'N';     //먹기 편한
     private char fPrice      = 'N';     //가격이 착한
+
+
+    public ReviewReqDTO(String socialId, int storeId, String comment, double point, MultipartFile imageFile) {
+        this.socialId = socialId;
+        this.storeId = storeId;
+        this.comment = comment;
+        this.point = point;
+        this.imageFile = imageFile;
+    }
 
 }

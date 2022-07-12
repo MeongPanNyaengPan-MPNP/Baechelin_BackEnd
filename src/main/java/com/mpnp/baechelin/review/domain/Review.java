@@ -55,7 +55,6 @@ public class Review extends TimeStamped {
 
         if(reviewReqDTO.getImageFile() != null) {           //이미지 파일이 있을 경우
             System.out.println("reviewReqDTO.getImageFile() != null");
-            ReviewService reviewService = null;
             this.point          = reviewReqDTO.getPoint();
             this.review         = reviewReqDTO.getComment();
             this.reviewImageUrl = url;
@@ -73,4 +72,24 @@ public class Review extends TimeStamped {
         }
     }
 
+    @Builder
+    public void update (ReviewReqDTO reviewReqDTO, Store store, Tag tag, User user, String url) throws IOException {
+        if(reviewReqDTO.getImageFile() != null) {           //이미지 파일이 있을 경우
+            System.out.println("reviewReqDTO.getImageFile() != null");
+            this.point          = reviewReqDTO.getPoint();
+            this.review         = reviewReqDTO.getComment();
+            this.reviewImageUrl = url;
+            this.storeId        = store;
+            this.tagId          = tag;
+            this.userId         = user;
+
+        } else if(reviewReqDTO.getImageFile() == null) {    //이미지 파일이 없을 경우
+            System.out.println("reviewReqDTO.getImageFile() == null");
+            this.point      = reviewReqDTO.getPoint();
+            this.review     = reviewReqDTO.getComment();
+            this.storeId    = store;
+            this.tagId      = tag;
+            this.userId     = user;
+        }
+    }
 }
