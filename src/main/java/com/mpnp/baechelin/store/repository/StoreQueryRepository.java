@@ -1,4 +1,4 @@
-package com.mpnp.baechelin.store.controller;
+package com.mpnp.baechelin.store.repository;
 
 import com.mpnp.baechelin.store.domain.QStore;
 import com.mpnp.baechelin.store.domain.Store;
@@ -81,7 +81,6 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
 
 
 
-    //TODO 주변밥집
 
     //TODO 별점순
 

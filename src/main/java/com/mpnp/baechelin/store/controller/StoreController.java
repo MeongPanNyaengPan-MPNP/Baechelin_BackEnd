@@ -2,6 +2,7 @@ package com.mpnp.baechelin.store.controller;
 
 import com.mpnp.baechelin.store.domain.Store;
 import com.mpnp.baechelin.store.dto.StoreResponseDto;
+import com.mpnp.baechelin.store.repository.StoreQueryRepository;
 import com.mpnp.baechelin.store.service.StoreService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
