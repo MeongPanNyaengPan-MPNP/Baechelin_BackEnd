@@ -1,12 +1,15 @@
-package com.mpnp.baechelin.store.dto.userRegisterStore;
+package com.mpnp.baechelin.admin.dto;
 
+import com.mpnp.baechelin.store.dto.userRegisterStore.UserRegisterStoreImgDto;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Getter
-public class UserRegisterStoreResponseDto {
+@NoArgsConstructor
+public class AdminResponseDto {
     private String name;
     private String address;
     private String elevator;
@@ -14,7 +17,9 @@ public class UserRegisterStoreResponseDto {
     private String heightDifferent;
     private String approach;
     private List<UserRegisterStoreImgDto> userRegisterStoreImageList;
-    public UserRegisterStoreResponseDto(
+
+    @Builder
+    public AdminResponseDto(
             String name,
             String address,
             String elevator,
