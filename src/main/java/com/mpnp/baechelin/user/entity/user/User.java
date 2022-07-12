@@ -60,7 +60,7 @@ public class User extends TimeStamped {
     private List<Folder> folderList;
 
     @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Review> reviewsList;
+    private List<Review> reviewList;
 
     @Builder
     public User(String socialId,
@@ -80,9 +80,4 @@ public class User extends TimeStamped {
         this.roleType = roleType;
     }
 
-    @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Review> reviewList;
-
-    @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Folder> folderList = new ArrayList<>();
 }

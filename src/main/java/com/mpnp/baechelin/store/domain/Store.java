@@ -49,6 +49,9 @@ public class Store {
     private String phoneNumber;
 
     @Column(nullable = false)
+    private int bookMarkCount = 0;
+
+    @Column(nullable = false)
     private String heightDifferent;
 
     @Column(nullable = false)
@@ -80,11 +83,16 @@ public class Store {
         this.category = row.getCategory();
     }
 
+    public Store updateBookmarkCount(int upOrDown){
+        this.bookMarkCount += upOrDown;
+        return this;
+    }
+
     @OneToMany(mappedBy = "storeId", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Review> reviewList = new ArrayList<>();
 
     @OneToMany(mappedBy = "storeId", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Bookmark> BookmarkList = new ArrayList<>();
+    private List<Bookmark> bookmarkList = new ArrayList<>();
 
 
 }

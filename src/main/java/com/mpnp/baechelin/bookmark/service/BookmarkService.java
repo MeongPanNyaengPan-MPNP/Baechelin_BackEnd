@@ -22,15 +22,18 @@ public class BookmarkService {
 
     public void bookmark(BookmarkReqDTO bookmarkReqDTO) {
 
-        Optional<Folder> folder = folderRepository.findById(bookmarkReqDTO.getFolderId());
-        Optional<Store> store = storeRepository.findById(bookmarkReqDTO.getStoreId());
+        Folder folder = folderRepository.findById(bookmarkReqDTO.getFolderId())
+                .orElseThrow(()-> new IllegalArgumentException("폴더가 존재하지 않습니다"));
+        Store store = storeRepository.findById(bookmarkReqDTO.getStoreId())
+                .orElseThrow(()-> new IllegalArgumentException("가게가 존재하지 않습니다"));
 
         Bookmark bookmark = Bookmark
                 .builder()
-                .folderId(folder.get())
-                .storeId(store.get())
+                .folderId(folder)
+                .storeId(store)
                 .build();
 
+        storeRepository.save(store.updateBookmarkCount(1));
         bookmarkRepository.save(bookmark);
     }
 }
