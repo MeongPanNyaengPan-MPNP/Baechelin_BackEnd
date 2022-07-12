@@ -1,5 +1,7 @@
 package com.mpnp.baechelin.store.repository;
 
+import com.mpnp.baechelin.config.QuerydslConfiguration;
+import com.mpnp.baechelin.review.repository.ReviewQueryRepository;
 import com.mpnp.baechelin.store.domain.QStore;
 import com.mpnp.baechelin.store.domain.Store;
 import com.mpnp.baechelin.tag.domain.QTag;
@@ -107,10 +109,7 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
     }
 
     private void locAndConditions(BigDecimal latStart, BigDecimal latEnd, BigDecimal lngStart, BigDecimal lngEnd, String category, List<String> facility) {
-        builder.and(store.latitude.goe(latStart));
-        builder.and(store.latitude.loe(latEnd));
-        builder.and(store.longitude.goe(lngStart));
-        builder.and(store.longitude.loe(lngEnd));
+        QuerydslConfiguration.locationBuilder(latStart, latEnd, lngStart, lngEnd, builder);
         builder.and(category == null ? null : store.category.eq(category));
         if (facility != null && facility.size() > 0) {
             for (String fac : facility) {
