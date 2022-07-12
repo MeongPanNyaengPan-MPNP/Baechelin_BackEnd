@@ -4,6 +4,7 @@ import com.mpnp.baechelin.review.dto.ReviewReqDTO;
 import com.mpnp.baechelin.review.dto.ReviewResDTO;
 import com.mpnp.baechelin.review.service.ReviewService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -36,6 +37,11 @@ public class ReviewController {
                 .build();
 
         reviewService.review(reviewReqDTO);
+        return null;
+    }
+    // TODO - 최근 등록한 리뷰 보여주기
+    @GetMapping("/recent-review")
+    public ReviewResDTO recentReview(){
         return null;
     }
 }
