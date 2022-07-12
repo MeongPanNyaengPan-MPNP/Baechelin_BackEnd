@@ -49,17 +49,30 @@ public class Store {
     private String phoneNumber;
 
     @Column(nullable = false)
-    private int bookMarkCount = 0;
-
-    @Column(nullable = false)
     private String heightDifferent;
 
     @Column(nullable = false)
     private String approach;
 
+    @Column(nullable = false)
+    private int bookMarkCount = 0;
+
+    @Column(nullable = false)
+    private int reviewCount = 0;
+
+    @Column(nullable = false)
+    private double pointAvg = 0.0;
+
     // 연관관계 매핑
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<StoreImage> storeImageList = new ArrayList<>();
+
+
+    @OneToMany(mappedBy = "storeId", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Review> reviewList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "storeId", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Bookmark> bookmarkList = new ArrayList<>();
 
     public Store(PublicApiResponseDto.Row row) {
         //storeId - 임시
@@ -88,11 +101,17 @@ public class Store {
         return this;
     }
 
-    @OneToMany(mappedBy = "storeId", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Review> reviewList = new ArrayList<>();
+    // TODO 리뷰가 삭제될 때도 고려하기 - 삭제 후 적용되어야 함
+    public Store updatePointAvg(double changePoint){
+        this.reviewCount = reviewList.size();
+        double totalPoint = 0.0;
+        for (Review review : reviewList) {
+            totalPoint += review.getPoint();
+        }
+        this.pointAvg = Double.parseDouble(String.format("%.1f", totalPoint / reviewList.size()));
+        return this;
+    }
 
-    @OneToMany(mappedBy = "storeId", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Bookmark> bookmarkList = new ArrayList<>();
 
 
 }
