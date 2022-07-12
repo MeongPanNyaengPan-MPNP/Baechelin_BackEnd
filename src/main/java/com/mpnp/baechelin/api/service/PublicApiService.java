@@ -20,6 +20,7 @@ import org.springframework.util.StopWatch;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
+import software.amazon.ion.Decimal;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
@@ -83,7 +84,7 @@ public class PublicApiService {
 //
 //    }
 
-    public PublicApiResponseDto processApiToDBWithRestTemplate(PublicApiRequestDto publicApiRequestDto) throws UnsupportedEncodingException, JsonProcessingException {
+    public PublicApiResponseDto processApiToDBWithRestTemplate(PublicApiRequestDto publicApiRequestDto){
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_XML);
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
@@ -132,20 +133,20 @@ public class PublicApiService {
         LocationKeywordSearchForm.Documents latLngDoc = Arrays.stream(latLngSearchForm.getDocuments()).findFirst().orElse(null);
         if (latLngDoc == null)
             return false;
-        row.setLatitude(latLngDoc.getY());
-        row.setLongitude(latLngDoc.getX());
+        row.setLatitude(Decimal.valueOf(latLngDoc.getY()));
+        row.setLongitude(Decimal.valueOf(latLngDoc.getX()));
         // 카테고리 ENUM으로 전환하기
         row.setCategory(categoryFilter(Optional.of(latLngDoc.getCategory_name()).orElse("기타")));
         return true;
     }
 
     private void setRowCategoryAndId(PublicApiResponseDto.Row row) throws JsonProcessingException {
-        LocationKeywordSearchForm categorySearchForm = locationService.giveCategoryByLatLngKeywordRest(row.getLatitude(), row.getLongitude(), row.getSISULNAME());
+        LocationKeywordSearchForm categorySearchForm = locationService.giveCategoryByLatLngKeywordRest(String.valueOf(row.getLatitude()), String.valueOf(row.getLongitude()), row.getSISULNAME());
 //        LocationKeywordSearchForm categorySearchForm = locationService.giveCategoryByLatLngKeyword(row.getLatitude(), row.getLongitude(), row.getSISULNAME());
         LocationKeywordSearchForm.Documents categoryDoc = Arrays.stream(categorySearchForm.getDocuments()).findFirst().orElse(null);
         if (categoryDoc == null || !Arrays.asList("FD6", "CE7").contains(categoryDoc.getCategory_group_code()))
             return;
-        row.setStoreId(categoryDoc.getId());
+        row.setStoreId(Integer.parseInt(categoryDoc.getId()));
         row.setSISULNAME(categoryDoc.getPlace_name());
         row.setCategory(categoryFilter(Optional.of(categoryDoc.getCategory_name()).orElse(null)));
     }

@@ -79,5 +79,4 @@ public class User extends TimeStamped {
         this.providerType = providerType;
         this.roleType = roleType;
     }
-
 }

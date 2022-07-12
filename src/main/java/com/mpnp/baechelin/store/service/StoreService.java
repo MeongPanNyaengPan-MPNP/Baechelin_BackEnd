@@ -24,41 +24,43 @@ public class StoreService {
         List<StoreResponseDto> storeResponseList = new ArrayList<>();
 
         for (Store store : storeList) {
-            List<Review> reviewList = reviewRepository.findAllByStoreId(store);
-
-            double totalPoint = 0;
-
-            double pointAvg = 0;
-            if (reviewList.size() > 0) {
-                for (Review review : reviewList) {
-                    totalPoint += review.getPoint();
-                }
-
-                pointAvg = Double.parseDouble(String.format("%.1f", totalPoint / reviewList.size()));
-            } else {
-                pointAvg = 0;
-            }
-
-            StoreResponseDto storeResponse = StoreResponseDto.builder()
-                    .storeId(store.getId())
-                    .category(store.getCategory())
-                    .name(store.getName())
-                    .latitude(store.getLatitude())
-                    .longitude(store.getLongitude())
-                    .address(store.getAddress())
-                    .elevator(store.getElevator())
-                    .toilet(store.getToilet())
-                    .parking(store.getParking())
-                    .phoneNumber(store.getPhoneNumber())
-                    .heightDifferent(store.getHeightDifferent())
-                    .approach(store.getApproach())
-                    .storeImgList(null)
-                    .pointAvg(pointAvg)
-                    .build();
-            storeResponseList.add(storeResponse);
+            storeResponseList.add(storeToResDto(store));
         }
 
-
         return storeResponseList;
+    }
+
+    public StoreResponseDto storeToResDto(Store store){
+        List<Review> reviewList = reviewRepository.findAllByStoreId(store);
+
+        double totalPoint = 0;
+
+        double pointAvg = 0;
+        if (reviewList.size() > 0) {
+            for (Review review : reviewList) {
+                totalPoint += review.getPoint();
+            }
+
+            pointAvg = Double.parseDouble(String.format("%.1f", totalPoint / reviewList.size()));
+        } else {
+            pointAvg = 0;
+        }
+
+        return StoreResponseDto.builder()
+                .storeId(store.getId())
+                .category(store.getCategory())
+                .name(store.getName())
+                .latitude(store.getLatitude())
+                .longitude(store.getLongitude())
+                .address(store.getAddress())
+                .elevator(store.getElevator())
+                .toilet(store.getToilet())
+                .parking(store.getParking())
+                .phoneNumber(store.getPhoneNumber())
+                .heightDifferent(store.getHeightDifferent())
+                .approach(store.getApproach())
+                .storeImgList(null)
+                .pointAvg(pointAvg)
+                .build();
     }
 }
