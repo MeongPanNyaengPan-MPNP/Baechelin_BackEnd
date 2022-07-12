@@ -48,9 +48,11 @@ public class ReviewService {
             Review review = new Review(reviewReqDTO, store.get(), tag, user.get(),
                     upload(reviewReqDTO.getImageFile(), "/Volumes/Data/MY_PROJECT/HangHae99/bae-sulin/src/main/java/com/mpnp/baechelin/fileSample"));
             reviewRepository.save(review);
+            storeRepository.save(store.get().updatePointAvg(reviewReqDTO.getPoint())); // Store 별점 업데이트
         } else if(reviewReqDTO.getImageFile() == null) {    //이미지 파일이 없을 경우
             Review review = new Review(reviewReqDTO, store.get(), tag, user.get(),"");
             reviewRepository.save(review);
+            storeRepository.save(store.get().updatePointAvg(reviewReqDTO.getPoint())); // Store 별점 업데이트
         }
 
 
