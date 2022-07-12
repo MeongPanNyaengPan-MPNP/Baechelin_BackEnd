@@ -43,7 +43,7 @@ public class StoreController {
                                                            @RequestParam(required = false) String category,
                                                            @RequestParam(required = false) List<String> facility,
                                                            @PageableDefault Pageable pageable) {
-        List<Store> betweenLngLat = storeQueryRepository.findBetweenLngLat(latStart, latEnd, lngStart, lngEnd, category, facility, pageable);
+        List<Store> betweenLngLat = storeQueryRepository.findStoreOrderByPoint(latStart, latEnd, lngStart, lngEnd, category, facility, pageable);
         return betweenLngLat.parallelStream().map(storeService::storeToResDto).collect(Collectors.toList());// 순서보장
     }
 

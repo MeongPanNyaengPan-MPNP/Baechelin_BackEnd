@@ -1,14 +1,11 @@
 package com.mpnp.baechelin.store.repository;
 
 import com.mpnp.baechelin.config.QuerydslConfiguration;
-import com.mpnp.baechelin.review.repository.ReviewQueryRepository;
-import com.mpnp.baechelin.store.domain.QStore;
 import com.mpnp.baechelin.store.domain.Store;
-import com.mpnp.baechelin.tag.domain.QTag;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.Tuple;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.CaseBuilder;
-import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.StringPath;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -19,9 +16,11 @@ import org.springframework.stereotype.Repository;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Objects;
 
+import static com.mpnp.baechelin.review.domain.QReview.review1;
 import static com.mpnp.baechelin.store.domain.QStore.store;
+import static com.querydsl.jpa.JPAExpressions.avg;
+import static com.querydsl.jpa.JPAExpressions.select;
 
 @Repository
 @Transactional
@@ -59,7 +58,7 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
                                              BigDecimal lngEnd,
                                              String category,
                                              List<String> facility,
-                                             int limit) {
+                                             Pageable pageable) {
 
 
         locAndConditions(latStart, latEnd, lngStart, lngEnd, category, facility);
@@ -67,8 +66,18 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
         return queryFactory.selectFrom(store)
                 .where(builder)
                 .orderBy(store.pointAvg.desc())
-                .limit(limit)
+                .limit(pageable.getPageSize())
+                .offset(pageable.getOffset())
                 .fetch();
+
+//        return queryFactory.selectFrom(store)
+//                .leftJoin(store, review1.storeId)
+//                .on(store.id.eq(review1.storeId.id))
+//                .where(builder)
+//                .orderBy(review1.point.avg().desc())
+//                .limit(pageable.getPageSize())
+//                .offset(pageable.getOffset())
+//                .fetch();
     }
 
     //TODO 북마크순
