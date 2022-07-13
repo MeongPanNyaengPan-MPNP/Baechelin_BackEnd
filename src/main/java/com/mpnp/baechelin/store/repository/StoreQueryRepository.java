@@ -14,13 +14,13 @@ import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
 
+import static com.mpnp.baechelin.config.QuerydslConfig.locationBuilder;
 import static com.mpnp.baechelin.store.domain.QStore.store;
 
 @Repository
 @Transactional
 public class StoreQueryRepository extends QuerydslRepositorySupport {
     private final JPAQueryFactory queryFactory;
-    private final BooleanBuilder builder = new BooleanBuilder();
 
     public StoreQueryRepository(JPAQueryFactory queryFactory) {
         super(Store.class);
@@ -36,7 +36,7 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
                                          List<String> facility,
                                          Pageable pageable) {
 
-        locAndConditions(latStart, latEnd, lngStart, lngEnd, category, facility);
+        BooleanBuilder builder = locAndConditions(latStart, latEnd, lngStart, lngEnd, category, facility);
 
         return queryFactory.selectFrom(store)
                 .where(builder)
@@ -55,23 +55,14 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
                                              Pageable pageable) {
 
 
-        locAndConditions(latStart, latEnd, lngStart, lngEnd, category, facility);
+        BooleanBuilder builder = locAndConditions(latStart, latEnd, lngStart, lngEnd, category, facility);
 
         return queryFactory.selectFrom(store)
                 .where(builder)
-                .orderBy(store.pointAvg.desc())
                 .limit(pageable.getPageSize())
                 .offset(pageable.getOffset())
+                .orderBy(store.pointAvg.desc())
                 .fetch();
-
-//        return queryFactory.selectFrom(store)
-//                .leftJoin(store, review1.storeId)
-//                .on(store.id.eq(review1.storeId.id))
-//                .where(builder)
-//                .orderBy(review1.point.avg().desc())
-//                .limit(pageable.getPageSize())
-//                .offset(pageable.getOffset())
-//                .fetch();
     }
 
     //TODO 북마크순
@@ -83,7 +74,8 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
                                                 List<String> facility,
                                                 int limit) {
 
-        locAndConditions(latStart, latEnd, lngStart, lngEnd, category, facility);
+        BooleanBuilder builder = locAndConditions(latStart, latEnd, lngStart, lngEnd, category, facility);
+
 
         return queryFactory.selectFrom(store)
                 .where(builder)
@@ -111,13 +103,14 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
             return store.toilet;
     }
 
-    private void locAndConditions(BigDecimal latStart, BigDecimal latEnd, BigDecimal lngStart, BigDecimal lngEnd, String category, List<String> facility) {
-        QuerydslConfig.locationBuilder(latStart, latEnd, lngStart, lngEnd, builder);
+    private BooleanBuilder locAndConditions(BigDecimal latStart, BigDecimal latEnd, BigDecimal lngStart, BigDecimal lngEnd, String category, List<String> facility) {
+        BooleanBuilder builder = locationBuilder(latStart, latEnd, lngStart, lngEnd);
         builder.and(category == null ? null : store.category.eq(category));
         if (facility != null && facility.size() > 0) {
             for (String fac : facility) {
                 builder.and(facilityTF(fac));
             }
         }
+        return builder;
     }
 }

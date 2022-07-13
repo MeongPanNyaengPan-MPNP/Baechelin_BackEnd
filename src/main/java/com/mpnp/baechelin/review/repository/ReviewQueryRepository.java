@@ -18,7 +18,6 @@ import static com.mpnp.baechelin.store.domain.QStore.store;
 @Transactional
 public class ReviewQueryRepository extends QuerydslRepositorySupport {
     private final JPAQueryFactory queryFactory;
-    private final BooleanBuilder builder = new BooleanBuilder();
 
     public ReviewQueryRepository(JPAQueryFactory queryFactory) {
         super(Review.class);
@@ -30,12 +29,13 @@ public class ReviewQueryRepository extends QuerydslRepositorySupport {
                                           BigDecimal lngStart,
                                           BigDecimal lngEnd,
                                           int limit) {
-        locationBuilder(latStart, latEnd, lngStart, lngEnd, builder);
+        BooleanBuilder builder = locationBuilder(latStart, latEnd, lngStart, lngEnd);
         // 위도 경도에 해당하는 가게를 찾음 -> 해당 댓글을 다 가져옴 -> 내림차순 정렬 -> limit
         return queryFactory.selectFrom(review1)
                 .innerJoin(review1.storeId, store)
                 .on(review1.storeId.id.eq(store.id))
                 .where(builder)
+                .orderBy(review1.createdAt.desc())
                 .limit(limit)
                 .fetch();
     }
