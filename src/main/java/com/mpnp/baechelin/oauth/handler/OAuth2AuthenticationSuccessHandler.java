@@ -23,7 +23,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.transaction.Transactional;
 import java.io.IOException;
+import java.lang.annotation.Documented;
 import java.net.URI;
 import java.util.Collection;
 import java.util.Date;
@@ -105,6 +107,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         // refresh token이 이미 존재한다면 토큰 업데이트
         if (userRefreshToken != null) {
             userRefreshToken.setRefreshToken(refreshToken.getToken());
+            userRefreshTokenRepository.saveAndFlush(userRefreshToken);
         } else {
             // refresh token이 없다면 DB에 저장
             userRefreshToken = new UserRefreshToken(userInfo.getId(), refreshToken.getToken());
