@@ -1,5 +1,6 @@
 package com.mpnp.baechelin.oauth.common;
 
+import com.mpnp.baechelin.oauth.exception.ErrorCode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
