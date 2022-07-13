@@ -2,10 +2,12 @@ package com.mpnp.baechelin.store.service;
 
 import com.mpnp.baechelin.bookmark.domain.Bookmark;
 import com.mpnp.baechelin.review.domain.Review;
+import com.mpnp.baechelin.review.dto.ReviewResDTO;
 import com.mpnp.baechelin.review.repository.ReviewRepository;
 import com.mpnp.baechelin.store.domain.Store;
 import com.mpnp.baechelin.store.dto.StoreResponseDto;
 import com.mpnp.baechelin.store.repository.StoreRepository;
+import com.mpnp.baechelin.tag.domain.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,13 +31,13 @@ public class StoreDetailService {
 
     // store entity -> store dto (로직 합쳐지면 삭제 예정)
     public StoreResponseDto storeToResDto(Store store){
-        // 리뷰 별점 평균 구하는 로직
         List<Review> reviewList = store.getReviewList();
 
         double totalPoint = 0;
         double pointAvg = 0;
         if (reviewList.size() > 0) {
             for (Review review : reviewList) {
+                // 별점 평균 구하기
                 totalPoint += review.getPoint();
             }
 
@@ -69,4 +71,16 @@ public class StoreDetailService {
 //                .reviewList() // 리뷰 리스트 리턴해야함 DTO...
                 .build();
     }
+
+//    public ReviewResDTO reviewToResDto(Review review) {
+//        Tag tag = review.getTagId();
+//
+//        ReviewResDTO.builder()
+//                .reviewId(review.getId())
+//                .review(review.getReview())
+//                .point(review.getPoint())
+//                .reviewImageUrl(review.getReviewImageUrl())
+//                .bKiosk(tag.getBKiosk())
+//                .bTable(review.getTagId().getBTable())
+//    }
 }
