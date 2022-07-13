@@ -17,15 +17,8 @@ public class StoreDetailController {
 
     private final StoreDetailService storeDetailService;
 
-    @GetMapping("/test")
-    public String test(@AuthenticationPrincipal User user) {
-        String username = user.getUsername();
-        return username;
-    }
-
     @GetMapping("/detail/{storeId}")
     public StoreResponseDto getStore(@PathVariable int storeId) {
-        return null;
+        return storeDetailService.getStore(storeId);
     }
-
 }
