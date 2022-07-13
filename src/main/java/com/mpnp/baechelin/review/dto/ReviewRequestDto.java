@@ -13,8 +13,8 @@ import java.util.List;
 public class ReviewRequestDto {
     //review 테이블 컬럼
     private int storeId;      //업장 아이디
-    private String comment;      //리뷰 코멘트
+    private String content;      //리뷰 코멘트
     private double point;        //별점
-    private MultipartFile imageFile;    //리뷰 이미지 사진
+    private List<MultipartFile> imageFile;    //리뷰 이미지 사진
     private List<String> tagList;
 }
