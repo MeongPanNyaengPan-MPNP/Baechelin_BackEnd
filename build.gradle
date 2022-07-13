@@ -61,6 +61,8 @@ dependencies {
 	implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.3'
 	//s3 파일 업로드
 	implementation 'io.awspring.cloud:spring-cloud-starter-aws:2.4.1'
+    //swagger
+    implementation 'io.springfox:springfox-boot-starter:3.0.0'
 }
 tasks.named('test') {
 	useJUnitPlatform()

@@ -2,6 +2,7 @@ package com.mpnp.baechelin.store.controller;
 
 import com.mpnp.baechelin.store.dto.userRegisterStore.UserRegisterStoreRequestDto;
 import com.mpnp.baechelin.store.service.UserRegisterStoreService;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,11 +20,7 @@ public class UserRegisterStoreController {
 
     private final UserRegisterStoreService userRegisterStoreService;
 
-    /**
-     * 유저 업장 등록
-     * @param userRegisterStoreRequestDto
-     * @return
-     */
+    @ApiOperation(value = "유저가 배리어프리 업장을 등록하는 메소드")
     @PostMapping("/register")
     public ResponseEntity<String> registerStore(
             @ModelAttribute UserRegisterStoreRequestDto userRegisterStoreRequestDto,
