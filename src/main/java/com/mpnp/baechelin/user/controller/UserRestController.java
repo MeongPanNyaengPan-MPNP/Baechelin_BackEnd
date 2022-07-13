@@ -1,7 +1,7 @@
 package com.mpnp.baechelin.user.controller;
 
 import com.mpnp.baechelin.oauth.common.AuthResponse;
-import com.mpnp.baechelin.user.entity.user.User;
+import com.mpnp.baechelin.user.domain.User;
 import com.mpnp.baechelin.user.service.UserService;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
