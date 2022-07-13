@@ -1,5 +1,6 @@
 package com.mpnp.baechelin.store.dto;
 
+import com.mpnp.baechelin.review.dto.ReviewResDTO;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,7 +25,8 @@ public class StoreResponseDto {
     private String approach;
     private List<StoreImgResponseDto> storeImgList;
     private double pointAvg;
-//    private List<ReviewResDTO> reviewList;
+    private String bookmark;
+    private List<ReviewResDTO> reviewList;
 
     @Builder
     public StoreResponseDto(
@@ -41,7 +43,9 @@ public class StoreResponseDto {
             String heightDifferent,
             String approach,
             List<StoreImgResponseDto> storeImgList,
-            double pointAvg) {
+            double pointAvg,
+            String bookmark,
+            List<ReviewResDTO> reviewList) {
 
         this.storeId = storeId;
         this.category = category;
@@ -57,5 +61,7 @@ public class StoreResponseDto {
         this.approach = approach;
         this.storeImgList = storeImgList;
         this.pointAvg = pointAvg;
+        this.bookmark = bookmark;
+        this.reviewList = reviewList;
     }
 }
