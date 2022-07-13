@@ -43,7 +43,7 @@ public class Review extends TimeStamped {
     private Store storeId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "USER_ID", nullable = false, unique = true)
+    @JoinColumn(name = "USER_ID", nullable = false)
     private User userId;
 
     @OneToOne(fetch = FetchType.LAZY)

@@ -25,9 +25,7 @@ public class ReviewController {
                                @RequestParam int userId,
                                @RequestParam(required = false) MultipartFile imageFile) throws IOException {
 
-        ReviewReqDTO reviewReqDTO =new ReviewReqDTO();
-        ReviewReqDTO
-                .builder()
+        ReviewReqDTO reviewReqDTO = ReviewReqDTO.builder()
                 .point(point)
                 .comment(comment)
                 .storeId(storeId)
