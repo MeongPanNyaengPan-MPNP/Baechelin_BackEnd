@@ -1,4 +1,4 @@
-package com.mpnp.baechelin.user.entity.user;
+package com.mpnp.baechelin.user.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mpnp.baechelin.bookmark.domain.Folder;
@@ -6,16 +6,12 @@ import com.mpnp.baechelin.oauth.entity.ProviderType;
 import com.mpnp.baechelin.oauth.entity.RoleType;
 import com.mpnp.baechelin.review.domain.Review;
 import com.mpnp.baechelin.util.TimeStamped;
-import io.micrometer.core.annotation.Counted;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity

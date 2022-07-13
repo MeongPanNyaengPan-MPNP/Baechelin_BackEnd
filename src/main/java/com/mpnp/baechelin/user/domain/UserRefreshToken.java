@@ -1,4 +1,4 @@
-package com.mpnp.baechelin.user.entity.user;
+package com.mpnp.baechelin.user.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Builder;

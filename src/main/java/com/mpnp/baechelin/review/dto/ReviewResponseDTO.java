@@ -1,6 +1,6 @@
 package com.mpnp.baechelin.review.dto;
 
-public class ReviewResDTO {
+public class ReviewResponseDTO {
     private int statusCode;
     private String responseMessage;
 }

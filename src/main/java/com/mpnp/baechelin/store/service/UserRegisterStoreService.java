@@ -5,7 +5,7 @@ import com.mpnp.baechelin.store.domain.UserRegisterStoreImg;
 import com.mpnp.baechelin.store.dto.userRegisterStore.UserRegisterStoreRequestDto;
 import com.mpnp.baechelin.store.repository.UserRegisterStoreImgRepository;
 import com.mpnp.baechelin.store.repository.UserRegisterStoreRepository;
-import com.mpnp.baechelin.user.entity.user.User;
+import com.mpnp.baechelin.user.domain.User;
 import com.mpnp.baechelin.user.repository.UserRepository;
 import com.mpnp.baechelin.util.AwsS3Manager;
 import lombok.RequiredArgsConstructor;
