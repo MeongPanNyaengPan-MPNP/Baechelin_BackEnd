@@ -1,7 +1,6 @@
 package com.mpnp.baechelin.review.repository;
 
 import com.mpnp.baechelin.review.domain.Review;
-import com.mpnp.baechelin.store.domain.QStore;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
@@ -11,10 +10,9 @@ import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
 
-import static com.mpnp.baechelin.config.QuerydslConfiguration.locationBuilder;
+import static com.mpnp.baechelin.config.QuerydslConfig.locationBuilder;
 import static com.mpnp.baechelin.review.domain.QReview.review1;
 import static com.mpnp.baechelin.store.domain.QStore.store;
-import static com.querydsl.jpa.JPAExpressions.select;
 
 @Repository
 @Transactional

@@ -1,13 +1,10 @@
 package com.mpnp.baechelin.store.repository;
 
-import com.mpnp.baechelin.config.QuerydslConfiguration;
+import com.mpnp.baechelin.config.QuerydslConfig;
 import com.mpnp.baechelin.store.domain.Store;
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.Tuple;
-import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.StringPath;
-import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
@@ -17,10 +14,7 @@ import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
 
-import static com.mpnp.baechelin.review.domain.QReview.review1;
 import static com.mpnp.baechelin.store.domain.QStore.store;
-import static com.querydsl.jpa.JPAExpressions.avg;
-import static com.querydsl.jpa.JPAExpressions.select;
 
 @Repository
 @Transactional
@@ -118,7 +112,7 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
     }
 
     private void locAndConditions(BigDecimal latStart, BigDecimal latEnd, BigDecimal lngStart, BigDecimal lngEnd, String category, List<String> facility) {
-        QuerydslConfiguration.locationBuilder(latStart, latEnd, lngStart, lngEnd, builder);
+        QuerydslConfig.locationBuilder(latStart, latEnd, lngStart, lngEnd, builder);
         builder.and(category == null ? null : store.category.eq(category));
         if (facility != null && facility.size() > 0) {
             for (String fac : facility) {
