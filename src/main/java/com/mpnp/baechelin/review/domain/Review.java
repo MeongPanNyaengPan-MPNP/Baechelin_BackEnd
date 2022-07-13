@@ -1,10 +1,9 @@
 package com.mpnp.baechelin.review.domain;
 
-import com.mpnp.baechelin.review.dto.ReviewReqDTO;
-import com.mpnp.baechelin.review.service.ReviewService;
+import com.mpnp.baechelin.review.dto.ReviewRequestDto;
 import com.mpnp.baechelin.store.domain.Store;
 import com.mpnp.baechelin.tag.domain.Tag;
-import com.mpnp.baechelin.user.entity.user.User;
+import com.mpnp.baechelin.user.domain.User;
 import com.mpnp.baechelin.util.TimeStamped;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,6 +12,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.io.IOException;
+import java.util.List;
 
 
 @Entity
@@ -35,7 +35,7 @@ public class Review extends TimeStamped {
     private double point;
 
     //리뷰 이미지 URL
-    @Column(nullable = true)
+    @Column
     private String reviewImageUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -46,31 +46,16 @@ public class Review extends TimeStamped {
     @JoinColumn(name = "USER_ID", nullable = false)
     private User userId;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "TAG_ID", nullable = false)
-    private Tag tagId;
+    @OneToMany(mappedBy = "reviewId", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Tag> tagList;
 
     @Builder
-    public Review (ReviewReqDTO reviewReqDTO, Store store, Tag tag, User user, String url) throws IOException {
-
-        if(reviewReqDTO.getImageFile() != null) {           //이미지 파일이 있을 경우
-            System.out.println("reviewReqDTO.getImageFile() != null");
-            ReviewService reviewService = null;
-            this.point          = reviewReqDTO.getPoint();
-            this.review         = reviewReqDTO.getComment();
-            this.reviewImageUrl = url;
-            this.storeId        = store;
-            this.tagId          = tag;
-            this.userId         = user;
-
-        } else if(reviewReqDTO.getImageFile() == null) {    //이미지 파일이 없을 경우
-            System.out.println("reviewReqDTO.getImageFile() == null");
-            this.point      = reviewReqDTO.getPoint();
-            this.review     = reviewReqDTO.getComment();
-            this.storeId    = store;
-            this.tagId      = tag;
-            this.userId     = user;
-        }
+    public Review(ReviewRequestDto reviewRequestDto, Store store, User user, String url) throws IOException {
+        this.point = reviewRequestDto.getPoint();
+        this.review = reviewRequestDto.getComment();
+        this.reviewImageUrl = url;
+        this.storeId = store;
+        this.userId = user;
     }
 
 }
