@@ -1,4 +1,4 @@
-package com.mpnp.baechelin.user.controller;
+package com.mpnp.baechelin.oauth.service;
 
 import com.mpnp.baechelin.config.properties.AppProperties;
 import com.mpnp.baechelin.oauth.common.AuthResponse;
@@ -10,41 +10,36 @@ import com.mpnp.baechelin.user.repository.UserRefreshTokenRepository;
 import com.mpnp.baechelin.util.CookieUtil;
 import com.mpnp.baechelin.util.HeaderUtil;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
 
-@RestController
-@RequestMapping("/auth")
+@Slf4j
+@Service
 @RequiredArgsConstructor
-public class authController {
+@Transactional
+public class AuthService {
 
     private final AppProperties appProperties;
     private final AuthTokenProvider tokenProvider;
     private final UserRefreshTokenRepository userRefreshTokenRepository;
-
     private final static long THREE_DAYS_MSEC = 259200000;
     private final static String REFRESH_TOKEN = "refresh_token";
 
-
-    /**
-     * access token 만료시 refresh 토큰 요청
-     * @param request
-     * @param response
-     * @return
-     */
-    @GetMapping("/refresh")
-    public AuthResponse refreshToken (HttpServletRequest request, HttpServletResponse response) {
-        // access token 확인
+    public AuthResponse refreshToken(HttpServletRequest request, HttpServletResponse response) {
         String accessToken = HeaderUtil.getAccessToken(request);
         AuthToken authToken = tokenProvider.convertAuthToken(accessToken);
-        if (!authToken.validate()) {
+
+        // 유효한 access token 인지 확인
+        if (authToken.getTokenClaimsForRefresh() == null) {
             return AuthResponse.invalidAccessToken();
         }
 
@@ -63,7 +58,7 @@ public class authController {
                 .orElse((null));
         AuthToken authRefreshToken = tokenProvider.convertAuthToken(refreshToken);
 
-        if (authRefreshToken.validate()) {
+        if (!authRefreshToken.validate()) {
             return AuthResponse.invalidRefreshToken();
         }
 
@@ -94,6 +89,7 @@ public class authController {
 
             // DB에 refresh 토큰 업데이트
             userRefreshToken.setRefreshToken(authRefreshToken.getToken());
+
 
             int cookieMaxAge = (int) refreshTokenExpiry / 60;
             CookieUtil.deleteCookie(request, response, REFRESH_TOKEN);
