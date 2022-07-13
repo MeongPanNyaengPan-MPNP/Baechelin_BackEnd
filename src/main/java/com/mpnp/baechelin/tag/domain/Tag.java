@@ -19,10 +19,10 @@ public class Tag extends TimeStamped {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private int id;
+    int id;
 
     @Column
-    private String tag;
+    String tag;
     //jpa를 리스트/JSON 집어넣는 방법?
 
     @ManyToOne(fetch = FetchType.LAZY)

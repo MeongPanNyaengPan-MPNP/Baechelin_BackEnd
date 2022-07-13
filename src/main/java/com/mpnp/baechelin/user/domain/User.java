@@ -1,7 +1,6 @@
 package com.mpnp.baechelin.user.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.mpnp.baechelin.bookmark.domain.Bookmark;
 import com.mpnp.baechelin.bookmark.domain.Folder;
 import com.mpnp.baechelin.oauth.entity.ProviderType;
 import com.mpnp.baechelin.oauth.entity.RoleType;
@@ -55,9 +54,6 @@ public class User extends TimeStamped {
     // 연관관계 매핑
     @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Folder> folderList;
-
-    @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Bookmark> bookmarkList;
 
     @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Review> reviewList;

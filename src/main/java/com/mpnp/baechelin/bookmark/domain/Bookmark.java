@@ -1,7 +1,6 @@
 package com.mpnp.baechelin.bookmark.domain;
 
 import com.mpnp.baechelin.store.domain.Store;
-import com.mpnp.baechelin.user.domain.User;
 import com.mpnp.baechelin.util.TimeStamped;
 import lombok.*;
 
@@ -26,9 +25,5 @@ public class Bookmark extends TimeStamped {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="STORE_ID", nullable = false)
     private Store storeId;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="USER_ID", nullable = false)
-    private User userId;
 
 }

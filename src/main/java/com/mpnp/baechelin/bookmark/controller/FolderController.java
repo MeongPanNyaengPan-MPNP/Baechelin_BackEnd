@@ -40,8 +40,8 @@ public class FolderController {
     }
 
     /** 폴더 리스트 */
-    @PostMapping("/folderList")
-    public List<FolderResponseDto> folderList (int userId){
+    @PutMapping("/folderList/{userId}")
+    public List<FolderResponseDto> folderList (@PathVariable int userId){
 
         return folderService.folderList(userId);
     }
