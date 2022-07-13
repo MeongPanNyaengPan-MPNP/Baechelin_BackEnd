@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 import static com.mpnp.baechelin.store.domain.QStore.store;
 
 @Configuration
-public class QuerydslConfiguration {
+public class QuerydslConfig {
 
     @PersistenceContext
     private EntityManager entityManager;
