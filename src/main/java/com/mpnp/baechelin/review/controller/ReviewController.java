@@ -1,9 +1,14 @@
 package com.mpnp.baechelin.review.controller;
 
+import com.mpnp.baechelin.review.domain.Review;
 import com.mpnp.baechelin.review.dto.ReviewMainResponseDto;
 import com.mpnp.baechelin.review.dto.ReviewRequestDto;
+import com.mpnp.baechelin.review.dto.ReviewResponseDto;
 import com.mpnp.baechelin.review.repository.ReviewQueryRepository;
+import com.mpnp.baechelin.review.repository.ReviewRepository;
 import com.mpnp.baechelin.review.service.ReviewService;
+import com.mpnp.baechelin.store.domain.Store;
+import com.mpnp.baechelin.store.repository.StoreRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,12 +28,21 @@ public class ReviewController {
     private final ReviewService reviewService;
     private final ReviewQueryRepository reviewQueryRepository;
 
+    @GetMapping("/review/{storeId}")
+    public ResponseEntity<List<ReviewResponseDto>> getStoreReview(@PathVariable int storeId) {
+        List<ReviewResponseDto> reviewList = reviewService.getReview(storeId);
+        return new ResponseEntity<>(reviewList, HttpStatus.OK);
+    }
+
     /**
      * 리뷰 작성
      */
     @PostMapping("/review")
     public ResponseEntity<?> review(@ModelAttribute ReviewRequestDto reviewRequestDto,
                                     @AuthenticationPrincipal User user) throws IOException {
+        if(user==null){
+            throw new IllegalArgumentException("NO USER");
+        }
         reviewService.review(reviewRequestDto, user.getUsername());
         return new ResponseEntity<>(HttpStatus.OK);
     }

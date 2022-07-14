@@ -5,38 +5,35 @@ import com.mpnp.baechelin.store.domain.Store;
 import com.mpnp.baechelin.tag.domain.Tag;
 import com.mpnp.baechelin.user.domain.User;
 import com.mpnp.baechelin.util.TimeStamped;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class Review extends TimeStamped {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
 
     //평가(댓글)내용
     @Column(nullable = false)
-    private String review;
+    private String content;
 
     //별점
     @Column(nullable = false)
     private double point;
 
     //리뷰 이미지 URL
-    @Column
-    private String reviewImageUrl;
+    @OneToMany(mappedBy = "reviewId", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ReviewImage> reviewImageList = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "STORE_ID", nullable = false)
@@ -47,15 +44,23 @@ public class Review extends TimeStamped {
     private User userId;
 
     @OneToMany(mappedBy = "reviewId", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Tag> tagList;
+    private List<Tag> tagList = new ArrayList<>();
 
-    @Builder
-    public Review(ReviewRequestDto reviewRequestDto, Store store, User user, String url) throws IOException {
+
+    public Review(ReviewRequestDto reviewRequestDto, Store store, User user) throws IOException {
         this.point = reviewRequestDto.getPoint();
-        this.review = reviewRequestDto.getComment();
-        this.reviewImageUrl = url;
+        this.content = reviewRequestDto.getContent();
         this.storeId = store;
         this.userId = user;
     }
+
+    public void setImage(List<ReviewImage> reviewImageList){
+        this.reviewImageList = reviewImageList;
+    }
+    public void addSingleTag(Tag tag){
+        tag.setReview(this);
+        this.tagList.add(tag);
+    }
+
 
 }

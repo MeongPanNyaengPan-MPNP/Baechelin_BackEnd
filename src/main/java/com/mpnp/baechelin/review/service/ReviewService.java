@@ -1,7 +1,9 @@
 package com.mpnp.baechelin.review.service;
 
 import com.mpnp.baechelin.review.domain.Review;
+import com.mpnp.baechelin.review.domain.ReviewImage;
 import com.mpnp.baechelin.review.dto.ReviewRequestDto;
+import com.mpnp.baechelin.review.dto.ReviewResponseDto;
 import com.mpnp.baechelin.review.repository.ReviewRepository;
 import com.mpnp.baechelin.store.domain.Store;
 import com.mpnp.baechelin.store.repository.StoreRepository;
@@ -13,11 +15,13 @@ import com.mpnp.baechelin.util.AwsS3Manager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -39,18 +43,24 @@ public class ReviewService {
         Store store = storeRepository.findById(storeId).orElseThrow(() -> new IllegalArgumentException("해당하는 업장이 존재하지 않습니다."));
         User user = userRepository.findBySocialId(socialId);
 
+        List<ReviewImage> reviewImageUrlList = new ArrayList<>();
+        for (MultipartFile reviewImage : reviewRequestDto.getImageFile()) {
+            reviewImageUrlList.add(ReviewImage.builder().reviewImageUrl(awsS3Manager.uploadFile(reviewImage)).build());
+        } // 리뷰이미지 변환
 
-        String reviewImageUrl = awsS3Manager.uploadFile(reviewRequestDto.getImageFile());
-        Review review = new Review(reviewRequestDto, store, user, reviewImageUrl);
+        Review review = new Review(reviewRequestDto, store, user);
+        for (String s : reviewRequestDto.getTagList()) {
+            Tag tag = new Tag(s, review);
+            review.addSingleTag(tag);
+            tagRepository.save(tag);
+        }
         reviewRepository.save(review);
         storeRepository.save(store.updatePointAvg(reviewRequestDto.getPoint()));
+    }
 
-        List<Tag> tagList = new ArrayList<>();
-        for (String s : reviewRequestDto.getTagList()) {
-            // 확인해보기! - review
-            tagList.add(Tag.builder().reviewId(review).tag(s).build()); //리뷰 태그
-        }
-        tagRepository.saveAll(tagList);
-
+    public List<ReviewResponseDto> getReview(int storeId) {
+        Store store = storeRepository.findById(storeId).orElseThrow(() -> new IllegalArgumentException("해당 가게가 없습니다"));
+        return reviewRepository.findAllByStoreId(store)
+                .stream().map(ReviewResponseDto::new).collect(Collectors.toList());
     }
 }

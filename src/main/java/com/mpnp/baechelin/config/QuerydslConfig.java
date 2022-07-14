@@ -22,10 +22,12 @@ public class QuerydslConfig {
         return new JPAQueryFactory(entityManager);
     }
 
-    public static void locationBuilder(BigDecimal latStart, BigDecimal latEnd, BigDecimal lngStart, BigDecimal lngEnd, BooleanBuilder builder) {
+    public static BooleanBuilder locationBuilder(BigDecimal latStart, BigDecimal latEnd, BigDecimal lngStart, BigDecimal lngEnd) {
+        BooleanBuilder builder = new BooleanBuilder();
         builder.and(latStart == null ? null : store.latitude.goe(latStart));
         builder.and(latEnd == null ? null : store.latitude.loe(latEnd));
         builder.and(lngStart == null ? null : store.longitude.goe(lngStart));
         builder.and(lngEnd == null ? null : store.longitude.loe(lngEnd));
+        return builder;
     }
 }
