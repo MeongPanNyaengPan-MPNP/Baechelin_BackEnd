@@ -54,13 +54,5 @@ public class Review extends TimeStamped {
         this.userId = user;
     }
 
-    public void setImage(List<ReviewImage> reviewImageList){
-        this.reviewImageList = reviewImageList;
-    }
-    public void addSingleTag(Tag tag){
-        tag.setReview(this);
-        this.tagList.add(tag);
-    }
-
 
 }

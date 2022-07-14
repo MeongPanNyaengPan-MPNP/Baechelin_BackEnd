@@ -32,6 +32,8 @@ public class ReviewResponseDto {
         this.userId = review.getUserId().getId();
         this.point = review.getPoint();
         this.content = review.getContent();
+        this.createdAt = review.getCreatedAt();
+        this.modifiedAt = review.getModifiedAt();
         this.reviewImageUrlList = review.getReviewImageList()
                 .stream().map(ReviewImageResponseDto::new).collect(Collectors.toList());
         this.tagList = review.getTagList().stream().map(TagResponseDto::new).collect(Collectors.toList());
