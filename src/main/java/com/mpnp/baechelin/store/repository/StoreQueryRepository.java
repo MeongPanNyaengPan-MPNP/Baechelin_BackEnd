@@ -1,7 +1,9 @@
 package com.mpnp.baechelin.store.repository;
 
+import com.mpnp.baechelin.review.domain.Review;
 import com.mpnp.baechelin.store.domain.Store;
-import com.mpnp.baechelin.store.dto.StoreResponseDto;
+import com.mpnp.baechelin.store.dto.StoreCardResponseDto;
+import com.mpnp.baechelin.user.domain.User;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.StringPath;
@@ -64,12 +66,11 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
     }
 
     //TODO 별점순 - 쿼리 결과로 산출된 리스트의 평균 구하기, 정렬, 페이징
-    public List<Store> findStoreOrderByPoint(BigDecimal lat,
-                                             BigDecimal lng,
-                                             String category,
-                                             List<String> facility,
-                                             Pageable pageable) {
-
+    public List<StoreCardResponseDto> findStoreOrderByPoint(BigDecimal lat,
+                                                            BigDecimal lng,
+                                                            String category,
+                                                            List<String> facility,
+                                                            Pageable pageable, User user) {
 
         BooleanBuilder builder = locTwoPointAndConditions(lat, lng, category, facility);
 
@@ -77,11 +78,19 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
                 .where(builder)
                 .fetch();
 
-        List<StoreResponseDto> resultAvgList = resultList.stream().sorted()
-                .map(StoreResponseDto::new).collect(Collectors.toList());
+        List<StoreCardResponseDto> resultAvgList = resultList.stream()
+                .map(store -> {
+                    long count = user == null ? 0L : user.getBookmarkList().stream()
+                            .filter(b -> b.getUserId() == user && b.getStoreId() == store).count();
+                    double avg = Double.parseDouble(String.format(String.valueOf(store.getReviewList().stream()
+                            .collect(Collectors.averagingDouble(Review::getPoint))), "0.1f"));
+                    StoreCardResponseDto storeCardResponseDto = new StoreCardResponseDto(store, count > 0);
+                    storeCardResponseDto.setPointAvg(avg);
+                    return storeCardResponseDto;
+                }).sorted().collect(Collectors.toList());
 
         getStorePaged(resultAvgList, pageable);
-
+        return resultAvgList;
 
 //        return queryFactory.selectFrom(store)
 //                .where(builder)
@@ -169,7 +178,7 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
         start = Math.max(start, pageStartIndex);
         end = Math.min(end, pageStartIndex + pageable.getPageSize() - 1);
 
-        storeResultList =  storeResultList.subList(start, end);
+        storeResultList = storeResultList.subList(start, end);
     }
 
 }

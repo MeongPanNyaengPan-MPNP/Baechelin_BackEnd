@@ -13,10 +13,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Getter @Setter
+@Getter
+@Setter
 @NoArgsConstructor
 public class User extends TimeStamped {
 
@@ -54,13 +56,13 @@ public class User extends TimeStamped {
 
     // 연관관계 매핑
     @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Folder> folderList;
+    private List<Folder> folderList = new ArrayList<>();
 
     @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Bookmark> bookmarkList;
+    private List<Bookmark> bookmarkList = new ArrayList<>();
 
     @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Review> reviewList;
+    private List<Review> reviewList = new ArrayList<>();
 
     @Builder
     public User(String socialId,

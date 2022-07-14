@@ -1,13 +1,12 @@
 package com.mpnp.baechelin.store.dto;
 
 import com.mpnp.baechelin.review.domain.Review;
-import com.mpnp.baechelin.review.dto.ReviewImageResponseDto;
-import com.mpnp.baechelin.review.dto.ReviewResponseDto;
 import com.mpnp.baechelin.store.domain.Store;
 import com.mpnp.baechelin.user.domain.User;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,7 +17,7 @@ import java.util.stream.Collectors;
 @Setter
 @Builder
 @Slf4j
-public class StoreCardDto implements Comparable<StoreCardDto> {
+public class StoreCardResponseDto implements Comparable<StoreCardResponseDto> {
     private int storeId;
     private String category;
     private String name;
@@ -38,7 +37,7 @@ public class StoreCardDto implements Comparable<StoreCardDto> {
     private double pointAvg = 0.0;
 
     @Override
-    public int compareTo(StoreCardDto sad) {
+    public int compareTo(StoreCardResponseDto sad) {
         if (this.pointAvg > sad.pointAvg) {
             return 1;
         } else if (this.pointAvg < sad.pointAvg) {
@@ -48,7 +47,7 @@ public class StoreCardDto implements Comparable<StoreCardDto> {
     }
 
 
-    public StoreCardDto(Store store, User user) {
+    public StoreCardResponseDto(Store store, boolean bookmark) {
         this.storeId = store.getId();
         this.category = store.getCategory();
         this.name = store.getName();
@@ -61,9 +60,10 @@ public class StoreCardDto implements Comparable<StoreCardDto> {
         this.phoneNumber = store.getPhoneNumber();
         this.heightDifferent = store.getHeightDifferent();
         this.approach = store.getApproach();
-        this.storeImgList = store.getStoreImageList().parallelStream().map(StoreImgResponseDto::new).collect(Collectors.toList());
-        this.pointAvg =Double.parseDouble(String.format(store.getReviewList().stream()
+        this.storeImgList = store.getStoreImageList().parallelStream()
+                .map(StoreImgResponseDto::new).collect(Collectors.toList());
+        this.pointAvg = Double.parseDouble(String.format(store.getReviewList().stream()
                 .collect(Collectors.averagingDouble(Review::getPoint)).toString(), 0.1f));
-        this.bookmark = true;
+        this.bookmark = bookmark;
     }
 }
