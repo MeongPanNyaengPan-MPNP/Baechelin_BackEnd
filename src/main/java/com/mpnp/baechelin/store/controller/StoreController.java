@@ -43,26 +43,22 @@ public class StoreController {
     }
 
     @GetMapping("/point")
-    public List<StoreResponseDto> getStoreInRangeHighPoint(@RequestParam(required = false) BigDecimal latStart,
-                                                           @RequestParam(required = false) BigDecimal latEnd,
-                                                           @RequestParam(required = false) BigDecimal lngStart,
-                                                           @RequestParam(required = false) BigDecimal lngEnd,
+    public List<StoreResponseDto> getStoreInRangeHighPoint(@RequestParam(required = false) BigDecimal lat,
+                                                           @RequestParam(required = false) BigDecimal lng,
                                                            @RequestParam(required = false) String category,
                                                            @RequestParam(required = false) List<String> facility,
                                                            @PageableDefault Pageable pageable) {
-        List<Store> betweenLngLat = storeQueryRepository.findStoreOrderByPoint(latStart, latEnd, lngStart, lngEnd, category, facility, pageable);
+        List<Store> betweenLngLat = storeQueryRepository.findStoreOrderByPoint(lat, lng, category, facility, pageable);
         return betweenLngLat.parallelStream().map(storeService::storeToResDto).collect(Collectors.toList());// 순서보장
     }
 
     @GetMapping("/bookmark")
-    public List<StoreResponseDto> getStoreInRangeHighBookmark(@RequestParam(required = false) BigDecimal latStart,
-                                                              @RequestParam(required = false) BigDecimal latEnd,
-                                                              @RequestParam(required = false) BigDecimal lngStart,
-                                                              @RequestParam(required = false) BigDecimal lngEnd,
+    public List<StoreResponseDto> getStoreInRangeHighBookmark(@RequestParam(required = false) BigDecimal lat,
+                                                              @RequestParam(required = false) BigDecimal lng,
                                                               @RequestParam(required = false) String category,
                                                               @RequestParam(required = false) List<String> facility,
                                                               @RequestParam int limit) {
-        List<Store> betweenLngLat = storeQueryRepository.findStoreOrderByBookmark(latStart, latEnd, lngStart, lngEnd, category, facility, limit);
+        List<Store> betweenLngLat = storeQueryRepository.findStoreOrderByBookmark(lat, lng, category, facility, limit);
         return betweenLngLat.parallelStream().map(storeService::storeToResDto).collect(Collectors.toList());// 순서보장
     }
 }

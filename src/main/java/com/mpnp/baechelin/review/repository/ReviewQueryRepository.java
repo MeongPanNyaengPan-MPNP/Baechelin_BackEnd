@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import static com.mpnp.baechelin.config.QuerydslConfig.locationBuilder;
-import static com.mpnp.baechelin.review.domain.QReview.review1;
+import static com.mpnp.baechelin.review.domain.QReview.review;
 import static com.mpnp.baechelin.store.domain.QStore.store;
 
 @Repository
@@ -31,11 +31,12 @@ public class ReviewQueryRepository extends QuerydslRepositorySupport {
                                           int limit) {
         BooleanBuilder builder = locationBuilder(latStart, latEnd, lngStart, lngEnd);
         // 위도 경도에 해당하는 가게를 찾음 -> 해당 댓글을 다 가져옴 -> 내림차순 정렬 -> limit
-        return queryFactory.selectFrom(review1)
-                .innerJoin(review1.storeId, store)
-                .on(review1.storeId.id.eq(store.id))
+        // TODO 쿼리문 개선하기
+        return queryFactory.selectFrom(review)
+                .innerJoin(review.storeId, store)
+                .on(review.storeId.id.eq(store.id))
                 .where(builder)
-                .orderBy(review1.createdAt.desc())
+                .orderBy(review.createdAt.desc())
                 .limit(limit)
                 .fetch();
     }
