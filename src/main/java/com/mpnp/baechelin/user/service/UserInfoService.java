@@ -14,11 +14,8 @@ import javax.transaction.Transactional;
 public class UserInfoService {
     private final UserRepository userRepository;
 
-    // TODO Security 추가 후 변경할 예정
-    //    public UserInfoResponseDto giveUserInfo(User user){
-    public UserInfoResponseDto giveUserInfo(Integer userId) {
-        User targetUser = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("test - no user"));
+    public UserInfoResponseDto giveUserInfo(String socialId) {
+        User targetUser = userRepository.findBySocialId(socialId);
         return new UserInfoResponseDto(targetUser);
-//        return new UserInfoResponseDto(user);
     }
 }

@@ -1,7 +1,10 @@
 package com.mpnp.baechelin.review.service;
 
 import com.mpnp.baechelin.review.domain.Review;
+import com.mpnp.baechelin.review.domain.ReviewImage;
 import com.mpnp.baechelin.review.dto.ReviewRequestDto;
+import com.mpnp.baechelin.review.dto.ReviewResponseDto;
+import com.mpnp.baechelin.review.repository.ReviewImageRepository;
 import com.mpnp.baechelin.review.repository.ReviewRepository;
 import com.mpnp.baechelin.store.domain.Store;
 import com.mpnp.baechelin.store.repository.StoreRepository;
@@ -13,11 +16,13 @@ import com.mpnp.baechelin.util.AwsS3Manager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -28,6 +33,7 @@ public class ReviewService {
     private final UserRepository userRepository;
     private final StoreRepository storeRepository;
     private final TagRepository tagRepository;
+    private final ReviewImageRepository reviewImageRepository;
     private final AwsS3Manager awsS3Manager;
 
     /**
@@ -39,18 +45,29 @@ public class ReviewService {
         Store store = storeRepository.findById(storeId).orElseThrow(() -> new IllegalArgumentException("해당하는 업장이 존재하지 않습니다."));
         User user = userRepository.findBySocialId(socialId);
 
-
-        String reviewImageUrl = awsS3Manager.uploadFile(reviewRequestDto.getImageFile());
-        Review review = new Review(reviewRequestDto, store, user, reviewImageUrl);
-        reviewRepository.save(review);
-        storeRepository.save(store.updatePointAvg(reviewRequestDto.getPoint()));
+        Review review = new Review(reviewRequestDto, store, user);
 
         List<Tag> tagList = new ArrayList<>();
         for (String s : reviewRequestDto.getTagList()) {
-            // 확인해보기! - review
-            tagList.add(Tag.builder().reviewId(review).tag(s).build()); //리뷰 태그
-        }
-        tagRepository.saveAll(tagList);
+            tagList.add(new Tag(s, review));
+        } // 태그 -> 엔티티 변환
 
+        List<ReviewImage> reviewImageUrlList = new ArrayList<>();
+        for (MultipartFile reviewImage : reviewRequestDto.getImageFile()) {
+            reviewImageUrlList.add(ReviewImage.builder().reviewId(review).reviewImageUrl(awsS3Manager.uploadFile(reviewImage)).build());
+        } // 리뷰이미지 -> url -> 엔티티 변환
+
+        tagRepository.saveAll(tagList);
+        reviewImageRepository.saveAll(reviewImageUrlList);
+
+        reviewRepository.save(review);
+
+        storeRepository.save(store.updatePointAvg(reviewRequestDto.getPoint()));
+    }
+
+    public List<ReviewResponseDto> getReview(int storeId) {
+        Store store = storeRepository.findById(storeId).orElseThrow(() -> new IllegalArgumentException("해당 가게가 없습니다"));
+        return reviewRepository.findAllByStoreId(store)
+                .stream().map(ReviewResponseDto::new).collect(Collectors.toList());
     }
 }
