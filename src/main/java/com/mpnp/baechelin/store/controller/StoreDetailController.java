@@ -20,7 +20,9 @@ public class StoreDetailController {
 
     @ApiOperation(value = "업장 상세정보를 조회하는 메소드")
     @GetMapping("/detail/{storeId}")
-    public StoreResponseDto getStore(@PathVariable int storeId) {
-        return storeDetailService.getStore(storeId);
+    public StoreResponseDto getStore(
+            @PathVariable int storeId,
+            @AuthenticationPrincipal User user) {
+        return storeDetailService.getStore(storeId, user);
     }
 }
