@@ -12,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class BookmarkDTO {
+public class BookmarkDto {
 
     private List<Store> storeList = new ArrayList<>();
 

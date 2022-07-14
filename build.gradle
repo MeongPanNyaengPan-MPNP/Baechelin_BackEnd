@@ -42,7 +42,8 @@ dependencies {
 	compileOnly 'org.projectreactor:reactor-spring:1.0.1.RELEASE'
 	compileOnly 'org.apache.httpcomponents:httpclient:4.5.13'
 	implementation 'org.springframework.boot:spring-boot-starter-reactor-netty:2.7.1'
-
+	//tomcat
+	implementation 'org.springframework.boot:spring-boot-starter-tomcat'
 	// OAuth2
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client:2.7.0'
 	// jwt
@@ -61,6 +62,9 @@ dependencies {
 	implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.3'
 	//s3 파일 업로드
 	implementation 'io.awspring.cloud:spring-cloud-starter-aws:2.4.1'
+	//swagger
+	implementation 'io.springfox:springfox-boot-starter:3.0.0'
+
 }
 tasks.named('test') {
 	useJUnitPlatform()

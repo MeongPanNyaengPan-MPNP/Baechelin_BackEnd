@@ -8,7 +8,7 @@ import com.mpnp.baechelin.oauth.info.OAuth2UserInfoFactory;
 import com.mpnp.baechelin.oauth.repository.OAuth2AuthorizationRequestBasedOnCookieRepository;
 import com.mpnp.baechelin.oauth.token.AuthToken;
 import com.mpnp.baechelin.oauth.token.AuthTokenProvider;
-import com.mpnp.baechelin.user.entity.user.UserRefreshToken;
+import com.mpnp.baechelin.user.domain.UserRefreshToken;
 import com.mpnp.baechelin.user.repository.UserRefreshTokenRepository;
 import com.mpnp.baechelin.util.CookieUtil;
 import lombok.RequiredArgsConstructor;
@@ -105,6 +105,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         // refresh token이 이미 존재한다면 토큰 업데이트
         if (userRefreshToken != null) {
             userRefreshToken.setRefreshToken(refreshToken.getToken());
+            userRefreshTokenRepository.saveAndFlush(userRefreshToken);
         } else {
             // refresh token이 없다면 DB에 저장
             userRefreshToken = new UserRefreshToken(userInfo.getId(), refreshToken.getToken());

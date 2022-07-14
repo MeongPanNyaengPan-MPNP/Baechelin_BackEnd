@@ -1,14 +1,10 @@
 package com.mpnp.baechelin.store.repository;
 
-import com.mpnp.baechelin.store.domain.QStore;
+import com.mpnp.baechelin.config.QuerydslConfig;
 import com.mpnp.baechelin.store.domain.Store;
-import com.mpnp.baechelin.tag.domain.QTag;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.CaseBuilder;
-import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.StringPath;
-import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
@@ -17,8 +13,8 @@ import org.springframework.stereotype.Repository;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Objects;
 
+import static com.mpnp.baechelin.config.QuerydslConfig.locationBuilder;
 import static com.mpnp.baechelin.store.domain.QStore.store;
 
 @Repository
@@ -40,25 +36,53 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
                                          List<String> facility,
                                          Pageable pageable) {
 
-        BooleanBuilder builder = new BooleanBuilder();
-        builder.and(store.latitude.goe(latStart));
-        builder.and(store.latitude.loe(latEnd));
-        builder.and(store.longitude.goe(lngStart));
-        builder.and(store.longitude.loe(lngEnd));
-        builder.and(category == null ? null : store.category.eq(category));
-        if (facility != null && facility.size() > 0) {
-            for (String fac : facility) {
-                builder.and(facilityTF(fac));
-            }
-        }
+        BooleanBuilder builder = locAndConditions(latStart, latEnd, lngStart, lngEnd, category, facility);
 
-        List<Store> storeList = queryFactory.selectFrom(store)
+        return queryFactory.selectFrom(store)
                 .where(builder)
                 .limit(pageable.getPageSize())
                 .offset(pageable.getOffset())
                 .fetch();
+    }
 
-        return storeList;
+    //TODO 별점순
+    public List<Store> findStoreOrderByPoint(BigDecimal latStart,
+                                             BigDecimal latEnd,
+                                             BigDecimal lngStart,
+                                             BigDecimal lngEnd,
+                                             String category,
+                                             List<String> facility,
+                                             Pageable pageable) {
+
+
+        BooleanBuilder builder = locAndConditions(latStart, latEnd, lngStart, lngEnd, category, facility);
+
+        return queryFactory.selectFrom(store)
+                .where(builder)
+                .limit(pageable.getPageSize())
+                .offset(pageable.getOffset())
+                .orderBy(store.pointAvg.desc())
+                .fetch();
+    }
+
+    //TODO 북마크순
+    public List<Store> findStoreOrderByBookmark(BigDecimal latStart,
+                                                BigDecimal latEnd,
+                                                BigDecimal lngStart,
+                                                BigDecimal lngEnd,
+                                                String category,
+                                                List<String> facility,
+                                                int limit) {
+
+        BooleanBuilder builder = locAndConditions(latStart, latEnd, lngStart, lngEnd, category, facility);
+
+
+        return queryFactory.selectFrom(store)
+                .where(builder)
+                .orderBy(store.bookMarkCount.desc())
+                .limit(limit)
+                .fetch();
+
     }
 
     private BooleanExpression facilityTF(String facility) {
@@ -79,12 +103,14 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
             return store.toilet;
     }
 
-
-
-
-    //TODO 별점순
-
-    //TODO 실시간 맛집
-
-    //TODO 북마크순
+    private BooleanBuilder locAndConditions(BigDecimal latStart, BigDecimal latEnd, BigDecimal lngStart, BigDecimal lngEnd, String category, List<String> facility) {
+        BooleanBuilder builder = locationBuilder(latStart, latEnd, lngStart, lngEnd);
+        builder.and(category == null ? null : store.category.eq(category));
+        if (facility != null && facility.size() > 0) {
+            for (String fac : facility) {
+                builder.and(facilityTF(fac));
+            }
+        }
+        return builder;
+    }
 }

@@ -1,6 +1,6 @@
 package com.mpnp.baechelin.user.repository;
 
-import com.mpnp.baechelin.user.entity.user.UserRefreshToken;
+import com.mpnp.baechelin.user.domain.UserRefreshToken;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
