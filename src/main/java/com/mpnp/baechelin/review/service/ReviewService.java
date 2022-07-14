@@ -4,6 +4,7 @@ import com.mpnp.baechelin.review.domain.Review;
 import com.mpnp.baechelin.review.domain.ReviewImage;
 import com.mpnp.baechelin.review.dto.ReviewRequestDto;
 import com.mpnp.baechelin.review.dto.ReviewResponseDto;
+import com.mpnp.baechelin.review.repository.ReviewImageRepository;
 import com.mpnp.baechelin.review.repository.ReviewRepository;
 import com.mpnp.baechelin.store.domain.Store;
 import com.mpnp.baechelin.store.repository.StoreRepository;
@@ -32,6 +33,7 @@ public class ReviewService {
     private final UserRepository userRepository;
     private final StoreRepository storeRepository;
     private final TagRepository tagRepository;
+    private final ReviewImageRepository reviewImageRepository;
     private final AwsS3Manager awsS3Manager;
 
     /**
@@ -43,18 +45,23 @@ public class ReviewService {
         Store store = storeRepository.findById(storeId).orElseThrow(() -> new IllegalArgumentException("해당하는 업장이 존재하지 않습니다."));
         User user = userRepository.findBySocialId(socialId);
 
+        Review review = new Review(reviewRequestDto, store, user);
+
+        List<Tag> tagList = new ArrayList<>();
+        for (String s : reviewRequestDto.getTagList()) {
+            tagList.add(new Tag(s, review));
+        } // 태그 -> 엔티티 변환
+
         List<ReviewImage> reviewImageUrlList = new ArrayList<>();
         for (MultipartFile reviewImage : reviewRequestDto.getImageFile()) {
-            reviewImageUrlList.add(ReviewImage.builder().reviewImageUrl(awsS3Manager.uploadFile(reviewImage)).build());
-        } // 리뷰이미지 변환
+            reviewImageUrlList.add(ReviewImage.builder().reviewId(review).reviewImageUrl(awsS3Manager.uploadFile(reviewImage)).build());
+        } // 리뷰이미지 -> url -> 엔티티 변환
 
-        Review review = new Review(reviewRequestDto, store, user);
-        for (String s : reviewRequestDto.getTagList()) {
-            Tag tag = new Tag(s, review);
-            review.addSingleTag(tag);
-            tagRepository.save(tag);
-        }
+        tagRepository.saveAll(tagList);
+        reviewImageRepository.saveAll(reviewImageUrlList);
+
         reviewRepository.save(review);
+
         storeRepository.save(store.updatePointAvg(reviewRequestDto.getPoint()));
     }
 

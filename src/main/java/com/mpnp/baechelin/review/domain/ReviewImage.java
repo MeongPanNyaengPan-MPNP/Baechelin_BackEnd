@@ -27,4 +27,8 @@ public class ReviewImage extends TimeStamped {
     @JoinColumn(name = "REVIEW_ID", nullable = false)
     private Review reviewId;
 
+    public void addReview(Review review, String reviewImageUrl){
+        this.reviewId = review;
+        this.reviewImageUrl = reviewImageUrl;
+    }
 }

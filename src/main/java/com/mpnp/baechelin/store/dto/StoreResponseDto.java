@@ -20,13 +20,12 @@ public class StoreResponseDto {
     private String elevator;
     private String toilet;
     private String parking;
-    private String phoneNumber;
     private String heightDifferent;
     private String approach;
+    private String phoneNumber;
     private List<StoreImgResponseDto> storeImgList;
     private double pointAvg;
-    private String bookmark;
-    private List<ReviewResponseDto> reviewList;
+    private String IsBookmark;
 
     @Builder
     public StoreResponseDto(
@@ -44,9 +43,7 @@ public class StoreResponseDto {
             String approach,
             List<StoreImgResponseDto> storeImgList,
             double pointAvg,
-            String bookmark,
-            List<ReviewResponseDto> reviewList) {
-
+            String IsBookmark) {
         this.storeId = storeId;
         this.category = category;
         this.name = name;
@@ -61,7 +58,6 @@ public class StoreResponseDto {
         this.approach = approach;
         this.storeImgList = storeImgList;
         this.pointAvg = pointAvg;
-        this.bookmark = bookmark;
-        this.reviewList = reviewList;
+        this.IsBookmark = IsBookmark;
     }
 }

@@ -69,5 +69,4 @@ public class Review extends TimeStamped {
         this.content = reviewRequestDto.getContent();
     }
 
-
 }
