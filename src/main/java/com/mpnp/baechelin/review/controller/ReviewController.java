@@ -34,18 +34,28 @@ public class ReviewController {
         return new ResponseEntity<>(reviewList, HttpStatus.OK);
     }
 
-    /**
-     * 리뷰 작성
-     */
+    /** 리뷰 작성 */
     @PostMapping("/review")
     public ResponseEntity<?> review(@ModelAttribute ReviewRequestDto reviewRequestDto,
                                     @AuthenticationPrincipal User user) throws IOException {
         if(user==null){
-            throw new IllegalArgumentException("NO USER");
+            throw new IllegalArgumentException("해당하는 회원 정보가 없습니다.");
         }
         reviewService.review(reviewRequestDto, user.getUsername());
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+//    /** 리뷰 수정 */
+//    @PatchMapping("/reviewUpdate/{reviewId}")
+//    public ResponseEntity<?> reviewUpdate(@ModelAttribute ReviewRequestDto reviewRequestDto,
+//                                          @AuthenticationPrincipal User user,
+//                                          @PathVariable int reviewId) throws IOException {
+//        if(user==null){
+//            throw new IllegalArgumentException("해당하는 회원 정보가 없습니다.");
+//        }
+//        reviewService.reviewUpdate(reviewRequestDto, user.getUsername(), reviewId);
+//        return new ResponseEntity<>(HttpStatus.OK);
+//    }
 
     // TODO - 최근 등록한 리뷰 보여주기
     // 반경 넓히기

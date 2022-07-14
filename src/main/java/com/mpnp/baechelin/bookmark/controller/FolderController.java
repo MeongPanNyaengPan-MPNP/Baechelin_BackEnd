@@ -23,7 +23,7 @@ public class FolderController {
         folderService.folder(folderRequestDto);
     }
 
-    /* 폴더 삭제 -> 삭제 시 안에 담긴 모든 북마크가 삭제됨 */
+    /** 폴더 삭제 -> 삭제 시 안에 담긴 모든 북마크가 삭제됨 */
 
     @DeleteMapping("/folder/{folderId}")
     public void folderDelete (@PathVariable int folderId){
@@ -31,8 +31,7 @@ public class FolderController {
         folderService.folderDelete(folderId);
     }
 
-    /* 폴더 명 변경 */
-
+    /** 폴더 명 변경 */
     @PutMapping("/folderUpdate/{folderId}")
     public void folderUpdate (@PathVariable int folderId, @RequestParam String newFolderName){
         System.out.println(newFolderName);
@@ -40,8 +39,9 @@ public class FolderController {
         folderService.folderUpdate(folderId, newFolderName);
     }
 
-    @PutMapping("/folderList/{userId}")
-    public List<FolderResponseDto> folderList (@PathVariable int userId){
+    /** 폴더 리스트 */
+    @PostMapping("/folderList")
+    public List<FolderResponseDto> folderList (int userId){
 
         return folderService.folderList(userId);
     }

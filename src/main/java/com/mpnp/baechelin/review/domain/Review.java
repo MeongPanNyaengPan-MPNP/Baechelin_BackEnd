@@ -17,6 +17,8 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Review extends TimeStamped {
 
     @Id
@@ -48,11 +50,23 @@ public class Review extends TimeStamped {
 
 
     public Review(ReviewRequestDto reviewRequestDto, Store store, User user) throws IOException {
-        this.point = reviewRequestDto.getPoint();
+        this.point   = reviewRequestDto.getPoint();
+        this.userId  = user;
         this.content = reviewRequestDto.getContent();
         this.storeId = store;
-        this.userId = user;
     }
 
+    public void setImage(List<ReviewImage> reviewImageList){
+        this.reviewImageList = reviewImageList;
+    }
+    public void addSingleTag(Tag tag){
+        tag.setReview(this);
+        this.tagList.add(tag);
+    }
+
+    public void update(ReviewRequestDto reviewRequestDto){
+        this.point   = reviewRequestDto.getPoint();
+        this.content = reviewRequestDto.getContent();
+    }
 
 }
