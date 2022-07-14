@@ -45,18 +45,11 @@ public class StoreDetailService {
 
         List<Review> reviewList = store.getReviewList();
 
-        // List<Review> -> List<ReviewResponseDto>
-        List<ReviewResponseDto> reviewResponseList = new ArrayList<>();
-
         double totalPoint = 0;
         double pointAvg;
         if (reviewList.size() > 0) {
             for (Review review : reviewList) {
                 totalPoint += review.getPoint();
-
-                // Review entity -> dto
-                ReviewResponseDto reviewResponse = new ReviewResponseDto(review);
-                reviewResponseList.add(reviewResponse);
             }
             // 소숫점 첫째자리 수까지 별점 평균 구하기
             pointAvg = Double.parseDouble(String.format("%.1f", totalPoint / reviewList.size()));
@@ -65,18 +58,18 @@ public class StoreDetailService {
             pointAvg = 0;
         }
 
-//        // TODO 북마크 여부 가져오기
-//        //
-//        for (Bookmark bookmark : store.getBookmarkList()) {
-//
-//        }
-//        if (user == null) {
-//
-//        } else {
-//
-//        }
-
-
+        String isBookmark = "";
+        // TODO 북마크 여부 가져오기
+        for (Bookmark bookmark : store.getBookmarkList()) {
+            if (user == null) {
+                isBookmark = "N";
+            } else {
+                if (bookmark.getStoreId().getId() == store.getId()
+                        && bookmark.getUserId().getSocialId().equals(user.getUsername())) {
+                    isBookmark = "Y";
+                }
+            }
+        }
         return StoreResponseDto.builder()
                 .storeId(store.getId())
                 .category(store.getCategory())
@@ -92,7 +85,7 @@ public class StoreDetailService {
                 .approach(store.getApproach())
                 .storeImgList(storeImageList)
                 .pointAvg(pointAvg)
-                .IsBookmark(null)
+                .IsBookmark(isBookmark)
                 .build();
     }
 
