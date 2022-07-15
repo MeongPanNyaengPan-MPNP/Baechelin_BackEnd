@@ -1,6 +1,7 @@
 package com.mpnp.baechelin.store.service;
 
 import com.mpnp.baechelin.bookmark.repository.BookmarkRepository;
+import com.mpnp.baechelin.config.QuerydslLocation;
 import com.mpnp.baechelin.review.domain.Review;
 import com.mpnp.baechelin.review.repository.ReviewRepository;
 import com.mpnp.baechelin.store.domain.Store;
@@ -87,7 +88,19 @@ public class StoreService {
         return getStoreCardPagedResponseDto(targetUser, betweenLngLat);
     }
 
-//    public List<StoreCardResponseDto> getStoreInRangeHighPoint(BigDecimal lat, BigDecimal lng, String
+    public StorePagedResponseDto getStoreInRangeMain(BigDecimal lat, BigDecimal lng, String category, List<String> facility, Pageable pageable, String socialId) {
+        BigDecimal[] range = QuerydslLocation.getRange(lat, lng, 10);
+        return getStoreInRange(range[0], range[1], range[2], range[3], category, facility, pageable, socialId);
+    }
+
+    public StorePagedResponseDto getStoreInRangeMap(BigDecimal lat, BigDecimal lng, String category, List<String> facility, Pageable pageable, String socialId) {
+        User targetUser = socialId == null ? null : userRepository.findBySocialId(socialId);
+        Page<Store> betweenLngLat = storeQueryRepository.findStoreOrderByPoint(lat, lng, category, facility, pageable);
+        // store  가져와서 dto 매핑
+        return getStoreCardPagedResponseDto(targetUser, betweenLngLat);
+    }
+
+    //    public List<StoreCardResponseDto> getStoreInRangeHighPoint(BigDecimal lat, BigDecimal lng, String
     public StorePagedResponseDto getStoreInRangeHighPoint(BigDecimal lat, BigDecimal lng, String
             category, List<String> facility, Pageable pageable, String socialId) {
         User targetUser = socialId == null ? null : userRepository.findBySocialId(socialId);
@@ -120,14 +133,14 @@ public class StoreService {
 
     private List<StoreCardResponseDto> getStoreCardResponseDtos(User targetUser, List<Store> resultStoreList) {
         if (targetUser == null) {
-            return resultStoreList.parallelStream().map(store -> new StoreCardResponseDto(store, false))
+            return resultStoreList.stream().map(store -> new StoreCardResponseDto(store, false))
                     .collect(Collectors.toList());
         } else {
-            return resultStoreList.parallelStream().map(store -> {
+            return resultStoreList.stream().map(store -> {
                 long count = targetUser.getBookmarkList().stream()
                         .filter(b -> b.getUserId() == targetUser && b.getStoreId() == store).count();
                 return new StoreCardResponseDto(store, count > 0);
-            }).collect(Collectors.toList());// 순서보장}
+            }).collect(Collectors.toList());
         }
     }
 }
