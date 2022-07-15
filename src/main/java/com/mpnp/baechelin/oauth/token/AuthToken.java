@@ -74,16 +74,15 @@ public class AuthToken {
         return null;
     }
 
-    // Access token을 재발급 받을 때 token이 유효한지 검사하는 로직
-    // 만료된 토큰일 때는 통과
-    public Claims getTokenClaimsForRefresh() {
+    // 만료된 토큰인지 확인하는 용도
+    public Claims getExpiredTokenClaims() {
         try {
             return Jwts.parserBuilder()
                     .setSigningKey(key)
                     .build()
                     .parseClaimsJws(token)
                     .getBody();
-        } catch (SecurityException e) {
+        } catch (SignatureException e) {
             log.info("잘못된 JWT 서명입니다.");
         } catch (MalformedJwtException e) {
             log.info("유효하지 않은 구성의 JWT 토큰입니다.");
@@ -91,22 +90,6 @@ public class AuthToken {
             log.info("지원되지 않는 형식이나 구성의 JWT 토큰입니다.");
         } catch (IllegalArgumentException e) {
             log.info(e.toString().split(":")[1].trim());
-        } catch (ExpiredJwtException e) {
-            log.info("만료된 JWT 토큰입니다.");
-            return e.getClaims();
-        }
-        return null;
-    }
-
-
-    // 만료된 토큰인지 확인하는 용도
-    public Claims getExpiredTokenClaims() {
-        try {
-            Jwts.parserBuilder()
-                    .setSigningKey(key)
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody();
         } catch (ExpiredJwtException e) {
             log.info("만료된 JWT 토큰입니다.");
             return e.getClaims();

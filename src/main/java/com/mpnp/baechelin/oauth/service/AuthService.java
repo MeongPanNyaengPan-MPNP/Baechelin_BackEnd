@@ -36,15 +36,14 @@ public class AuthService {
         String accessToken = HeaderUtil.getAccessToken(request);
         AuthToken authToken = tokenProvider.convertAuthToken(accessToken);
 
-        // 유효한 access token 인지 확인
-        if (authToken.getTokenClaimsForRefresh() == null) {
-            return AuthResponse.invalidAccessToken();
-        }
-
-        // expired access token 인지 확인
         Claims claims = authToken.getExpiredTokenClaims();
-        if (claims == null) {
-            return AuthResponse.notExpiredTokenYet();
+        // 유효한 access token 인지, 만료된 token 인지 확인
+        if (authToken.getExpiredTokenClaims() == null) {
+            return AuthResponse.invalidAccessToken();
+        } else {
+            if (claims == null) {
+                return AuthResponse.notExpiredTokenYet();
+            }
         }
 
         String userId = claims.getSubject();

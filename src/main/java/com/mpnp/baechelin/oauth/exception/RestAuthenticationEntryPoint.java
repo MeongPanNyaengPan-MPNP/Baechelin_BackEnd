@@ -1,5 +1,6 @@
 package com.mpnp.baechelin.oauth.exception;
 
+import com.google.gson.JsonObject;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -18,12 +19,34 @@ public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
             HttpServletRequest request,
             HttpServletResponse response,
             AuthenticationException authException
-    ) throws IOException, ServletException {
-        authException.printStackTrace();
-        log.info("Responding with unauthorized error. Message = {}", authException.getMessage());
-        response.sendError(
-                HttpServletResponse.SC_UNAUTHORIZED, // 401 에러코드
-                authException.getLocalizedMessage()
-        );
+    ) throws IOException {
+        Integer exception = (Integer)request.getAttribute("exception");
+
+        if(exception == null) {
+            setResponse(response, ErrorCode.FAILED_MESSAGE);
+        }
+        //잘못된 타입의 토큰인 경우
+        else if(exception.equals(ErrorCode.WRONG_TYPE_TOKEN.getCode())) {
+            setResponse(response, ErrorCode.WRONG_TYPE_TOKEN);
+        }
+        //토큰 만료된 경우
+        else if(exception.equals(ErrorCode.EXPIRED_TOKEN.getCode())) {
+            setResponse(response, ErrorCode.EXPIRED_TOKEN);
+        }
+        else {
+            setResponse(response, ErrorCode.ACCESS_DENIED);
+        }
+    }
+
+    //한글 출력을 위해 getWriter() 사용
+    private void setResponse(HttpServletResponse response, ErrorCode errorCode) throws IOException {
+        response.setContentType("application/json;charset=UTF-8");
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+
+        JsonObject responseJson = new JsonObject();
+        responseJson.addProperty("message", errorCode.getMessage());
+        responseJson.addProperty("code", errorCode.getCode());
+
+        response.getWriter().print(responseJson);
     }
 }
