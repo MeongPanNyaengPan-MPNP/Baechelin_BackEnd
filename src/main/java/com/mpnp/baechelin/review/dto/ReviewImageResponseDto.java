@@ -12,7 +12,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ReviewImageResponseDto {
     private String url;
-
     public ReviewImageResponseDto(ReviewImage reviewImage) {
         this.url = reviewImage.getReviewImageUrl();
     }
