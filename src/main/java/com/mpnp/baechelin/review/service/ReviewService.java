@@ -2,9 +2,11 @@ package com.mpnp.baechelin.review.service;
 
 import com.mpnp.baechelin.review.domain.Review;
 import com.mpnp.baechelin.review.domain.ReviewImage;
+import com.mpnp.baechelin.review.dto.ReviewMainResponseDto;
 import com.mpnp.baechelin.review.dto.ReviewRequestDto;
 import com.mpnp.baechelin.review.dto.ReviewResponseDto;
 import com.mpnp.baechelin.review.repository.ReviewImageRepository;
+import com.mpnp.baechelin.review.repository.ReviewQueryRepository;
 import com.mpnp.baechelin.review.repository.ReviewRepository;
 import com.mpnp.baechelin.store.domain.Store;
 import com.mpnp.baechelin.store.repository.StoreRepository;
@@ -20,8 +22,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -34,6 +38,7 @@ public class ReviewService {
     private final StoreRepository storeRepository;
     private final TagRepository tagRepository;
     private final ReviewImageRepository reviewImageRepository;
+    private final ReviewQueryRepository reviewQueryRepository;
     private final AwsS3Manager awsS3Manager;
 
     /**
@@ -99,4 +104,11 @@ public class ReviewService {
         reviewRepository.save(review);
         storeRepository.save(store.updatePointAvg(reviewRequestDto.getPoint()));
     }
+
+    public List<ReviewMainResponseDto> getRecentReview(BigDecimal lat, BigDecimal lng, int limit) {
+        return reviewQueryRepository
+                .findRecentReviews(lat, lng, limit)
+                .parallelStream().map(ReviewMainResponseDto::new).collect(Collectors.toList());
+    }
+
 }

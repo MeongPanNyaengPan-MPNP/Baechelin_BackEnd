@@ -2,10 +2,12 @@ package com.mpnp.baechelin.review.dto;
 
 import com.mpnp.baechelin.review.domain.Review;
 import com.mpnp.baechelin.tag.domain.Tag;
+import com.mpnp.baechelin.user.domain.User;
 import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Builder
@@ -23,7 +25,6 @@ public class ReviewResponseDto {
 
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
-
     private List<TagResponseDto> tagList;
 
     public ReviewResponseDto(Review review) {
@@ -35,8 +36,8 @@ public class ReviewResponseDto {
         this.createdAt = review.getCreatedAt();
         this.modifiedAt = review.getModifiedAt();
         this.reviewImageUrlList = review.getReviewImageList()
-                .stream().map(ReviewImageResponseDto::new).collect(Collectors.toList());
-        this.tagList = review.getTagList().stream().map(TagResponseDto::new).collect(Collectors.toList());
+                .parallelStream().map(ReviewImageResponseDto::new).collect(Collectors.toList());
+        this.tagList = review.getTagList().parallelStream().map(TagResponseDto::new).collect(Collectors.toList());
     }
     @Builder
     @AllArgsConstructor

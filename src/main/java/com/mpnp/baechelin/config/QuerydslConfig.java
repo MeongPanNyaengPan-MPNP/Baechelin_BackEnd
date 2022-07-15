@@ -1,13 +1,19 @@
 package com.mpnp.baechelin.config;
 
+import com.mpnp.baechelin.store.domain.Store;
+import com.mpnp.baechelin.store.dto.StoreCardResponseDto;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.StringPath;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.domain.Pageable;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.math.BigDecimal;
+import java.util.List;
 
 import static com.mpnp.baechelin.store.domain.QStore.store;
 
@@ -22,12 +28,4 @@ public class QuerydslConfig {
         return new JPAQueryFactory(entityManager);
     }
 
-    public static BooleanBuilder locationBuilder(BigDecimal latStart, BigDecimal latEnd, BigDecimal lngStart, BigDecimal lngEnd) {
-        BooleanBuilder builder = new BooleanBuilder();
-        builder.and(latStart == null ? null : store.latitude.goe(latStart));
-        builder.and(latEnd == null ? null : store.latitude.loe(latEnd));
-        builder.and(lngStart == null ? null : store.longitude.goe(lngStart));
-        builder.and(lngEnd == null ? null : store.longitude.loe(lngEnd));
-        return builder;
-    }
 }
