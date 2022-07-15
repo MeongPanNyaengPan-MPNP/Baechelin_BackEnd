@@ -1,4 +1,4 @@
-package com.mpnp.baechelin.api.model;
+package com.mpnp.baechelin.store.domain;
 
 import java.util.Arrays;
 

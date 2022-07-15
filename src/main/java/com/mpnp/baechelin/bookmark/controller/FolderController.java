@@ -1,8 +1,8 @@
 package com.mpnp.baechelin.bookmark.controller;
 
 
-import com.mpnp.baechelin.bookmark.dto.FolderReqDTO;
-import com.mpnp.baechelin.bookmark.dto.FolderResDTO;
+import com.mpnp.baechelin.bookmark.dto.FolderRequestDto;
+import com.mpnp.baechelin.bookmark.dto.FolderResponseDto;
 import com.mpnp.baechelin.bookmark.service.FolderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -18,12 +18,12 @@ public class FolderController {
 
     /** 폴더 신규 생성 */
     @PostMapping("/folder")
-    public void folder (@RequestBody FolderReqDTO folderReqDTO){
+    public void folder (@RequestBody FolderRequestDto folderRequestDto){
 
-        folderService.folder(folderReqDTO);
+        folderService.folder(folderRequestDto);
     }
 
-    /* 폴더 삭제 -> 삭제 시 안에 담긴 모든 북마크가 삭제됨 */
+    /** 폴더 삭제 -> 삭제 시 안에 담긴 모든 북마크가 삭제됨 */
 
     @DeleteMapping("/folder/{folderId}")
     public void folderDelete (@PathVariable int folderId){
@@ -31,8 +31,7 @@ public class FolderController {
         folderService.folderDelete(folderId);
     }
 
-    /* 폴더 명 변경 */
-
+    /** 폴더 명 변경 */
     @PutMapping("/folderUpdate/{folderId}")
     public void folderUpdate (@PathVariable int folderId, @RequestParam String newFolderName){
         System.out.println(newFolderName);
@@ -40,8 +39,9 @@ public class FolderController {
         folderService.folderUpdate(folderId, newFolderName);
     }
 
-    @PutMapping("/folderList/{userId}")
-    public List<FolderResDTO> folderList (@PathVariable int userId){
+    /** 폴더 리스트 */
+    @PostMapping("/folderList")
+    public List<FolderResponseDto> folderList (int userId){
 
         return folderService.folderList(userId);
     }

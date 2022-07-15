@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -27,6 +28,7 @@ public class AwsS3Manager {
 
     private final AmazonS3 amazonS3;
 
+    // 이미지 여러장 저장
     public List<String> uploadFile(List<MultipartFile> multipartFile) {
         List<String> fileNameList = new ArrayList<>();
 
@@ -53,6 +55,31 @@ public class AwsS3Manager {
         });
 
         return fileNameList;
+    }
+
+    // 이미지 단건 저장
+    public String uploadFile(MultipartFile file) {
+        if (Objects.equals(file.getOriginalFilename(), "")) {
+            return "";
+        }
+
+
+        // 파일은 단건만 추가 가능
+        String fileName = createFileName(file.getOriginalFilename());
+
+        ObjectMetadata objectMetadata = new ObjectMetadata();
+        objectMetadata.setContentLength(file.getSize());
+        objectMetadata.setContentType(file.getContentType());
+
+        try (InputStream inputStream = file.getInputStream()) {
+            amazonS3.putObject(new PutObjectRequest(bucket, fileName, inputStream, objectMetadata)
+                    .withCannedAcl(CannedAccessControlList.PublicRead));
+        } catch (IOException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다.");
+        }
+
+
+        return String.format("https://%s.s3.amazonaws.com/%s", bucket, fileName);
     }
 
     public void deleteFile(String fileName) {

@@ -1,6 +1,7 @@
 package com.mpnp.baechelin.oauth.token;
 
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.SignatureException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -51,7 +52,6 @@ public class AuthToken {
         return this.getTokenClaims() != null;
     }
 
-
     // 토큰의 claims, payload 값 가져오기
     public Claims getTokenClaims() {
         try {
@@ -60,7 +60,7 @@ public class AuthToken {
                     .build()
                     .parseClaimsJws(token)
                     .getBody();
-        } catch (SecurityException e) {
+        } catch (SignatureException e) {
             log.info("잘못된 JWT 서명입니다.");
         } catch (MalformedJwtException e) {
             log.info("유효하지 않은 구성의 JWT 토큰입니다.");
@@ -74,15 +74,22 @@ public class AuthToken {
         return null;
     }
 
-
     // 만료된 토큰인지 확인하는 용도
     public Claims getExpiredTokenClaims() {
         try {
-            Jwts.parserBuilder()
+            return Jwts.parserBuilder()
                     .setSigningKey(key)
                     .build()
                     .parseClaimsJws(token)
                     .getBody();
+        } catch (SignatureException e) {
+            log.info("잘못된 JWT 서명입니다.");
+        } catch (MalformedJwtException e) {
+            log.info("유효하지 않은 구성의 JWT 토큰입니다.");
+        } catch (UnsupportedJwtException e) {
+            log.info("지원되지 않는 형식이나 구성의 JWT 토큰입니다.");
+        } catch (IllegalArgumentException e) {
+            log.info(e.toString().split(":")[1].trim());
         } catch (ExpiredJwtException e) {
             log.info("만료된 JWT 토큰입니다.");
             return e.getClaims();

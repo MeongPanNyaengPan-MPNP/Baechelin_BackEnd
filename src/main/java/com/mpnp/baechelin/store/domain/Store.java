@@ -54,13 +54,28 @@ public class Store {
     @Column(nullable = false)
     private String approach;
 
+    @Column(nullable = false)
+    private int bookMarkCount = 0;
+
+    @Column(nullable = false)
+    private int reviewCount = 0;
+
+    @Column(nullable = false)
+    private double pointAvg = 0.0;
+
     // 연관관계 매핑
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<StoreImage> storeImageList = new ArrayList<>();
 
+    @OneToMany(mappedBy = "storeId", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Review> reviewList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "storeId", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Bookmark> bookmarkList = new ArrayList<>();
+
     public Store(PublicApiResponseDto.Row row) {
         //storeId - 임시
-        this.id = Integer.parseInt(row.getStoreId());
+        this.id = row.getStoreId();
         this.name = row.getSISULNAME();
         this.address = row.getADDR();
         this.phoneNumber = row.getTEL();
@@ -75,16 +90,27 @@ public class Store {
         //화장실
         this.toilet = row.getST5();
 
-        this.latitude = new BigDecimal(row.getLatitude());
-        this.longitude = new BigDecimal(row.getLongitude());
+        this.latitude = row.getLatitude();
+        this.longitude = row.getLongitude();
         this.category = row.getCategory();
     }
 
-    @OneToMany(mappedBy = "storeId", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Review> reviewList = new ArrayList<>();
+    public Store updateBookmarkCount(int upOrDown){
+        this.bookMarkCount += upOrDown;
+        return this;
+    }
 
-    @OneToMany(mappedBy = "storeId", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Bookmark> BookmarkList = new ArrayList<>();
+    // TODO 리뷰가 삭제될 때도 고려하기 - 삭제 후 적용되어야 함
+    public Store updatePointAvg(double changePoint){
+        this.reviewCount = reviewList.size();
+        double totalPoint = 0.0;
+        for (Review review : reviewList) {
+            totalPoint += review.getPoint();
+        }
+        this.pointAvg = Double.parseDouble(String.format("%.1f", totalPoint / reviewList.size()));
+        return this;
+    }
+
 
 
 }

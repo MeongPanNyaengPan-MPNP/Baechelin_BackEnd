@@ -7,7 +7,7 @@ import com.mpnp.baechelin.oauth.exception.ErrorCode;
 import com.mpnp.baechelin.oauth.exception.OAuthProviderMissMatchException;
 import com.mpnp.baechelin.oauth.info.OAuth2UserInfo;
 import com.mpnp.baechelin.oauth.info.OAuth2UserInfoFactory;
-import com.mpnp.baechelin.user.entity.user.User;
+import com.mpnp.baechelin.user.domain.User;
 import com.mpnp.baechelin.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
