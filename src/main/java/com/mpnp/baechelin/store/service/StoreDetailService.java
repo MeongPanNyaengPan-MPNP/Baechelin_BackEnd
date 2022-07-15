@@ -58,8 +58,8 @@ public class StoreDetailService {
             pointAvg = 0;
         }
 
-        String isBookmark = "";
         // TODO 북마크 여부 가져오기
+        String isBookmark = "N";
         for (Bookmark bookmark : store.getBookmarkList()) {
             if (user == null) {
                 isBookmark = "N";
