@@ -6,7 +6,6 @@ import com.mpnp.baechelin.user.domain.User;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,23 +30,28 @@ public class StoreCardResponseDto implements Comparable<StoreCardResponseDto> {
     private String heightDifferent;
     private String approach;
     private List<StoreImgResponseDto> storeImgList;
+    private int bookmarkCount;
     private boolean bookmark;
 
     @Builder.Default
     private double pointAvg = 0.0;
 
+    public StoreCardResponseDto(Store store) {
+
+    }
+
     @Override
     public int compareTo(StoreCardResponseDto sad) {
         if (this.pointAvg > sad.pointAvg) {
-            return 1;
-        } else if (this.pointAvg < sad.pointAvg) {
             return -1;
+        } else if (this.pointAvg < sad.pointAvg) {
+            return 1;
         }
         return 0;
     }
 
 
-    public StoreCardResponseDto(Store store, boolean bookmark) {
+    public StoreCardResponseDto(Store store, boolean isBookMark) {
         this.storeId = store.getId();
         this.category = store.getCategory();
         this.name = store.getName();
@@ -60,10 +64,11 @@ public class StoreCardResponseDto implements Comparable<StoreCardResponseDto> {
         this.phoneNumber = store.getPhoneNumber();
         this.heightDifferent = store.getHeightDifferent();
         this.approach = store.getApproach();
+        this.bookmarkCount = store.getBookMarkCount();
         this.storeImgList = store.getStoreImageList().parallelStream()
                 .map(StoreImgResponseDto::new).collect(Collectors.toList());
         this.pointAvg = Double.parseDouble(String.format(store.getReviewList().stream()
                 .collect(Collectors.averagingDouble(Review::getPoint)).toString(), 0.1f));
-        this.bookmark = bookmark;
+        this.bookmark = isBookMark;
     }
 }
