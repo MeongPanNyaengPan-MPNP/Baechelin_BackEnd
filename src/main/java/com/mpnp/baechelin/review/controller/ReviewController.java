@@ -15,7 +15,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.annotation.MultipartConfig;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
@@ -45,17 +47,30 @@ public class ReviewController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-//    /** 리뷰 수정 */
-//    @PatchMapping("/reviewUpdate/{reviewId}")
-//    public ResponseEntity<?> reviewUpdate(@ModelAttribute ReviewRequestDto reviewRequestDto,
-//                                          @AuthenticationPrincipal User user,
-//                                          @PathVariable int reviewId) throws IOException {
-//        if(user==null){
-//            throw new IllegalArgumentException("해당하는 회원 정보가 없습니다.");
-//        }
-//        reviewService.reviewUpdate(reviewRequestDto, user.getUsername(), reviewId);
-//        return new ResponseEntity<>(HttpStatus.OK);
-//    }
+    /** 리뷰 수정 */
+    @PatchMapping("/review/{reviewId}")
+    public ResponseEntity<?> reviewUpdate(@ModelAttribute ReviewRequestDto reviewRequestDto,
+                                          @AuthenticationPrincipal User user,
+                                          @PathVariable int reviewId) throws IOException {
+
+        if(user==null){ throw new IllegalArgumentException("해당하는 회원 정보가 없습니다."); }
+
+        reviewService.reviewUpdate(reviewRequestDto, user.getUsername(), reviewId);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    /** 리뷰 삭제 */
+    @DeleteMapping("/review/{reviewId}")
+    public ResponseEntity<?> reviewDelete(@AuthenticationPrincipal User user,
+                                          @PathVariable int reviewId) throws IOException {
+
+        if(user==null){ throw new IllegalArgumentException("해당하는 회원 정보가 없습니다."); }
+
+        reviewService.reviewDelete(user.getUsername(), reviewId);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 
     // TODO - 최근 등록한 리뷰 보여주기
     // 반경 넓히기
