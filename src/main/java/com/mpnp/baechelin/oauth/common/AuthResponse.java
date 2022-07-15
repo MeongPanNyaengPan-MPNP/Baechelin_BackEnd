@@ -23,6 +23,7 @@ public class AuthResponse<T> {
                 ErrorCode.SUCCESS_MESSAGE.getMessage()), map);
     }
 
+    // 이 밑에 코드는 전부 exception 으로 빼기
     public static <T> AuthResponse<T> fail() {
         return new AuthResponse<>(new AuthResponseHeader(
                 ErrorCode.FAILED_MESSAGE.getCode(),

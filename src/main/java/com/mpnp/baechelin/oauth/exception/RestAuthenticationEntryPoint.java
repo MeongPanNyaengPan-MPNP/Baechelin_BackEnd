@@ -20,7 +20,7 @@ public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
             HttpServletResponse response,
             AuthenticationException authException
     ) throws IOException {
-        String exception = (String)request.getAttribute("javax.servlet.error.exception");
+        String exception = (String)request.getAttribute("exception");
 
         if(exception == null) {
             setResponse(response, ErrorCode.FAILED_MESSAGE);
@@ -29,12 +29,15 @@ public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
         else if(exception.equals(ErrorCode.WRONG_TYPE_TOKEN.getCode())) {
             setResponse(response, ErrorCode.WRONG_TYPE_TOKEN);
         }
+        else if(exception.equals(ErrorCode.WRONG_TYPE_SIGNATURE.getCode())) {
+            setResponse(response, ErrorCode.WRONG_TYPE_SIGNATURE);
+        }
         //토큰 만료된 경우
         else if(exception.equals(ErrorCode.EXPIRED_TOKEN.getCode())) {
             setResponse(response, ErrorCode.EXPIRED_TOKEN);
         }
         else {
-            setResponse(response, ErrorCode.ACCESS_DENIED);
+            setResponse(response, ErrorCode.TOKEN_NOT_EXIST);
         }
     }
 

@@ -61,7 +61,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         if (savedUser != null) {
             // DB에 유저 정보가 있을 때
             if (providerType != savedUser.getProviderType()) {
-                throw new OAuthProviderMissMatchException(ErrorCode.ALREADY_LOGIN_ACCOUNT.getMessage());
+                throw new OAuthProviderMissMatchException(ErrorCode.ALREADY_LOGIN_ACCOUNT.getCode() + "=" + providerType);
             }
             updateUser(savedUser, userInfo);
         } else {

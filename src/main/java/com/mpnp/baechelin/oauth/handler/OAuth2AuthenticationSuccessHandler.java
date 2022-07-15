@@ -112,6 +112,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             userRefreshTokenRepository.saveAndFlush(userRefreshToken);
         }
 
+        // 쿠키 만료시간 = 리프레시 토큰 만료시간
         int cookieMaxAge = (int) refreshTokenExpiry / 60;
 
         // 기존에 cookie에 들어있는 refresh token을 삭제하고 다시 저장한다.

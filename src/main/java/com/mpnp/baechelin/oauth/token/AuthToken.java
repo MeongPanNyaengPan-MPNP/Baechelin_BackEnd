@@ -52,6 +52,15 @@ public class AuthToken {
         return this.getTokenClaims() != null;
     }
 
+    public boolean tokenValidate() {
+        Jws<Claims> claimsJws = Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token);
+        return !claimsJws.getBody().isEmpty();
+    }
+
+
     // 토큰의 claims, payload 값 가져오기
     public Claims getTokenClaims() {
         try {
