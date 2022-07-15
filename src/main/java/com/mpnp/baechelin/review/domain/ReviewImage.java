@@ -1,6 +1,6 @@
-package com.mpnp.baechelin.tag.domain;
+package com.mpnp.baechelin.review.domain;
 
-import com.mpnp.baechelin.review.domain.Review;
+import com.mpnp.baechelin.store.domain.Store;
 import com.mpnp.baechelin.util.TimeStamped;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,30 +9,26 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
-
 @Entity
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Tag extends TimeStamped {
-
+@Builder
+public class ReviewImage extends TimeStamped {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
 
-    @Column
-    private String tag;
-    //jpa를 리스트/JSON 집어넣는 방법?
+    @Column(nullable = false)
+    private String reviewImageUrl;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    // 연관관계 매핑
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "REVIEW_ID", nullable = false)
     private Review reviewId;
 
-    public Tag(String tag, Review review) {
-        this.tag = tag;
+    public void addReview(Review review, String reviewImageUrl){
         this.reviewId = review;
-    }
-    public void setReview(Review review){
-        this.reviewId = review;
+        this.reviewImageUrl = reviewImageUrl;
     }
 }

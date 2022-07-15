@@ -1,76 +1,72 @@
 package com.mpnp.baechelin.review.domain;
 
-import com.mpnp.baechelin.review.dto.ReviewReqDTO;
-import com.mpnp.baechelin.review.service.ReviewService;
+import com.mpnp.baechelin.review.dto.ReviewRequestDto;
 import com.mpnp.baechelin.store.domain.Store;
 import com.mpnp.baechelin.tag.domain.Tag;
-import com.mpnp.baechelin.user.entity.user.User;
+import com.mpnp.baechelin.user.domain.User;
 import com.mpnp.baechelin.util.TimeStamped;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class Review extends TimeStamped {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
 
     //평가(댓글)내용
     @Column(nullable = false)
-    private String review;
+    private String content;
 
     //별점
     @Column(nullable = false)
     private double point;
 
     //리뷰 이미지 URL
-    @Column(nullable = true)
-    private String reviewImageUrl;
+    @OneToMany(mappedBy = "reviewId", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ReviewImage> reviewImageList = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "STORE_ID", nullable = false)
     private Store storeId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "USER_ID", nullable = false, unique = true)
+    @JoinColumn(name = "USER_ID", nullable = false)
     private User userId;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "TAG_ID", nullable = false)
-    private Tag tagId;
+    @OneToMany(mappedBy = "reviewId", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Tag> tagList = new ArrayList<>();
 
-    @Builder
-    public Review (ReviewReqDTO reviewReqDTO, Store store, Tag tag, User user, String url) throws IOException {
 
-        if(reviewReqDTO.getImageFile() != null) {           //이미지 파일이 있을 경우
-            System.out.println("reviewReqDTO.getImageFile() != null");
-            ReviewService reviewService = null;
-            this.point          = reviewReqDTO.getPoint();
-            this.review         = reviewReqDTO.getComment();
-            this.reviewImageUrl = url;
-            this.storeId        = store;
-            this.tagId          = tag;
-            this.userId         = user;
+    public Review(ReviewRequestDto reviewRequestDto, Store store, User user) throws IOException {
+        this.point   = reviewRequestDto.getPoint();
+        this.userId  = user;
+        this.content = reviewRequestDto.getContent();
+        this.storeId = store;
+    }
 
-        } else if(reviewReqDTO.getImageFile() == null) {    //이미지 파일이 없을 경우
-            System.out.println("reviewReqDTO.getImageFile() == null");
-            this.point      = reviewReqDTO.getPoint();
-            this.review     = reviewReqDTO.getComment();
-            this.storeId    = store;
-            this.tagId      = tag;
-            this.userId     = user;
-        }
+    public void setImage(List<ReviewImage> reviewImageList){
+        this.reviewImageList = reviewImageList;
+    }
+    public void addSingleTag(Tag tag){
+        tag.setReview(this);
+        this.tagList.add(tag);
+    }
+
+    public void update(ReviewRequestDto reviewRequestDto){
+        this.point   = reviewRequestDto.getPoint();
+        this.content = reviewRequestDto.getContent();
     }
 
 }

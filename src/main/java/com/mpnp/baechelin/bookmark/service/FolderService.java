@@ -1,11 +1,11 @@
 package com.mpnp.baechelin.bookmark.service;
 
 import com.mpnp.baechelin.bookmark.domain.Folder;
-import com.mpnp.baechelin.bookmark.dto.FolderReqDTO;
-import com.mpnp.baechelin.bookmark.dto.FolderResDTO;
+import com.mpnp.baechelin.bookmark.dto.FolderRequestDto;
+import com.mpnp.baechelin.bookmark.dto.FolderResponseDto;
 import com.mpnp.baechelin.bookmark.repository.FolderRepository;
 
-import com.mpnp.baechelin.user.entity.user.User;
+import com.mpnp.baechelin.user.domain.User;
 import com.mpnp.baechelin.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,12 +23,12 @@ public class FolderService {
     private final UserRepository userRepository;
 
     @Transactional
-    public void folder(FolderReqDTO folderReqDTO) {
+    public void folder(FolderRequestDto folderRequestDto) {
 
         Optional<User> user = userRepository.findById(1);
 
         Folder folder = Folder.builder()
-                .folderName(folderReqDTO.getFolderName())
+                .folderName(folderRequestDto.getFolderName())
                 .userId(user.get())
                 .build();
         folderRepository.save(folder);
@@ -49,15 +49,15 @@ public class FolderService {
     }
 
     @Transactional(readOnly = true)
-    public List<FolderResDTO> folderList(int userId) {
+    public List<FolderResponseDto> folderList(int userId) {
         Optional<User> user = userRepository.findById(userId);
 
-        List<FolderResDTO> folderResDTOList = new ArrayList<>();
+        List<FolderResponseDto> folderResponseDtoList = new ArrayList<>();
 
         for(Folder obj : user.get().getFolderList()){
-            folderResDTOList.add(FolderResDTO.FolderDtoRes(obj));
+            folderResponseDtoList.add(FolderResponseDto.FolderDtoRes(obj));
         }
 
-        return folderResDTOList;
+        return folderResponseDtoList;
     }
 }

@@ -1,6 +1,6 @@
 package com.mpnp.baechelin.store.domain;
 
-import com.mpnp.baechelin.user.entity.user.User;
+import com.mpnp.baechelin.user.domain.User;
 import com.mpnp.baechelin.util.TimeStamped;
 import lombok.Builder;
 import lombok.Getter;

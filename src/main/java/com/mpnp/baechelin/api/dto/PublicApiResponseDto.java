@@ -4,8 +4,10 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mpnp.baechelin.api.model.LocationKeywordSearchForm;
+import com.mpnp.baechelin.store.domain.Store;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Builder
@@ -46,9 +48,9 @@ public class PublicApiResponseDto {
     public static class Row {
         @JsonProperty("SEQ")
         int SEQ;
-        String storeId;
-        String latitude;
-        String longitude;
+        Integer storeId;
+        BigDecimal latitude;
+        BigDecimal longitude;
         String category;
         @JsonProperty("SISULNAME")
         String SISULNAME;
@@ -86,14 +88,5 @@ public class PublicApiResponseDto {
         String ST11;
         @JsonProperty("ST12")
         String ST12;
-        public Row updateLatLng(String lat, String lng){
-            this.latitude = lat;
-            this.longitude = lng;
-            return this;
-        }
-        public Row updateCategory(String category){
-            this.category = category;
-            return this;
-        }
     }
 }
