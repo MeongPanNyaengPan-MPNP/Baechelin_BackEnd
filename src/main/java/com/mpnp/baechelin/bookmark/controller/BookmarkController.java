@@ -2,7 +2,6 @@ package com.mpnp.baechelin.bookmark.controller;
 
 import com.mpnp.baechelin.bookmark.dto.BookmarkRequestDto;
 import com.mpnp.baechelin.bookmark.service.BookmarkService;
-import com.mpnp.baechelin.oauth.entity.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
