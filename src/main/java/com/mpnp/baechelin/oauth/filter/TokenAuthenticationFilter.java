@@ -3,6 +3,7 @@ package com.mpnp.baechelin.oauth.filter;
 import com.mpnp.baechelin.oauth.token.AuthToken;
 import com.mpnp.baechelin.oauth.token.AuthTokenProvider;
 import com.mpnp.baechelin.util.HeaderUtil;
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;

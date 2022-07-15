@@ -75,6 +75,7 @@ public class AuthToken {
     }
 
     // Access token을 재발급 받을 때 token이 유효한지 검사하는 로직
+    // 만료된 토큰일 때는 통과
     public Claims getTokenClaimsForRefresh() {
         try {
             return Jwts.parserBuilder()
