@@ -20,7 +20,7 @@ public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
             HttpServletResponse response,
             AuthenticationException authException
     ) throws IOException {
-        Integer exception = (Integer)request.getAttribute("exception");
+        String exception = (String)request.getAttribute("javax.servlet.error.exception");
 
         if(exception == null) {
             setResponse(response, ErrorCode.FAILED_MESSAGE);
