@@ -106,7 +106,7 @@ public class ReviewService {
     public List<ReviewMainResponseDto> getRecentReview(BigDecimal lat, BigDecimal lng, int limit) {
         return reviewQueryRepository
                 .findRecentReviews(lat, lng, limit)
-                .parallelStream().map(review -> new ReviewMainResponseDto(review, review.getStoreId(), review.getUserId())).collect(Collectors.toList());
+                .stream().map(review -> new ReviewMainResponseDto(review, review.getStoreId(), review.getUserId())).collect(Collectors.toList());
     }
 
 }

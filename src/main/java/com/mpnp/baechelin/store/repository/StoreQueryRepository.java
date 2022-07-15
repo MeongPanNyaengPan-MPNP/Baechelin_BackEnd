@@ -62,10 +62,19 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
 
         List<Store> storeList = queryFactory.selectFrom(store)
                 .where(builder)
-                .orderBy()
                 .limit(pageable.getPageSize())
                 .offset(pageable.getOffset())
                 .fetch();
+        // 가까운순으로 정렬하기
+        if (latEnd != null && latStart != null && lngStart != null && lngEnd != null) {
+            BigDecimal nowLat = (latStart.add(latEnd)).divide(new BigDecimal("2"), 22, RoundingMode.HALF_UP);
+            BigDecimal nowLng = (lngStart.add(lngEnd)).divide(new BigDecimal("2"), 22, RoundingMode.HALF_UP);
+            storeList.sort((thisStore, newStore) -> {
+                BigDecimal thisDiff = nowLat.subtract(thisStore.getLatitude()).abs().add(nowLng.subtract(thisStore.getLongitude()).abs());
+                BigDecimal newDiff = nowLat.subtract(newStore.getLatitude()).abs().add(nowLng.subtract(newStore.getLongitude()).abs());
+                return thisDiff.compareTo(newDiff);
+            });
+        }
         int fetchCount = queryFactory.selectFrom(store).where(builder).fetch().size();
         return new PageImpl<>(storeList, pageable, fetchCount);
     }
@@ -76,7 +85,7 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
                                              BigDecimal lng,
                                              String category,
                                              List<String> facility,
-                                             Pageable pageable, User user) {
+                                             Pageable pageable) {
 
         BooleanBuilder builder = locTwoPointAndConditions(lat, lng, category, facility);
 // 직접 DTO를 조작

@@ -1,9 +1,7 @@
 package com.mpnp.baechelin.store.service;
 
-import com.mpnp.baechelin.bookmark.domain.Bookmark;
 import com.mpnp.baechelin.bookmark.repository.BookmarkRepository;
 import com.mpnp.baechelin.review.domain.Review;
-import com.mpnp.baechelin.review.dto.ReviewResponseDto;
 import com.mpnp.baechelin.review.repository.ReviewRepository;
 import com.mpnp.baechelin.store.domain.Store;
 import com.mpnp.baechelin.store.dto.StoreCardResponseDto;
@@ -86,15 +84,15 @@ public class StoreService {
         User targetUser = socialId == null ? null : userRepository.findBySocialId(socialId);
         Page<Store> betweenLngLat = storeQueryRepository.findBetweenLngLat(latStart, latEnd, lngStart, lngEnd, category, facility, pageable);
         // store  가져와서 dto 매핑
-        return getStoreCardPagedResponseDtos(targetUser, betweenLngLat);
+        return getStoreCardPagedResponseDto(targetUser, betweenLngLat);
     }
 
 //    public List<StoreCardResponseDto> getStoreInRangeHighPoint(BigDecimal lat, BigDecimal lng, String
     public StorePagedResponseDto getStoreInRangeHighPoint(BigDecimal lat, BigDecimal lng, String
             category, List<String> facility, Pageable pageable, String socialId) {
         User targetUser = socialId == null ? null : userRepository.findBySocialId(socialId);
-        Page<Store> resultList = storeQueryRepository.findStoreOrderByPoint(lat, lng, category, facility, pageable, targetUser);
-        return getStoreCardPagedResponseDtos(targetUser, resultList);
+        Page<Store> resultList = storeQueryRepository.findStoreOrderByPoint(lat, lng, category, facility, pageable);
+        return getStoreCardPagedResponseDto(targetUser, resultList);
     }
 
     public List<StoreCardResponseDto> getStoreInRangeHighBookmark(BigDecimal lat, BigDecimal lng, String
@@ -104,7 +102,7 @@ public class StoreService {
         return getStoreCardResponseDtos(targetUser, highBookmarkResultList);
     }
 
-    private StorePagedResponseDto getStoreCardPagedResponseDtos(User targetUser, Page<Store> resultStoreList) {
+    private StorePagedResponseDto getStoreCardPagedResponseDto(User targetUser, Page<Store> resultStoreList) {
         List<StoreCardResponseDto> mappingResult = new ArrayList<>();
         if (targetUser == null) {
             for (Store store : resultStoreList) {
