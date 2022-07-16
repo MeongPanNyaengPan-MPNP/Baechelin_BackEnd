@@ -1,9 +1,10 @@
 package com.mpnp.baechelin.api.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.mpnp.baechelin.api.model.LocationAddressSearchForm;
 import com.mpnp.baechelin.config.httpclient.HttpConfig;
 import com.mpnp.baechelin.api.model.LocationKeywordSearchForm;
-import com.mpnp.baechelin.store.repository.StoreQueryRepository;
+import com.mpnp.baechelin.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
@@ -17,14 +18,17 @@ import javax.transaction.Transactional;
 import java.net.URI;
 import java.util.*;
 
+import static com.mpnp.baechelin.exception.ErrorCode.API_LOAD_FAILURE;
+import static com.mpnp.baechelin.exception.ErrorCode.API_NO_RESULT;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
 @Transactional
 public class LocationService {
     private final HttpConfig httpConfig;
-    private final StoreQueryRepository storeQueryRepository;
-        /**
+
+    /**
      * @param address 주소
      * @return LocationKeywordSearchForm의 규격에 맞는 결과 하나를 가져옴
      */
@@ -74,7 +78,7 @@ public class LocationService {
 
     /**
      * RestTemplate으로 위도, 경도 받아오기
-     * */
+     */
 
     public LocationKeywordSearchForm giveLatLngByAddressRest(String address) throws JsonProcessingException {
         HttpHeaders headers = new HttpHeaders();
@@ -84,15 +88,15 @@ public class LocationService {
         URI uri = UriComponentsBuilder
                 .fromUriString("https://dapi.kakao.com/v2/local/search/keyword.json")
                 .queryParam("query", address)
-                .queryParam("page",1)
-                .queryParam("size",1)
+                .queryParam("page", 1)
+                .queryParam("size", 1)
                 .encode()
                 .build()
                 .toUri();
 
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<LocationKeywordSearchForm> resultRe = restTemplate.exchange(
-                uri,HttpMethod.GET,new HttpEntity<>(headers),LocationKeywordSearchForm.class
+                uri, HttpMethod.GET, new HttpEntity<>(headers), LocationKeywordSearchForm.class
         );
         return resultRe.getBody();
     }
@@ -104,7 +108,7 @@ public class LocationService {
         headers.set("Authorization", "KakaoAK 04940cceefec44d7adb62166b7971cd5");
         URI uri = UriComponentsBuilder
                 .fromUriString("https://dapi.kakao.com/v2/local/search/keyword.json")
-                .queryParam("query",storeName)
+                .queryParam("query", storeName)
                 .queryParam("x", lng)//위도, 경도 지정
                 .queryParam("y", lat)
                 .queryParam("radius", 200)
@@ -116,9 +120,33 @@ public class LocationService {
 
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<LocationKeywordSearchForm> resultRe = restTemplate.exchange(
-                uri,HttpMethod.GET,new HttpEntity<>(headers),LocationKeywordSearchForm.class
+                uri, HttpMethod.GET, new HttpEntity<>(headers), LocationKeywordSearchForm.class
         );
         return resultRe.getBody();
 
+    }
+
+    public String convertLatLngToAddressWithRestTemplate(String lat, String lng) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Authorization", "KakaoAK 04940cceefec44d7adb62166b7971cd5");
+        URI uri = UriComponentsBuilder
+                .fromUriString("https://dapi.kakao.com/v2/local/geo/coord2address.json")
+                .queryParam("x", lng)//위도, 경도 지정
+                .queryParam("y", lat)
+                .encode()
+                .build()
+                .toUri();
+
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<LocationAddressSearchForm> resultRe = restTemplate.exchange(
+                uri, HttpMethod.GET, new HttpEntity<>(headers), LocationAddressSearchForm.class
+        );
+        LocationAddressSearchForm result = resultRe.getBody();
+        if (result == null) throw new CustomException(API_LOAD_FAILURE);
+        LocationAddressSearchForm.TotalAddress totalAddress = Arrays.stream(result.getDocuments())
+                .findFirst().orElseThrow(() -> new CustomException(API_NO_RESULT));
+        return totalAddress.getAddress().getAddress_name();
     }
 }
