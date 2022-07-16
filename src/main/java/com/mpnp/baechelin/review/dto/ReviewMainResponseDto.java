@@ -2,11 +2,13 @@ package com.mpnp.baechelin.review.dto;
 
 import com.mpnp.baechelin.review.domain.Review;
 import com.mpnp.baechelin.store.domain.Store;
+import com.mpnp.baechelin.user.domain.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,12 +26,17 @@ public class ReviewMainResponseDto {
     private double point; //별점
     private List<ReviewImageResponseDto> reviewImageUrlList; //리뷰 이미지 사진
     private List<ReviewResponseDto.TagResponseDto> tagList;
-    public ReviewMainResponseDto(Review review) {
-//        this.storeId = store.getId();
+
+    public ReviewMainResponseDto(Review review, Store store, User user) {
+        this.storeId = store.getId();
+        this.userId = user.getId();
+        this.storeName = store.getName();
+        this.userName = user.getEmail();
         this.content = review.getContent();
         this.point = review.getPoint();
         this.reviewImageUrlList = review.getReviewImageList()
-                .parallelStream().map(ReviewImageResponseDto::new).collect(Collectors.toList());
-        this.tagList = review.getTagList().parallelStream().map(ReviewResponseDto.TagResponseDto::new).collect(Collectors.toList());
+                .stream().map(ReviewImageResponseDto::new).collect(Collectors.toList());
+        this.tagList = review.getTagList()
+                .stream().map(ReviewResponseDto.TagResponseDto::new).collect(Collectors.toList());
     }
 }

@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -77,21 +76,20 @@ public class ReviewService {
     }
 
     public void reviewUpdate(ReviewRequestDto reviewRequestDto, String socialId, int reviewId) throws IOException {
-        int   storeId  = reviewRequestDto.getStoreId();
-        User  user     = userRepository.findBySocialId(socialId);
-        Store store    = storeRepository.findById(storeId).orElseThrow(() -> new IllegalArgumentException("해당하는 업장이 존재하지 않습니다."));
+        int storeId = reviewRequestDto.getStoreId();
+        User user = userRepository.findBySocialId(socialId);
+        Store store = storeRepository.findById(storeId).orElseThrow(() -> new IllegalArgumentException("해당하는 업장이 존재하지 않습니다."));
 
         // 리뷰이미지 변환
-        List<ReviewImage>   reviewImageUrlList = new ArrayList<>();
-        List<MultipartFile> imageFileList      = reviewRequestDto.getImageFile();
+        List<ReviewImage> reviewImageUrlList = new ArrayList<>();
+        List<MultipartFile> imageFileList = reviewRequestDto.getImageFile();
 //        awsS3Manager.deleteFile();
 
         for (MultipartFile reviewImage : imageFileList) {
             reviewImageUrlList.add(ReviewImage.builder().reviewImageUrl(awsS3Manager.uploadFile(reviewImage)).build());
         }
 
-
-        Review       review  = reviewRepository.findById(reviewId).orElseThrow(() -> new IllegalArgumentException("해당하는 리뷰가 없습니다."));
+        Review review = reviewRepository.findById(reviewId).orElseThrow(() -> new IllegalArgumentException("해당하는 리뷰가 없습니다."));
         List<String> tagList = reviewRequestDto.getTagList();
 
         review.update(reviewRequestDto);
@@ -108,7 +106,7 @@ public class ReviewService {
     public List<ReviewMainResponseDto> getRecentReview(BigDecimal lat, BigDecimal lng, int limit) {
         return reviewQueryRepository
                 .findRecentReviews(lat, lng, limit)
-                .parallelStream().map(ReviewMainResponseDto::new).collect(Collectors.toList());
+                .stream().map(review -> new ReviewMainResponseDto(review, review.getStoreId(), review.getUserId())).collect(Collectors.toList());
     }
 
 }

@@ -37,11 +37,16 @@ public class StoreController {
                                                  @RequestParam(required = false) BigDecimal latEnd,
                                                  @RequestParam(required = false) BigDecimal lngStart,
                                                  @RequestParam(required = false) BigDecimal lngEnd,
+                                                 @RequestParam(required = false) BigDecimal lat,
+                                                 @RequestParam(required = false) BigDecimal lng,
                                                  @RequestParam(required = false) String category,
                                                  @RequestParam(required = false) List<String> facility,
                                                  @PageableDefault Pageable pageable,
                                                  @AuthenticationPrincipal User user) {
-        return storeService.getStoreInRange(latStart, latEnd, lngStart, lngEnd, category, facility, pageable, user == null ? null : user.getUsername());
+        if (lat != null && lng != null)
+            return storeService.getStoreInRangeMain(lat, lng, category, facility, pageable, user == null ? null : user.getUsername());
+        else
+            return storeService.getStoreInRange(latStart, latEnd, lngStart, lngEnd, category, facility, pageable, user == null ? null : user.getUsername());
     }
 
     @GetMapping("/point")

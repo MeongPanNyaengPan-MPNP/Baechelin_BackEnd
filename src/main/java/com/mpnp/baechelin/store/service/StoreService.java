@@ -1,9 +1,8 @@
 package com.mpnp.baechelin.store.service;
 
-import com.mpnp.baechelin.bookmark.domain.Bookmark;
 import com.mpnp.baechelin.bookmark.repository.BookmarkRepository;
+import com.mpnp.baechelin.config.QuerydslLocation;
 import com.mpnp.baechelin.review.domain.Review;
-import com.mpnp.baechelin.review.dto.ReviewResponseDto;
 import com.mpnp.baechelin.review.repository.ReviewRepository;
 import com.mpnp.baechelin.store.domain.Store;
 import com.mpnp.baechelin.store.dto.StoreCardResponseDto;
@@ -86,15 +85,27 @@ public class StoreService {
         User targetUser = socialId == null ? null : userRepository.findBySocialId(socialId);
         Page<Store> betweenLngLat = storeQueryRepository.findBetweenLngLat(latStart, latEnd, lngStart, lngEnd, category, facility, pageable);
         // store  가져와서 dto 매핑
-        return getStoreCardPagedResponseDtos(targetUser, betweenLngLat);
+        return getStoreCardPagedResponseDto(targetUser, betweenLngLat);
     }
 
-//    public List<StoreCardResponseDto> getStoreInRangeHighPoint(BigDecimal lat, BigDecimal lng, String
+    public StorePagedResponseDto getStoreInRangeMain(BigDecimal lat, BigDecimal lng, String category, List<String> facility, Pageable pageable, String socialId) {
+        BigDecimal[] range = QuerydslLocation.getRange(lat, lng, 10);
+        return getStoreInRange(range[0], range[1], range[2], range[3], category, facility, pageable, socialId);
+    }
+
+    public StorePagedResponseDto getStoreInRangeMap(BigDecimal lat, BigDecimal lng, String category, List<String> facility, Pageable pageable, String socialId) {
+        User targetUser = socialId == null ? null : userRepository.findBySocialId(socialId);
+        Page<Store> betweenLngLat = storeQueryRepository.findStoreOrderByPoint(lat, lng, category, facility, pageable);
+        // store  가져와서 dto 매핑
+        return getStoreCardPagedResponseDto(targetUser, betweenLngLat);
+    }
+
+    //    public List<StoreCardResponseDto> getStoreInRangeHighPoint(BigDecimal lat, BigDecimal lng, String
     public StorePagedResponseDto getStoreInRangeHighPoint(BigDecimal lat, BigDecimal lng, String
             category, List<String> facility, Pageable pageable, String socialId) {
         User targetUser = socialId == null ? null : userRepository.findBySocialId(socialId);
-        Page<Store> resultList = storeQueryRepository.findStoreOrderByPoint(lat, lng, category, facility, pageable, targetUser);
-        return getStoreCardPagedResponseDtos(targetUser, resultList);
+        Page<Store> resultList = storeQueryRepository.findStoreOrderByPoint(lat, lng, category, facility, pageable);
+        return getStoreCardPagedResponseDto(targetUser, resultList);
     }
 
     public List<StoreCardResponseDto> getStoreInRangeHighBookmark(BigDecimal lat, BigDecimal lng, String
@@ -104,7 +115,7 @@ public class StoreService {
         return getStoreCardResponseDtos(targetUser, highBookmarkResultList);
     }
 
-    private StorePagedResponseDto getStoreCardPagedResponseDtos(User targetUser, Page<Store> resultStoreList) {
+    private StorePagedResponseDto getStoreCardPagedResponseDto(User targetUser, Page<Store> resultStoreList) {
         List<StoreCardResponseDto> mappingResult = new ArrayList<>();
         if (targetUser == null) {
             for (Store store : resultStoreList) {
@@ -122,14 +133,14 @@ public class StoreService {
 
     private List<StoreCardResponseDto> getStoreCardResponseDtos(User targetUser, List<Store> resultStoreList) {
         if (targetUser == null) {
-            return resultStoreList.parallelStream().map(store -> new StoreCardResponseDto(store, false))
+            return resultStoreList.stream().map(store -> new StoreCardResponseDto(store, false))
                     .collect(Collectors.toList());
         } else {
-            return resultStoreList.parallelStream().map(store -> {
+            return resultStoreList.stream().map(store -> {
                 long count = targetUser.getBookmarkList().stream()
                         .filter(b -> b.getUserId() == targetUser && b.getStoreId() == store).count();
                 return new StoreCardResponseDto(store, count > 0);
-            }).collect(Collectors.toList());// 순서보장}
+            }).collect(Collectors.toList());
         }
     }
 }
