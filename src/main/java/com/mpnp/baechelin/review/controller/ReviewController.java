@@ -40,10 +40,11 @@ public class ReviewController {
     @PostMapping("/review")
     public ResponseEntity<?> review(@ModelAttribute ReviewRequestDto reviewRequestDto,
                                     @AuthenticationPrincipal User user) throws IOException {
-        if(user==null){
-            throw new IllegalArgumentException("해당하는 회원 정보가 없습니다.");
-        }
+
+
+        if(user==null){ throw new IllegalArgumentException("해당하는 회원 정보가 없습니다.");}
         reviewService.review(reviewRequestDto, user.getUsername());
+
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -54,7 +55,6 @@ public class ReviewController {
                                           @PathVariable int reviewId) throws IOException {
 
         if(user==null){ throw new IllegalArgumentException("해당하는 회원 정보가 없습니다."); }
-
         reviewService.reviewUpdate(reviewRequestDto, user.getUsername(), reviewId);
 
         return new ResponseEntity<>(HttpStatus.OK);
@@ -66,7 +66,6 @@ public class ReviewController {
                                           @PathVariable int reviewId) throws IOException {
 
         if(user==null){ throw new IllegalArgumentException("해당하는 회원 정보가 없습니다."); }
-
         reviewService.reviewDelete(user.getUsername(), reviewId);
 
         return new ResponseEntity<>(HttpStatus.OK);
