@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mpnp.baechelin.api.model.LocationAddressSearchForm;
 import com.mpnp.baechelin.config.httpclient.HttpConfig;
 import com.mpnp.baechelin.api.model.LocationKeywordSearchForm;
-import com.mpnp.baechelin.exception.CustomException;
+import com.mpnp.baechelin.store.domain.Category;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
@@ -17,9 +17,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import javax.transaction.Transactional;
 import java.net.URI;
 import java.util.*;
-
-import static com.mpnp.baechelin.exception.ErrorCode.API_LOAD_FAILURE;
-import static com.mpnp.baechelin.exception.ErrorCode.API_NO_RESULT;
 
 @Service
 @Slf4j
@@ -79,6 +76,26 @@ public class LocationService {
     /**
      * RestTemplate으로 위도, 경도 받아오기
      */
+    public Map<String, Object> convertAddressToGeo(String address) {
+        Map<String, Object> map = new HashMap<>();
+        // status?, latitude, longitude 를 키로 가지는 HashMap 생성
+        LocationKeywordSearchForm locationKeywordSearchForm = giveLatLngByAddress(address);
+//        latLngDoc.getY()
+        if (locationKeywordSearchForm == null) {
+            map.put("status", false);
+        } else {
+            LocationKeywordSearchForm.Documents latLngDoc
+                    = Arrays.stream(locationKeywordSearchForm.getDocuments()).findAny().orElse(null);
+            if (latLngDoc != null) {
+                map.put("latitude", latLngDoc.getY());
+                map.put("longitude", latLngDoc.getX());
+                map.put("status", true);
+            } else {
+                map.put("status", false);
+            }
+        }
+        return map;
+    }
 
     public LocationKeywordSearchForm giveLatLngByAddressRest(String address) throws JsonProcessingException {
         HttpHeaders headers = new HttpHeaders();
@@ -101,7 +118,7 @@ public class LocationService {
         return resultRe.getBody();
     }
 
-    public LocationKeywordSearchForm giveCategoryByLatLngKeywordRest(String lat, String lng, String storeName) throws JsonProcessingException {
+    public LocationKeywordSearchForm giveCategoryByLatLngKeywordRest(String lat, String lng, String storeName) {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -126,7 +143,39 @@ public class LocationService {
 
     }
 
-    public String convertLatLngToAddressWithRestTemplate(String lat, String lng) {
+    public Map<String, Object> convertGeoAndStoreNameToKeyword(String lat, String lng, String storeName) {
+        Map<String, Object> map = new HashMap<>();
+        // status?, latitude, longitude 를 키로 가지는 HashMap 생성
+        LocationKeywordSearchForm locationKeywordSearchForm = giveCategoryByLatLngKeywordRest(lat, lng, storeName);
+//        latLngDoc.getY()
+        if (locationKeywordSearchForm == null) {
+            map.put("status", false);
+        } else {
+            LocationKeywordSearchForm.Documents latLngDoc
+                    = Arrays.stream(locationKeywordSearchForm.getDocuments()).findFirst().orElse(null);
+            if (latLngDoc != null) {
+                map.put("category", categoryFilter(latLngDoc.getCategory_name()));
+                map.put("storeId", Integer.parseInt(latLngDoc.getId()));
+                map.put("storeName", latLngDoc.getPlace_name());
+                map.put("status", true);
+            } else {
+                map.put("status", false);
+            }
+        }
+        return map;
+    }
+
+    private String categoryFilter(String category) {
+        if (category == null) {
+            return Category.ETC.getDesc();
+        } else if (category.contains(">")) {
+            return Category.giveCategory(category.split(" > ")[1]).getDesc();
+        } else {
+            return null;
+        }
+    }
+
+    public Map<String, Object> convertGeoToAddress(String lat, String lng) {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -143,10 +192,19 @@ public class LocationService {
         ResponseEntity<LocationAddressSearchForm> resultRe = restTemplate.exchange(
                 uri, HttpMethod.GET, new HttpEntity<>(headers), LocationAddressSearchForm.class
         );
-        LocationAddressSearchForm result = resultRe.getBody();
-        if (result == null) throw new CustomException(API_LOAD_FAILURE);
-        LocationAddressSearchForm.TotalAddress totalAddress = Arrays.stream(result.getDocuments())
-                .findFirst().orElseThrow(() -> new CustomException(API_NO_RESULT));
-        return totalAddress.getAddress().getAddress_name();
+        LocationAddressSearchForm locationKeywordSearchForm = resultRe.getBody();
+        Map<String, Object> map = new HashMap<>();
+        if (locationKeywordSearchForm == null) {
+            map.put("status", false);
+        } else {
+            LocationAddressSearchForm.TotalAddress address = Arrays.stream(locationKeywordSearchForm.getDocuments()).findFirst().orElse(null);
+            if (address != null) {
+                map.put("address", address.getAddress().getAddress_name());
+                map.put("status", true);
+            } else {
+                map.put("status", false);
+            }
+        }
+        return map;
     }
 }
