@@ -85,7 +85,7 @@ public class PublicApiService {
 //
 //    }
 
-    public PublicApiResponseDto processApiToDBWithRestTemplate(PublicApiRequestDto publicApiRequestDto){
+    public PublicApiResponseDto processApiToDBWithRestTemplate(PublicApiRequestDto publicApiRequestDto) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_XML);
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
@@ -142,7 +142,8 @@ public class PublicApiService {
     }
 
     private void setRowCategoryAndId(PublicApiResponseDto.Row row) throws JsonProcessingException {
-        LocationKeywordSearchForm categorySearchForm = locationService.giveCategoryByLatLngKeywordRest(String.valueOf(row.getLatitude()), String.valueOf(row.getLongitude()), row.getSISULNAME());
+        LocationKeywordSearchForm categorySearchForm = locationService
+                .giveCategoryByLatLngKeywordRest(String.valueOf(row.getLatitude()), String.valueOf(row.getLongitude()), row.getSISULNAME());
 //        LocationKeywordSearchForm categorySearchForm = locationService.giveCategoryByLatLngKeyword(row.getLatitude(), row.getLongitude(), row.getSISULNAME());
         LocationKeywordSearchForm.Documents categoryDoc = Arrays.stream(categorySearchForm.getDocuments()).findFirst().orElse(null);
         if (categoryDoc == null || !Arrays.asList("FD6", "CE7").contains(categoryDoc.getCategory_group_code()))
@@ -158,9 +159,16 @@ public class PublicApiService {
                 .map(Store::new).collect(Collectors.toList());
         // storeRepository 구현 시 save 호출하기
         for (Store store : storeList) {
-//            log.debug("miniRow print : {}", store.toString());
             if (!storeRepository.existsById(store.getId())) {
                 storeRepository.save(store);
+//            } else {
+//                storeRepository.findById(store.getId())
+//                        .ifPresent(s -> {
+//                            s.setCategory(store.getCategory());
+//                            storeRepository.save(s);
+//                        });
+//
+//            }
             }
         }
     }
