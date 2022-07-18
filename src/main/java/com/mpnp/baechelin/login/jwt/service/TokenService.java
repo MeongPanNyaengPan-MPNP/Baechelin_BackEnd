@@ -30,18 +30,25 @@ public class TokenService {
     private final AuthTokenProvider tokenProvider;
     private final UserRefreshTokenRepository userRefreshTokenRepository;
     private final static long THREE_DAYS_MSEC = 259200000;
+    private final static long FIVE_MINIUTE_MSEC = 300000;
     private final static String REFRESH_TOKEN = "refresh_token";
 
-    public AuthResponse refreshToken(HttpServletRequest request, HttpServletResponse response) {
+
+    public AuthResponse<?> refreshToken(HttpServletRequest request, HttpServletResponse response) {
         String accessToken = HeaderUtil.getAccessToken(request);
         AuthToken authToken = tokenProvider.convertAuthToken(accessToken);
 
         Claims claims = authToken.getExpiredTokenClaims();
+        // 토큰 유효시간 계산을 위한 현재시간 가져오기
+        Date now = new Date();
+        // access token 유효시간
+        long AccessValidTime = claims.getExpiration().getTime() - now.getTime();
+
         // 유효한 access token 인지, 만료된 token 인지 확인
         if (authToken.getExpiredTokenClaims() == null) {
             return AuthResponse.invalidAccessToken();
         } else {
-            if (claims == null) {
+            if (AccessValidTime >= FIVE_MINIUTE_MSEC) {
                 return AuthResponse.notExpiredTokenYet();
             }
         }
@@ -49,7 +56,7 @@ public class TokenService {
         String userId = claims.getSubject();
         RoleType roleType = RoleType.of(claims.get("role", String.class));
 
-        // refresh token
+        // refresh token을 cookie에서 가져온다.
         String refreshToken = CookieUtil.getCookie(request, REFRESH_TOKEN)
                 .map(Cookie::getValue)
                 .orElse((null));
@@ -59,26 +66,28 @@ public class TokenService {
             return AuthResponse.invalidRefreshToken();
         }
 
-        // userId refresh token 으로 DB 확인
+        // userId와 refresh token 으로 DB 확인
         UserRefreshToken userRefreshToken = userRefreshTokenRepository.findBySocialIdAndRefreshToken(userId, refreshToken);
         if (userRefreshToken == null) {
             return AuthResponse.invalidRefreshToken();
         }
 
-        Date now = new Date();
+        // Access token 재발급
         AuthToken newAccessToken = tokenProvider.createAuthToken(
                 userId,
                 roleType.getCode(),
                 new Date(now.getTime() + appProperties.getAuth().getTokenExpiry())
         );
 
-        long validTime = authRefreshToken.getTokenClaims().getExpiration().getTime() - now.getTime();
+        // TODO 예외 처리 하기
+        long RefreshValidTime = authRefreshToken.getTokenClaims().getExpiration().getTime() - now.getTime();
 
         // refresh 토큰 기간이 3일 이하로 남은 경우, refresh 토큰 갱신
-        if (validTime <= THREE_DAYS_MSEC) {
-            // refresh 토큰 설정
+        if (RefreshValidTime <= THREE_DAYS_MSEC) {
+            // refresh 토큰 유효기간 가져오기
             long refreshTokenExpiry = appProperties.getAuth().getRefreshTokenExpiry();
 
+            // refresh 토큰 생성
             authRefreshToken = tokenProvider.createAuthToken(
                     appProperties.getAuth().getTokenSecret(),
                     new Date(now.getTime() + refreshTokenExpiry)
