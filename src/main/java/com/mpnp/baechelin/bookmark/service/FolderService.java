@@ -22,41 +22,49 @@ public class FolderService {
     private final FolderRepository folderRepository;
     private final UserRepository userRepository;
 
+    /** 폴더 생성 */
     @Transactional
-    public void folder(FolderRequestDto folderRequestDto) {
+    public void folder(FolderRequestDto folderRequestDto, String socialId) {
 
-        Optional<User> user = userRepository.findById(1);
-
+        User user = userRepository.findBySocialId(socialId);
         Folder folder = Folder.builder()
                 .folderName(folderRequestDto.getFolderName())
-                .userId(user.get())
+                .userId(user)
                 .build();
         folderRepository.save(folder);
 
     }
 
+    /** 폴더 삭제 */
     public void folderDelete(int folderId) {
         folderRepository.deleteById(folderId);
     }
 
-
+    /** 폴더 수정 */
     public void folderUpdate(int folderId, String newFolderName) {
-        Optional<Folder> folder = folderRepository.findById(folderId);
 
+
+        Optional<Folder> folder = folderRepository.findById(folderId);
         folder.get().setFolderName(newFolderName);
+
 
         folderRepository.save(folder.get());
     }
 
-    @Transactional(readOnly = true)
-    public List<FolderResponseDto> folderList(int userId) {
-        Optional<User> user = userRepository.findById(userId);
 
+    /** 폴더 조회 */
+    @Transactional(readOnly = true)
+    public List<FolderResponseDto> folderList(String socialId) {
+
+
+        User user = userRepository.findBySocialId(socialId);
         List<FolderResponseDto> folderResponseDtoList = new ArrayList<>();
 
-        for(Folder obj : user.get().getFolderList()){
+
+        for(Folder obj : user.getFolderList()){
             folderResponseDtoList.add(FolderResponseDto.FolderDtoRes(obj));
         }
+
 
         return folderResponseDtoList;
     }
