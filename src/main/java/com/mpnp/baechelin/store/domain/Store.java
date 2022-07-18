@@ -1,6 +1,7 @@
 package com.mpnp.baechelin.store.domain;
 
 import com.mpnp.baechelin.api.dto.PublicApiResponseDto;
+import com.mpnp.baechelin.api.model.PublicApiForm;
 import com.mpnp.baechelin.bookmark.domain.Bookmark;
 import com.mpnp.baechelin.review.domain.Review;
 import lombok.*;
@@ -108,6 +109,10 @@ public class Store {
         return this;
     }
 
-
+    public Store publicApiAndTagToStore(PublicApiForm.ServList servList, List<String> barrierTagList) {
+        // TagList 매핑 및 생성
+        // Store 매핑 및 생성
+        return null;
+    }
 
 }
