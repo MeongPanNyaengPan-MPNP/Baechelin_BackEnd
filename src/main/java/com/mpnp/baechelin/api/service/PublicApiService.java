@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mpnp.baechelin.config.httpclient.HttpConfig;
 import com.mpnp.baechelin.api.dto.*;
 import com.mpnp.baechelin.api.model.LocationKeywordSearchForm;
+import com.mpnp.baechelin.store.domain.Category;
 import com.mpnp.baechelin.store.domain.Store;
 import com.mpnp.baechelin.store.repository.StoreRepository;
 import lombok.AllArgsConstructor;
@@ -44,7 +45,7 @@ public class PublicApiService {
     private final StoreRepository storeRepository;
     private final LocationService locationService;
 //    private final HttpConfig httpConfig;
-
+//
 //    public PublicApiResponseDto processApiToDBWithWebclientMono(PublicApiRequestDto publicApiRequestDto) throws UnsupportedEncodingException {
 //        WebClient client = WebClient.builder()
 //                .baseUrl("http://openapi.seoul.go.kr:8088")
@@ -166,9 +167,9 @@ public class PublicApiService {
 
     private String categoryFilter(String category) {
         if (category == null) {
-            return "기타";
+            return Category.ETC.getDesc();
         } else if (category.contains(">")) {
-            return category.split(" > ")[1];
+            return Category.giveCategory(category.split(" > ")[1]).getDesc();
         } else {
             return null;
         }

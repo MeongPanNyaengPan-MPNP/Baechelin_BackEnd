@@ -2,16 +2,16 @@ package com.mpnp.baechelin.config.security;
 
 import com.mpnp.baechelin.config.properties.AppProperties;
 import com.mpnp.baechelin.config.properties.CorsProperties;
-import com.mpnp.baechelin.oauth.entity.RoleType;
-import com.mpnp.baechelin.oauth.exception.RestAuthenticationEntryPoint;
-import com.mpnp.baechelin.oauth.filter.TokenAuthenticationFilter;
-import com.mpnp.baechelin.oauth.handler.OAuth2AuthenticationFailureHandler;
-import com.mpnp.baechelin.oauth.handler.OAuth2AuthenticationSuccessHandler;
-import com.mpnp.baechelin.oauth.handler.TokenAccessDeniedHandler;
-import com.mpnp.baechelin.oauth.repository.OAuth2AuthorizationRequestBasedOnCookieRepository;
-import com.mpnp.baechelin.oauth.service.CustomOAuth2UserService;
-import com.mpnp.baechelin.oauth.token.AuthTokenProvider;
-import com.mpnp.baechelin.user.repository.UserRefreshTokenRepository;
+import com.mpnp.baechelin.login.oauth.entity.RoleType;
+import com.mpnp.baechelin.login.jwt.exception.RestAuthenticationEntryPoint;
+import com.mpnp.baechelin.login.jwt.filter.TokenAuthenticationFilter;
+import com.mpnp.baechelin.login.oauth.handler.OAuth2AuthenticationFailureHandler;
+import com.mpnp.baechelin.login.oauth.handler.OAuth2AuthenticationSuccessHandler;
+import com.mpnp.baechelin.login.jwt.handler.TokenAccessDeniedHandler;
+import com.mpnp.baechelin.login.oauth.repository.OAuth2AuthorizationRequestBasedOnCookieRepository;
+import com.mpnp.baechelin.login.oauth.service.CustomOAuth2UserService;
+import com.mpnp.baechelin.login.jwt.AuthTokenProvider;
+import com.mpnp.baechelin.login.jwt.repository.UserRefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -60,10 +60,10 @@ public class SecurityConfig {
                 .and()
                 .authorizeRequests()
                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll() // cors 요청 허용
-                .antMatchers("/**").permitAll()
-                .antMatchers("/review/**", "/store/bookmark/**", "/store/register").hasAnyAuthority(RoleType.USER.getCode())
+                .antMatchers("/review", "/api/bookmark", "/store/register", "/user").hasAnyAuthority(RoleType.USER.getCode(), RoleType.ADMIN.getCode())
                 .antMatchers("/admin/**").hasAnyAuthority(RoleType.ADMIN.getCode())
-                .anyRequest().authenticated()
+                .antMatchers("/**").permitAll() // 그 외 요청은 모두 허용
+                .anyRequest().authenticated() // 위의 요청 외의 요청은 무조건 권한검사
                 .and()
                 .oauth2Login() // auth2 로그인 활성화
                 .authorizationEndpoint()

@@ -18,11 +18,12 @@ public class BookmarkController {
 
     /** 북마크 생성 폴더 담기 */
     @PostMapping("/bookmark")
+
     public ResponseEntity<?> bookmark(@RequestBody BookmarkRequestDto bookmarkRequestDto,
                                       @AuthenticationPrincipal User user){
 
-        bookmarkService.bookmark(bookmarkRequestDto, user.getUsername());
         if(user==null){ throw new IllegalArgumentException("해당하는 회원 정보가 없습니다."); }
+        bookmarkService.bookmark(bookmarkRequestDto, user.getUsername());
 
         return new ResponseEntity<>(HttpStatus.OK);
     }

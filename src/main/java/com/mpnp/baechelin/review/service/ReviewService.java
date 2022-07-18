@@ -2,9 +2,11 @@ package com.mpnp.baechelin.review.service;
 
 import com.mpnp.baechelin.review.domain.Review;
 import com.mpnp.baechelin.review.domain.ReviewImage;
+import com.mpnp.baechelin.review.dto.ReviewMainResponseDto;
 import com.mpnp.baechelin.review.dto.ReviewRequestDto;
 import com.mpnp.baechelin.review.dto.ReviewResponseDto;
 import com.mpnp.baechelin.review.repository.ReviewImageRepository;
+import com.mpnp.baechelin.review.repository.ReviewQueryRepository;
 import com.mpnp.baechelin.review.repository.ReviewRepository;
 import com.mpnp.baechelin.store.domain.Store;
 import com.mpnp.baechelin.store.repository.StoreRepository;
@@ -20,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -36,6 +39,7 @@ public class ReviewService {
     private final StoreRepository       storeRepository;
     private final ReviewRepository      reviewRepository;
     private final ReviewImageRepository reviewImageRepository;
+    private final ReviewQueryRepository reviewQueryRepository;
 
 
 
@@ -113,7 +117,6 @@ public class ReviewService {
             reviewImageRepository.deleteByReviewId(review);
         }
 
-
         // 2.수정할 이미지가 있다면 업로드
         if(newImageFileList != null) {
             System.out.println("newImageFileList != null");
@@ -123,7 +126,6 @@ public class ReviewService {
                 reviewImageUrlList.add(ReviewImage.builder().reviewId(review).reviewImageUrl(fileDir).build());
             } // 리뷰이미지 -> url -> 엔티티 변환
         }
-
 
         List<Tag>       tagList = new ArrayList<>();               // 태그를 담는 리스트
         List<String> newTagList = reviewRequestDto.getTagList();   // 새로운 태그
@@ -176,4 +178,11 @@ public class ReviewService {
             }
         }
     }
+
+    public List<ReviewMainResponseDto> getRecentReview(BigDecimal lat, BigDecimal lng, int limit) {
+        return reviewQueryRepository
+                .findRecentReviews(lat, lng, limit)
+                .stream().map(review -> new ReviewMainResponseDto(review, review.getStoreId(), review.getUserId())).collect(Collectors.toList());
+    }
+
 }

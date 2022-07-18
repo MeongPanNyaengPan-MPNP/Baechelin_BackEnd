@@ -28,7 +28,6 @@ import java.util.stream.Collectors;
 public class ReviewController {
 
     private final ReviewService reviewService;
-    private final ReviewQueryRepository reviewQueryRepository;
 
     @GetMapping("/review/{storeId}")
     public ResponseEntity<List<ReviewResponseDto>> getStoreReview(@PathVariable int storeId) {
@@ -71,31 +70,13 @@ public class ReviewController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    // TODO - 최근 등록한 리뷰 보여주기
+    // TODO - 최근 등록한 리뷰 보여주기 - 로그인 불필요
     // 반경 넓히기
     @GetMapping("/recent-review")
     public List<ReviewMainResponseDto> recentReview(@RequestParam(required = false) BigDecimal lat,
                                                     @RequestParam(required = false) BigDecimal lng,
                                                     @RequestParam int limit) {
-
-        BigDecimal[] locationRange = getRange(lat, lng, 20);
-
-
-        List<ReviewMainResponseDto> result = reviewQueryRepository
-                .findRecentReviews(locationRange[0], locationRange[1], locationRange[2], locationRange[3], limit)
-                .stream().map(ReviewMainResponseDto::new).collect(Collectors.toList());
-        return result;
-    }
-
-    // km : 반경
-    private BigDecimal[] getRange(BigDecimal lat, BigDecimal lng, int km) {
-        // km->lat,lng로 변환하기
-        final BigDecimal latitude = BigDecimal.valueOf(km / 110.569); // 반경
-        final BigDecimal longitutde = BigDecimal.valueOf(km / 111.322);
-        // 남서, 북동으로 받아오기
-        // start lat-lng, end lat-lng으로 Array 받아오기
-        return new BigDecimal[]{lat.subtract(latitude), lat.add(latitude),
-                lng.subtract(longitutde), lng.add(longitutde)};
+        return reviewService.getRecentReview(lat, lng, limit);
     }
 
 }
