@@ -57,7 +57,7 @@ public class FolderService {
     public List<FolderResponseDto> folderList(String socialId) {
 
 
-        User user = userRepository.findBySocialId(socialId);
+        User user = userRepository.findBySocialId(socialId); if(user == null){ throw new IllegalArgumentException("해당하는 유저를 찾을 수 없습니다."); }
         List<FolderResponseDto> folderResponseDtoList = new ArrayList<>();
 
 

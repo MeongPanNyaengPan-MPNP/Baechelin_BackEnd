@@ -7,6 +7,8 @@ import com.mpnp.baechelin.bookmark.repository.BookmarkRepository;
 import com.mpnp.baechelin.bookmark.repository.FolderRepository;
 import com.mpnp.baechelin.store.domain.Store;
 import com.mpnp.baechelin.store.repository.StoreRepository;
+import com.mpnp.baechelin.user.domain.User;
+import com.mpnp.baechelin.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,21 +17,25 @@ import org.springframework.stereotype.Service;
 public class BookmarkService {
 
     private final BookmarkRepository bookmarkRepository;
-    private final FolderRepository folderRepository;
-    private final StoreRepository storeRepository;
+    private final FolderRepository   folderRepository;
+    private final StoreRepository    storeRepository;
+    private final UserRepository     userRepository;
 
-    public void bookmark(BookmarkRequestDto bookmarkRequestDto) {
+    public void bookmark(BookmarkRequestDto bookmarkRequestDto, String socialId) {
 
-        Folder folder = folderRepository.findById(bookmarkRequestDto.getFolderId())
-                .orElseThrow(()-> new IllegalArgumentException("폴더가 존재하지 않습니다"));
-        Store store = storeRepository.findById(bookmarkRequestDto.getStoreId())
-                .orElseThrow(()-> new IllegalArgumentException("가게가 존재하지 않습니다"));
+
+        Folder folder = folderRepository.findById(bookmarkRequestDto.getFolderId()).orElseThrow(()-> new IllegalArgumentException("폴더가 존재하지 않습니다"));
+        Store store   = storeRepository.findById(bookmarkRequestDto.getStoreId()).orElseThrow(()-> new IllegalArgumentException("가게가 존재하지 않습니다"));
+        User user     = userRepository.findBySocialId(socialId); if(user == null) { throw new IllegalArgumentException("해당하는 유저가 없습니다."); }
+
 
         Bookmark bookmark = Bookmark
                 .builder()
                 .folderId(folder)
                 .storeId(store)
+                .userId(user)
                 .build();
+
 
         storeRepository.save(store.updateBookmarkCount(1));
         bookmarkRepository.save(bookmark);

@@ -17,6 +17,7 @@ import java.util.List;
 public class FolderResponseDto {
     private int id;
     private String folderName;
+
     private List<List<String>> bookmarkList;
 
     public FolderResponseDto(Folder folder) {
@@ -38,16 +39,16 @@ public class FolderResponseDto {
                 String category     = bookmark.getStoreId().getCategory();                  // 업장 카테고리
                 String PhoneNumber  = bookmark.getStoreId().getPhoneNumber();               // 업장 전화번호
 
-                List<StoreImage> storeImageList = bookmark.getStoreId().getStoreImageList();// 업장 이미지 리스트
-                List<String> tempBookmarkList   = new ArrayList<>();                        // 정보를 담는 리스트
+                List<String>     tempBookmarkList = new ArrayList<>();                        // 정보를 담는 리스트
+                List<StoreImage> storeImageList   = bookmark.getStoreId().getStoreImageList();// 업장 이미지 리스트
 
                 tempBookmarkList.add(name);
                 tempBookmarkList.add(pointAvg);
                 tempBookmarkList.add(address);
                 tempBookmarkList.add(category);
                 tempBookmarkList.add(PhoneNumber);
-                tempBookmarkList.add(storeImageList.get(0).getStoreImageUrl());
 
+                if(!storeImageList.isEmpty()) { tempBookmarkList.add(storeImageList.get(0).getStoreImageUrl()); }
                 bookmarks.add(tempBookmarkList);
 
             }
