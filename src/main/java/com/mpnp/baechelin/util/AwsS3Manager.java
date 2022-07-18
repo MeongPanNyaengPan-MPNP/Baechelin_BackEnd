@@ -1,5 +1,6 @@
 package com.mpnp.baechelin.util;
 
+import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
@@ -27,6 +28,7 @@ public class AwsS3Manager {
     private String bucket;
 
     private final AmazonS3 amazonS3;
+
 
     // 이미지 여러장 저장
     public List<String> uploadFile(List<MultipartFile> multipartFile) {

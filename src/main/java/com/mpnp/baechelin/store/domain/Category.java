@@ -11,7 +11,13 @@ public enum Category {
     private final String desc;
 
     public static Category giveCategory(String input){
-        return Arrays.stream(Category.values()).filter(cate -> cate.desc.equals(input)).findAny().orElse(Category.ETC);
+        return Arrays.stream(Category.values())
+                .filter(cate -> cate.desc.equals(input)).findAny().orElse(Category.ETC);
+    }
+
+    public static String giveCategoryDesc(String key){
+        return Arrays.stream(Category.values())
+                .filter(cate -> cate.toString().equals(key)).findAny().orElse(Category.ETC).getDesc();
     }
 
     Category(String desc) {
