@@ -14,7 +14,7 @@ import java.util.Map;
 public class AuthResponse {
 
     private final LocalDateTime timestamp = LocalDateTime.now();
-    private final HttpStatus status = HttpStatus.OK;
+    private final int status = 200;
     private final String code = "S-SUC200";
     private final String result = "SUCCESS";
     private String token;
