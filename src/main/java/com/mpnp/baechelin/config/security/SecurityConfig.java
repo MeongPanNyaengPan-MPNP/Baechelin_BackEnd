@@ -1,7 +1,7 @@
 package com.mpnp.baechelin.config.security;
 
-import com.mpnp.baechelin.config.properties.AppProperties;
-import com.mpnp.baechelin.config.properties.CorsProperties;
+import com.mpnp.baechelin.common.properties.AppProperties;
+import com.mpnp.baechelin.common.properties.CorsProperties;
 import com.mpnp.baechelin.login.oauth.entity.RoleType;
 import com.mpnp.baechelin.login.jwt.exception.RestAuthenticationEntryPoint;
 import com.mpnp.baechelin.login.jwt.filter.TokenAuthenticationFilter;
@@ -60,7 +60,7 @@ public class SecurityConfig {
                 .and()
                 .authorizeRequests()
                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll() // cors 요청 허용
-                .antMatchers("/review", "/api/bookmark", "/store/register", "/user").hasAnyAuthority(RoleType.USER.getCode(), RoleType.ADMIN.getCode())
+                .antMatchers("/review", "/api/bookmark", "/store/register", "/userinfo").hasAnyAuthority(RoleType.USER.getCode(), RoleType.ADMIN.getCode())
                 .antMatchers("/admin/**").hasAnyAuthority(RoleType.ADMIN.getCode())
                 .antMatchers("/**").permitAll() // 그 외 요청은 모두 허용
                 .anyRequest().authenticated() // 위의 요청 외의 요청은 무조건 권한검사

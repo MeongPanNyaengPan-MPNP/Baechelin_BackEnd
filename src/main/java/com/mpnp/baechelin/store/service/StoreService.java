@@ -2,7 +2,7 @@ package com.mpnp.baechelin.store.service;
 
 import com.mpnp.baechelin.bookmark.domain.Bookmark;
 import com.mpnp.baechelin.bookmark.repository.BookmarkRepository;
-import com.mpnp.baechelin.config.QuerydslLocation;
+import com.mpnp.baechelin.common.QuerydslLocation;
 import com.mpnp.baechelin.review.domain.Review;
 import com.mpnp.baechelin.review.repository.ReviewRepository;
 import com.mpnp.baechelin.store.domain.Store;

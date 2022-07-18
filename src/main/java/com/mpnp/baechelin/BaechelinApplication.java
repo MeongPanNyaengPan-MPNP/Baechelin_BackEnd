@@ -1,7 +1,7 @@
 package com.mpnp.baechelin;
 
-import com.mpnp.baechelin.config.properties.AppProperties;
-import com.mpnp.baechelin.config.properties.CorsProperties;
+import com.mpnp.baechelin.common.properties.AppProperties;
+import com.mpnp.baechelin.common.properties.CorsProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;

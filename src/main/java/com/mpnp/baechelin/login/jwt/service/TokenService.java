@@ -1,6 +1,8 @@
 package com.mpnp.baechelin.login.jwt.service;
 
-import com.mpnp.baechelin.config.properties.AppProperties;
+import com.mpnp.baechelin.common.properties.AppProperties;
+import com.mpnp.baechelin.exception.CustomException;
+import com.mpnp.baechelin.exception.ErrorCode;
 import com.mpnp.baechelin.login.oauth.common.AuthResponse;
 import com.mpnp.baechelin.login.oauth.entity.RoleType;
 import com.mpnp.baechelin.login.jwt.AuthToken;
@@ -34,7 +36,7 @@ public class TokenService {
     private final static String REFRESH_TOKEN = "refresh_token";
 
 
-    public AuthResponse<?> refreshToken(HttpServletRequest request, HttpServletResponse response) {
+    public AuthResponse refreshToken(HttpServletRequest request, HttpServletResponse response) {
         String accessToken = HeaderUtil.getAccessToken(request);
         AuthToken authToken = tokenProvider.convertAuthToken(accessToken);
 
@@ -46,10 +48,10 @@ public class TokenService {
 
         // 유효한 access token 인지, 만료된 token 인지 확인
         if (authToken.getExpiredTokenClaims() == null) {
-            return AuthResponse.invalidAccessToken();
+            throw new CustomException(ErrorCode.INVALID_ACCESS_TOKEN);
         } else {
             if (AccessValidTime >= FIVE_MINIUTE_MSEC) {
-                return AuthResponse.notExpiredTokenYet();
+                throw new CustomException(ErrorCode.NOT_EXPIRED_TOKEN_YET);
             }
         }
 
@@ -63,13 +65,13 @@ public class TokenService {
         AuthToken authRefreshToken = tokenProvider.convertAuthToken(refreshToken);
 
         if (!authRefreshToken.tokenValidate()) {
-            return AuthResponse.invalidRefreshToken();
+            throw new CustomException(ErrorCode.INVALID_REFRESH_TOKEN);
         }
 
         // userId와 refresh token 으로 DB 확인
         UserRefreshToken userRefreshToken = userRefreshTokenRepository.findBySocialIdAndRefreshToken(userId, refreshToken);
         if (userRefreshToken == null) {
-            return AuthResponse.invalidRefreshToken();
+            throw new CustomException(ErrorCode.INVALID_REFRESH_TOKEN);
         }
 
         // Access token 재발급
@@ -102,6 +104,6 @@ public class TokenService {
             CookieUtil.addCookie(response, REFRESH_TOKEN, authRefreshToken.getToken(), cookieMaxAge);
         }
 
-        return AuthResponse.success("token", newAccessToken.getToken());
+        return new AuthResponse(newAccessToken.getToken());
     }
 }

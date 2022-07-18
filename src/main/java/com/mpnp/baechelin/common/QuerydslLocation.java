@@ -1,4 +1,4 @@
-package com.mpnp.baechelin.config;
+package com.mpnp.baechelin.common;
 
 import com.mpnp.baechelin.store.domain.Category;
 import com.querydsl.core.BooleanBuilder;

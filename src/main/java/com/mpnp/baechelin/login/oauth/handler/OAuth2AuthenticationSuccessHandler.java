@@ -1,6 +1,6 @@
 package com.mpnp.baechelin.login.oauth.handler;
 
-import com.mpnp.baechelin.config.properties.AppProperties;
+import com.mpnp.baechelin.common.properties.AppProperties;
 import com.mpnp.baechelin.login.oauth.entity.ProviderType;
 import com.mpnp.baechelin.login.oauth.entity.RoleType;
 import com.mpnp.baechelin.login.oauth.info.OAuth2UserInfo;
