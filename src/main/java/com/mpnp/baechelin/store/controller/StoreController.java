@@ -1,10 +1,7 @@
 package com.mpnp.baechelin.store.controller;
 
-import com.mpnp.baechelin.store.domain.Store;
 import com.mpnp.baechelin.store.dto.StoreCardResponseDto;
 import com.mpnp.baechelin.store.dto.StorePagedResponseDto;
-import com.mpnp.baechelin.store.dto.StoreResponseDto;
-import com.mpnp.baechelin.store.repository.StoreQueryRepository;
 import com.mpnp.baechelin.store.service.StoreService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -13,14 +10,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Api(tags = {"매장 리스트를 반환하는 Controller"})
 @RestController
@@ -68,5 +61,13 @@ public class StoreController {
                                                                   @RequestParam int limit,
                                                                   @AuthenticationPrincipal User user) {
         return storeService.getStoreInRangeHighBookmark(lat, lng, category, facility, limit, user == null ? null : user.getUsername());
+    }
+
+    @ApiOperation(value = "업장 상세정보를 조회하는 메소드")
+    @GetMapping("/detail/{storeId}")
+    public StoreCardResponseDto getStore(
+            @PathVariable(required = false) int storeId,
+            @AuthenticationPrincipal User user) {
+        return storeService.getStore(storeId, user.getUsername());
     }
 }

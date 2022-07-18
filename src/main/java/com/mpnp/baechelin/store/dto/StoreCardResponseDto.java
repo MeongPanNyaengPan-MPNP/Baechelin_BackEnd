@@ -31,7 +31,7 @@ public class StoreCardResponseDto implements Comparable<StoreCardResponseDto> {
     private String approach;
     private List<StoreImgResponseDto> storeImgList;
     private int bookmarkCount;
-    private boolean bookmark;
+    private String bookmark;
 
     @Builder.Default
     private double pointAvg = 0.0;
@@ -51,7 +51,7 @@ public class StoreCardResponseDto implements Comparable<StoreCardResponseDto> {
     }
 
 
-    public StoreCardResponseDto(Store store, boolean isBookMark) {
+    public StoreCardResponseDto(Store store, String isBookMark) {
         this.storeId = store.getId();
         this.category = store.getCategory();
         this.name = store.getName();
