@@ -47,8 +47,8 @@ public class FolderResponseDto {
                 tempBookmarkList.add(address);
                 tempBookmarkList.add(category);
                 tempBookmarkList.add(PhoneNumber);
-
                 if(!storeImageList.isEmpty()) { tempBookmarkList.add(storeImageList.get(0).getStoreImageUrl()); }
+
                 bookmarks.add(tempBookmarkList);
 
             }
