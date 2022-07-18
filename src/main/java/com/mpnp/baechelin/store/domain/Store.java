@@ -3,10 +3,7 @@ package com.mpnp.baechelin.store.domain;
 import com.mpnp.baechelin.api.dto.PublicApiResponseDto;
 import com.mpnp.baechelin.bookmark.domain.Bookmark;
 import com.mpnp.baechelin.review.domain.Review;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.math.BigDecimal;

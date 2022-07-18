@@ -1,5 +1,6 @@
 package com.mpnp.baechelin.config;
 
+import com.mpnp.baechelin.store.domain.Category;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.StringPath;
@@ -7,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Locale;
 
 import static com.mpnp.baechelin.store.domain.QStore.store;
 
@@ -55,7 +57,7 @@ public class QuerydslLocation {
     }
 
     public static BooleanBuilder getBooleanBuilder(String category, List<String> facility, BooleanBuilder builder) {
-        builder.and(category == null ? null : store.category.eq(category));
+        builder.and(category == null ? null : store.category.eq(Category.giveCategoryDesc(category.toUpperCase())));
         if (facility != null && facility.size() > 0) {
             for (String fac : facility) {
                 builder.and(facilityTF(fac));
