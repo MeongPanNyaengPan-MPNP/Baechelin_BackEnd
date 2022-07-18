@@ -20,7 +20,7 @@ public class TokenController {
 
     @ApiOperation(value = "Access Token 만료 시 Refresh Token을 이용하여 재발급 받는 메소드")
     @GetMapping("/refresh")
-    public AuthResponse refreshToken (HttpServletRequest request, HttpServletResponse response) {
+    public AuthResponse<?> refreshToken (HttpServletRequest request, HttpServletResponse response) {
         return tokenService.refreshToken(request, response);
     }
 }
