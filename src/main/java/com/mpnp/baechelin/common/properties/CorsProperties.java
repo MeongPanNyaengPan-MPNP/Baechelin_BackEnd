@@ -1,4 +1,4 @@
-package com.mpnp.baechelin.config.properties;
+package com.mpnp.baechelin.common.properties;
 
 import lombok.Getter;
 import lombok.Setter;

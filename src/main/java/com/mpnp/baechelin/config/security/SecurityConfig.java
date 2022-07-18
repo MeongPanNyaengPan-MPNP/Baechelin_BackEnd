@@ -1,7 +1,7 @@
 package com.mpnp.baechelin.config.security;
 
-import com.mpnp.baechelin.config.properties.AppProperties;
-import com.mpnp.baechelin.config.properties.CorsProperties;
+import com.mpnp.baechelin.common.properties.AppProperties;
+import com.mpnp.baechelin.common.properties.CorsProperties;
 import com.mpnp.baechelin.login.oauth.entity.RoleType;
 import com.mpnp.baechelin.login.jwt.exception.RestAuthenticationEntryPoint;
 import com.mpnp.baechelin.login.jwt.filter.TokenAuthenticationFilter;
