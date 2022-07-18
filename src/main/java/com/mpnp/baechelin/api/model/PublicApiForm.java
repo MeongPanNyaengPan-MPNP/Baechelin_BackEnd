@@ -26,6 +26,7 @@ public class PublicApiForm {
         private String faclInfId;
         private String faclLat;
         private String faclLng;
+        private String faclNm;
         private String faclRprnNm;
         private String faclTyCd;
         private String lcMnad;

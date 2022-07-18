@@ -119,6 +119,14 @@ public class LocationService {
     }
 
     public LocationKeywordSearchForm giveCategoryByLatLngKeywordRest(String lat, String lng, String storeName) {
+        LocationKeywordSearchForm searchFormResult = giveCategoryByCode(lat, lng, storeName, "FD6");
+        if (searchFormResult == null) {
+            return giveCategoryByCode(lat, lng, storeName, "CE7");
+        }
+        return searchFormResult;
+    }
+
+    public LocationKeywordSearchForm giveCategoryByCode(String lat, String lng, String storeName, String cateCode) {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -128,6 +136,7 @@ public class LocationService {
                 .queryParam("query", storeName)
                 .queryParam("x", lng)//위도, 경도 지정
                 .queryParam("y", lat)
+                .queryParam("category_group_code", cateCode)
                 .queryParam("radius", 200)
                 .queryParam("page", 1)
                 .queryParam("size", 1)
@@ -140,7 +149,6 @@ public class LocationService {
                 uri, HttpMethod.GET, new HttpEntity<>(headers), LocationKeywordSearchForm.class
         );
         return resultRe.getBody();
-
     }
 
     public Map<String, Object> convertGeoAndStoreNameToKeyword(String lat, String lng, String storeName) {
@@ -157,6 +165,7 @@ public class LocationService {
                 map.put("category", categoryFilter(latLngDoc.getCategory_name()));
                 map.put("storeId", Integer.parseInt(latLngDoc.getId()));
                 map.put("storeName", latLngDoc.getPlace_name());
+                map.put("phoneNumber", latLngDoc.getPhone());
                 map.put("status", true);
             } else {
                 map.put("status", false);

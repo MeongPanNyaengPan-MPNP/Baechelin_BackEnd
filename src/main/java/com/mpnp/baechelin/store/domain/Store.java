@@ -93,13 +93,13 @@ public class Store {
         this.category = row.getCategory();
     }
 
-    public Store updateBookmarkCount(int upOrDown){
+    public Store updateBookmarkCount(int upOrDown) {
         this.bookMarkCount += upOrDown;
         return this;
     }
 
     // TODO 리뷰가 삭제될 때도 고려하기 - 삭제 후 적용되어야 함
-    public Store updatePointAvg(double changePoint){
+    public Store updatePointAvg(double changePoint) {
         this.reviewCount = reviewList.size();
         double totalPoint = 0.0;
         for (Review review : reviewList) {
@@ -109,10 +109,21 @@ public class Store {
         return this;
     }
 
-    public Store publicApiAndTagToStore(PublicApiForm.ServList servList, List<String> barrierTagList) {
-        // TagList 매핑 및 생성
-        // Store 매핑 및 생성
-        return null;
+    public Store(int storeId, PublicApiForm.ServList servList, List<String> barrierTagList,
+                                        String phoneNumber, String category, String storeName) {
+        this.id = storeId;
+        this.name = storeName;
+        this.latitude = new BigDecimal(servList.getFaclLat());
+        this.longitude = new BigDecimal(servList.getFaclLng());
+        this.address = servList.getLcMnad();
+        this.elevator = barrierTagList.contains("elevator") ? "Y" : "N";
+        this.heightDifferent = barrierTagList.contains("heightDifferent") ? "Y" : "N";
+        this.toilet = barrierTagList.contains("toilet") ? "Y" : "N";
+        this.parking = barrierTagList.contains("parking") ? "Y" : "N";
+        this.approach = barrierTagList.contains("approach") ? "Y" : "N";
+
+        this.phoneNumber = phoneNumber;
+        this.category = category;
     }
 
 }
