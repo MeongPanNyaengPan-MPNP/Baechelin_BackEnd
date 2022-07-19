@@ -23,5 +23,8 @@ public class PublicApiCategoryForm {
         private String evalInfo;
         private String faclNm;
         private String wfcltId;
+        public boolean validateServList(){
+            return this.evalInfo != null;
+        }
     }
 }

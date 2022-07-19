@@ -5,6 +5,7 @@ import com.mpnp.baechelin.api.model.PublicApiForm;
 import com.mpnp.baechelin.bookmark.domain.Bookmark;
 import com.mpnp.baechelin.review.domain.Review;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -16,6 +17,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @AllArgsConstructor
+@Slf4j
 public class Store {
     @Id
     private int id;
@@ -117,7 +119,7 @@ public class Store {
         this.longitude = new BigDecimal(servList.getFaclLng());
         this.address = servList.getLcMnad();
         this.elevator = barrierTagList.contains("elevator") ? "Y" : "N";
-        this.heightDifferent = barrierTagList.contains("heightDifferent") ? "Y" : "N";
+        this.heightDifferent = barrierTagList.contains("height_different") ? "Y" : "N";
         this.toilet = barrierTagList.contains("toilet") ? "Y" : "N";
         this.parking = barrierTagList.contains("parking") ? "Y" : "N";
         this.approach = barrierTagList.contains("approach") ? "Y" : "N";
