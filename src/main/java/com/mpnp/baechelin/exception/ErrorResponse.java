@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 import org.springframework.http.ResponseEntity;
 
+import javax.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
 
 @Getter
@@ -23,6 +24,18 @@ public class ErrorResponse {
                         .code(errorCode.getCode())
                         .error(errorCode.name())
                         .message(errorCode.getMessage())
+                        .build()
+                );
+    }
+
+    public static ResponseEntity<ErrorResponse> constraintMsgToResponseEntity(ErrorCode errorCode, String msg) {
+        return ResponseEntity
+                .status(errorCode.getStatus())
+                .body(ErrorResponse.builder()
+                        .status(errorCode.getStatus())
+                        .code(errorCode.getCode())
+                        .error(errorCode.name())
+                        .message(msg)
                         .build()
                 );
     }

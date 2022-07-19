@@ -106,7 +106,7 @@ public class LocationService {
      * @param address 변환할 주소
      * @return RestTemplate를 이용해 변환한 위도, 경도
      */
-    public LocationKeywordSearchForm getLatLngByAddressRest(String address) {
+    public LocationKeywordSearchForm getLatLngByAddressRest(String address, int page, int size) {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -114,8 +114,8 @@ public class LocationService {
         URI uri = UriComponentsBuilder
                 .fromUriString("https://dapi.kakao.com/v2/local/search/keyword.json")
                 .queryParam("query", address)
-                .queryParam("page", 1)
-                .queryParam("size", 1)
+                .queryParam("page", page)
+                .queryParam("size", size)
                 .encode()
                 .build()
                 .toUri();
@@ -128,9 +128,9 @@ public class LocationService {
     }
 
     public LocationKeywordSearchForm getCategoryByLatLngKeywordRest(String lat, String lng, String storeName) {
-        LocationKeywordSearchForm searchFormResult = getCategoryByCode(lat, lng, storeName, "FD6");
+        LocationKeywordSearchForm searchFormResult = getCategoryByCode(lat, lng, storeName, "FD6",1,1);
         if (searchFormResult == null) {
-            return getCategoryByCode(lat, lng, storeName, "CE7");
+            return getCategoryByCode(lat, lng, storeName, "CE7",1,1);
         }
         return searchFormResult;
     }
@@ -142,7 +142,7 @@ public class LocationService {
      * @param cateCode 카테고리 코드
      * @return 위도, 경도, 업장명, 카테고리 코드 조건에 맞는 정보를 리턴
      */
-    public LocationKeywordSearchForm getCategoryByCode(String lat, String lng, String storeName, String cateCode) {
+    public LocationKeywordSearchForm getCategoryByCode(String lat, String lng, String storeName, String cateCode, int page, int size) {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -154,8 +154,8 @@ public class LocationService {
                 .queryParam("y", lat)
                 .queryParam("category_group_code", cateCode)
                 .queryParam("radius", 200)
-                .queryParam("page", 1)
-                .queryParam("size", 1)
+                .queryParam("page", page)
+                .queryParam("size", size)
                 .encode()
                 .build()
                 .toUri();
