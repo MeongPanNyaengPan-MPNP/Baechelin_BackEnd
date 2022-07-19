@@ -1,11 +1,8 @@
 package com.mpnp.baechelin.store.repository;
 
 import com.mpnp.baechelin.config.QuerydslLocation;
-import com.mpnp.baechelin.review.domain.Review;
 import com.mpnp.baechelin.store.domain.Store;
 import com.mpnp.baechelin.store.dto.StoreCardResponseDto;
-import com.mpnp.baechelin.store.dto.StoreResponseDto;
-import com.mpnp.baechelin.user.domain.User;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +16,6 @@ import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.mpnp.baechelin.config.QuerydslLocation.locTwoPointAndConditions;
 import static com.mpnp.baechelin.store.domain.QStore.store;
