@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import static com.mpnp.baechelin.review.domain.QReview.review;
+import static com.mpnp.baechelin.store.domain.QStore.store;
 
 @Repository
 @Transactional
