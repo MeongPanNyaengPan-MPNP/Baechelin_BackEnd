@@ -55,11 +55,14 @@ public class CookieUtil {
         if (cookies != null && cookies.length > 0) {
             for (Cookie cookie : cookies) {
                 if (name.equals(cookie.getName())) {
-                    cookie.setValue("");
-                    cookie.setPath("/");
-                    cookie.setMaxAge(0);
+                    Cookie deleteCookie = new Cookie(name, null);
+                    deleteCookie.setMaxAge(0);
 
-                    response.addHeader("Set-Cookie", cookie.toString());
+//                    cookie.setValue("");
+//                    cookie.setPath("/");
+//                    cookie.setMaxAge(0);
+
+                    response.addCookie(deleteCookie);
                 }
             }
         }
