@@ -55,8 +55,8 @@ public class CookieUtil {
         if (cookies != null && cookies.length > 0) {
             for (Cookie cookie : cookies) {
                 if (name.equals(cookie.getName())) {
-                    ResponseCookie deleteCookie = ResponseCookie.from(name, null)
-                            .domain(".bae-chelin.com")
+                    ResponseCookie deleteCookie = ResponseCookie.from(name, "")
+                            .domain("bae-chelin.com")
                             .path("/")
                             .httpOnly(true)
                             .maxAge(0)
@@ -68,7 +68,7 @@ public class CookieUtil {
 //                    cookie.setPath("/");
 //                    cookie.setMaxAge(0);
 
-                    response.addHeader("Set-Cookie", cookie.toString());
+                    response.addHeader("Set-Cookie", deleteCookie.toString());
                 }
             }
         }
