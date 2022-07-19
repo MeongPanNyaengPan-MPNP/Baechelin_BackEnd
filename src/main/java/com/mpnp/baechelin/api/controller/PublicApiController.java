@@ -6,9 +6,10 @@ import com.mpnp.baechelin.common.SuccessResponse;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
+import javax.validation.Valid;
 
 import static java.lang.System.currentTimeMillis;
 
@@ -20,7 +21,7 @@ public class PublicApiController {
     private final PublicApiService publicApiService;
     @ApiOperation(value="공공 API V1을 통해 DB에 정보를 저장/업데이트하는 함수")
     @PostMapping("/api")
-    public SuccessResponse getPublicApi(@RequestBody PublicApiRequestDto publicApiRequestDto) throws IOException {
+    public SuccessResponse getPublicApi(@Valid @RequestBody PublicApiRequestDto publicApiRequestDto) {
         long start = currentTimeMillis();
         publicApiService.processApiToDBWithRestTemplate(publicApiRequestDto);
 //        ResponseEntity<PublicApiResponseDto> result = ResponseEntity.ok(publicApiService.processApiToDBWithWebclientMono(publicApiRequestDto));

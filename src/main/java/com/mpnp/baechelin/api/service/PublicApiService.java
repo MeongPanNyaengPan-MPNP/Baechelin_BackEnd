@@ -75,7 +75,7 @@ public class PublicApiService {
 //
 //    }
 
-    public PublicApiResponseDto processApiToDBWithRestTemplate(PublicApiRequestDto publicApiRequestDto) {
+    public void processApiToDBWithRestTemplate(PublicApiRequestDto publicApiRequestDto) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_XML);
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
@@ -92,11 +92,10 @@ public class PublicApiService {
         );
         PublicApiResponseDto result = resultRe.getBody();
         if (result == null) {
-            return null;
+            return;
         }
         setInfos(result);
         saveDTO(result.getTouristFoodInfo().getRow());
-        return result;
     }
 
     private void setInfos(PublicApiResponseDto publicApiResponseDto) {
@@ -162,7 +161,7 @@ public class PublicApiService {
         }
     }
 
-    public List<StoreCardResponseDto> processNewApi(String key, int requestSize, String siDoNm) {
+    public void processNewApi(String key, int requestSize, String siDoNm) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_XML);
         headers.setAccept(List.of(MediaType.APPLICATION_XML));
@@ -182,7 +181,7 @@ public class PublicApiService {
                 uri, HttpMethod.GET, new HttpEntity<>(headers), PublicApiForm.class
         );
         PublicApiForm result = resultRe.getBody();
-        return getStoreCardResponseDto(key, result);
+        getStoreCardResponseDto(key, result);
     }
 
     private List<StoreCardResponseDto> getStoreCardResponseDto(String key, PublicApiForm result) {
