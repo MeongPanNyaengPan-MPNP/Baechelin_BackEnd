@@ -49,7 +49,12 @@ public class LocationService {
                 .orElse(null);
     }
 
-    // TODO 위도 경도를 기반으로 키워드 검색하기(필요값 : 업장명, 위도 ,경도)
+    /**
+     * @param lat 위도
+     * @param lng 경도
+     * @param storeName 업장명
+     * @return 위도, 경도, 업장명을 만족하는 장소 찾기
+     */
     public LocationKeywordSearchForm giveCategoryByLatLngKeyword(String lat, String lng, String storeName) {
         WebClient client = WebClient.builder()
                 .baseUrl("https://dapi.kakao.com/v2/local/search/keyword.json")
@@ -74,11 +79,12 @@ public class LocationService {
     }
 
     /**
-     * RestTemplate으로 위도, 경도 받아오기
+     * @param address 주소
+     * @return 위도, 경도, Status를 가지는 Map 반환
      */
     public Map<String, Object> convertAddressToGeo(String address) {
         Map<String, Object> map = new HashMap<>();
-        // status?, latitude, longitude 를 키로 가지는 HashMap 생성
+        // status, latitude, longitude 를 키로 가지는 HashMap 생성
         LocationKeywordSearchForm locationKeywordSearchForm = giveLatLngByAddress(address);
 //        latLngDoc.getY()
         if (locationKeywordSearchForm == null) {
@@ -97,7 +103,11 @@ public class LocationService {
         return map;
     }
 
-    public LocationKeywordSearchForm giveLatLngByAddressRest(String address) throws JsonProcessingException {
+    /**
+     * @param address 변환할 주소
+     * @return RestTemplate를 이용해 변환한 위도, 경도
+     */
+    public LocationKeywordSearchForm giveLatLngByAddressRest(String address) {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -126,6 +136,13 @@ public class LocationService {
         return searchFormResult;
     }
 
+    /**
+     * @param lat 위도
+     * @param lng 경도
+     * @param storeName 업장명
+     * @param cateCode 카테고리 코드
+     * @return 위도, 경도, 업장명, 카테고리 코드 조건에 맞는 정보를 리턴
+     */
     public LocationKeywordSearchForm giveCategoryByCode(String lat, String lng, String storeName, String cateCode) {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
@@ -151,6 +168,12 @@ public class LocationService {
         return resultRe.getBody();
     }
 
+    /**
+     * @param lat 검색할 위도
+     * @param lng 검색할 경도
+     * @param storeName 검색할 업장명
+     * @return 위도, 경도, 업장명을 통해 업장의 정보 반환
+     */
     public Map<String, Object> convertGeoAndStoreNameToKeyword(String lat, String lng, String storeName) {
         Map<String, Object> map = new HashMap<>();
         // status?, latitude, longitude 를 키로 가지는 HashMap 생성
@@ -174,6 +197,10 @@ public class LocationService {
         return map;
     }
 
+    /**
+     * @param category 변환할 카테고리
+     * @return 카테고리의 중분류를 추출해 반환
+     */
     private String categoryFilter(String category) {
         if (category == null) {
             return Category.ETC.getDesc();
@@ -184,6 +211,11 @@ public class LocationService {
         }
     }
 
+    /**
+     * @param lat 위도
+     * @param lng 경도
+     * @return 위도, 경도를 카카오맵 API(RestTemplate)를 통해 주소로 변환 후 Map에 넣어 반환
+     */
     public Map<String, Object> convertGeoToAddress(String lat, String lng) {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));

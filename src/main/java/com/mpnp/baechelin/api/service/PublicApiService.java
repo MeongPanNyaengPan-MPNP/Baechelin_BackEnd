@@ -20,7 +20,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import software.amazon.ion.Decimal;
 
 import javax.transaction.Transactional;
-import java.io.IOException;
 import java.net.URI;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -31,11 +30,6 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 public class PublicApiService {
-    /**
-     * @param apiRequestDto : 유저가 등록하는 업소 정보들을 담은 DTO
-     * @return ApiResponseDto - 응답 형태에 맞는 객체 반환
-     * @throws IOException
-     */
     private final StoreRepository storeRepository;
     private final LocationService locationService;
     private final StoreService storeService;
@@ -107,17 +101,17 @@ public class PublicApiService {
 
     private void setInfos(PublicApiResponseDto publicApiResponseDto) {
         publicApiResponseDto.getTouristFoodInfo().getRow().forEach(row -> {
-                    try {
-                        if (!setRowLngLat(row)) return;
-                    } catch (JsonProcessingException e) {
-                        throw new RuntimeException(e);
-                    }
-                    try {
-                        setRowCategoryAndId(row);
-                    } catch (JsonProcessingException e) {
-                        throw new RuntimeException(e);
-                    }
+                try {
+                    if (!setRowLngLat(row)) return;
+                } catch (JsonProcessingException e) {
+                    throw new RuntimeException(e);
                 }
+                try {
+                    setRowCategoryAndId(row);
+                } catch (JsonProcessingException e) {
+                    throw new RuntimeException(e);
+                }
+            }
         );
         saveDTO(publicApiResponseDto.getTouristFoodInfo().getRow());
     }
@@ -132,7 +126,6 @@ public class PublicApiService {
             return false;
         row.setLatitude(Decimal.valueOf(latLngDoc.getY()));
         row.setLongitude(Decimal.valueOf(latLngDoc.getX()));
-        // 카테고리 ENUM으로 전환하기
         row.setCategory(categoryFilter(Optional.of(latLngDoc.getCategory_name()).orElse("기타")));
         return true;
     }
@@ -151,7 +144,7 @@ public class PublicApiService {
 
 
     private void saveDTO(List<PublicApiResponseDto.Row> rows) {
-        List<Store> storeList = rows.stream().filter(this::publicRowValidation)
+        List<Store> storeList = rows.stream().filter(PublicApiResponseDto.Row::validation)
                 .map(Store::new).collect(Collectors.toList());
         // storeRepository 구현 시 save 호출하기
         for (Store store : storeList) {
@@ -250,7 +243,7 @@ public class PublicApiService {
         } else {
             PublicApiCategoryForm.ServList first = result.getServList().stream().findFirst().orElse(null);
             // Input 한 개당 하나의 배리어 프리 정보가 생성되므로 하나만 찾는다
-            if (first != null && first.getEvalInfo() != null) { // 결과가 존재할 떄
+            if (first != null && first.validation()) { // 결과가 존재할 떄
                 String[] splitInput = first.getEvalInfo().split(",");
                 return Arrays.stream(splitInput)
                         .map(BarrierCode::getColumnFromDesc)
@@ -275,9 +268,4 @@ public class PublicApiService {
             return null;
         }
     }
-
-    private boolean publicRowValidation(PublicApiResponseDto.Row row) {
-        return row.getLatitude() != null && row.getLongitude() != null && row.getCategory() != null && row.getStoreId() != null;
-    }
-
 }
