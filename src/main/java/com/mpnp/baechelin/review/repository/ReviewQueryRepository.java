@@ -34,6 +34,7 @@ public class ReviewQueryRepository extends QuerydslRepositorySupport {
         // 위도 경도에 해당하는 가게를 찾음 -> 해당 댓글을 다 가져옴 -> 내림차순 정렬 -> limit
         // TODO 쿼리문 개선하기
         return queryFactory.selectFrom(review)
+                .join(review.storeId, store)
                 .where(builder)
                 .orderBy(review.createdAt.desc())
                 .limit(limit)
