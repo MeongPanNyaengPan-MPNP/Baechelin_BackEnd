@@ -19,6 +19,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ErrorResponse.toResponseEntity(e.getErrorCode());
     }
 
+    @ExceptionHandler(value = NullPointerException.class)
+    protected ResponseEntity<ErrorResponse> handleNullPointerException(NullPointerException e) {
+        log.error("Null값이 들어올 수 없습니다.");
+        return ErrorResponse.toResponseEntity(ErrorCode.NULL_POINTER_EXCEPTION);
+    }
+
     @ExceptionHandler(value = SignatureException.class)
     protected ResponseEntity<ErrorResponse> handleSignatureException(SignatureException e) {
         log.error("잘못된 JWT 서명입니다.");

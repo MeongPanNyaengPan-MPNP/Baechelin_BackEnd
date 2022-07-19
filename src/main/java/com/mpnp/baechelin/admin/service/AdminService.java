@@ -20,8 +20,16 @@ public class AdminService {
     private final UserRegisterStoreRepository userRegisterStoreRepository;
 
     public List<AdminResponseDto> getUserRegisterStore() {
-        Page<UserRegisterStore> foundUserRegisterStores = userRegisterStoreRepository.findAll(Pageable.ofSize(5));
+//        Page<UserRegisterStore> foundUserRegisterStores = userRegisterStoreRepository.findAll(Pageable.ofSize(5));
 
-        return foundUserRegisterStores.stream().map(AdminResponseDto::new).collect(Collectors.toList());
+        List<UserRegisterStore> foundUserRegisterStores = userRegisterStoreRepository.findAll();
+        List<AdminResponseDto> result = new ArrayList<>();
+
+        for (UserRegisterStore foundUserRegisterStore : foundUserRegisterStores) {
+            AdminResponseDto adminResponseDto = new AdminResponseDto(foundUserRegisterStore);
+            result.add(adminResponseDto);
+        }
+
+        return result;
     }
 }
