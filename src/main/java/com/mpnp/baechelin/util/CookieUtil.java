@@ -28,24 +28,24 @@ public class CookieUtil {
 
     // 쿠키 생성
     public static void addCookie(HttpServletResponse response, String name, String value, int maxAge) {
-        ResponseCookie cookie = ResponseCookie.from(name, value)
-                .domain(".bae-chelin.com")
-                .path("/")
-                .httpOnly(true)
-                .maxAge(maxAge)
-                .secure(true)
-                .sameSite("None")
-                .build();
+//        ResponseCookie cookie = ResponseCookie.from(name, value)
+//                .domain(".bae-chelin.com")
+//                .path("/")
+//                .httpOnly(true)
+//                .maxAge(maxAge)
+//                .secure(true)
+//                .sameSite("None")
+//                .build();
+//
+//        response.addHeader("Set-Cookie", cookie.toString());
+        Cookie cookie = new Cookie(name, value);
 
-        response.addHeader("Set-Cookie", cookie.toString());
-//        Cookie cookie = new Cookie(name, value);
-//
-//        cookie.setPath("/");
-//        cookie.setHttpOnly(true); // XSS 공격을 막기 위한 설정
-//        cookie.setMaxAge(maxAge);
-//        cookie.setSecure(true);
-//
-//        response.addCookie(cookie);
+        cookie.setPath("/");
+        cookie.setHttpOnly(true); // XSS 공격을 막기 위한 설정
+        cookie.setMaxAge(maxAge);
+        cookie.setDomain(".bae-chelin.com");
+
+        response.addCookie(cookie);
     }
 
     // 쿠키 삭제
@@ -59,6 +59,7 @@ public class CookieUtil {
                     cookie.setPath("/");
                     cookie.setMaxAge(0);
                     cookie.setSecure(false);
+                    cookie.setDomain("");
 
                     response.addCookie(cookie);
                 }
