@@ -29,6 +29,7 @@ public class CookieUtil {
     // 쿠키 생성
     public static void addCookie(HttpServletResponse response, String name, String value, int maxAge) {
         ResponseCookie cookie = ResponseCookie.from(name, value)
+                .domain(".bae-chelin.com")
                 .path("/")
                 .httpOnly(true)
                 .maxAge(maxAge)
