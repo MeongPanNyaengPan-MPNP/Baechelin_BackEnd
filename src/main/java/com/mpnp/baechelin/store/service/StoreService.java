@@ -2,7 +2,7 @@ package com.mpnp.baechelin.store.service;
 
 import com.mpnp.baechelin.bookmark.domain.Bookmark;
 import com.mpnp.baechelin.bookmark.repository.BookmarkRepository;
-import com.mpnp.baechelin.config.QuerydslLocation;
+import com.mpnp.baechelin.common.QuerydslLocation;
 import com.mpnp.baechelin.review.domain.Review;
 import com.mpnp.baechelin.review.repository.ReviewRepository;
 import com.mpnp.baechelin.store.domain.Store;
@@ -166,9 +166,8 @@ public class StoreService {
      */
     public StoreCardResponseDto getStore(int storeId, String socialId) {
         Store store = storeRepository.findById(storeId).orElseThrow(() -> new IllegalArgumentException("해당하는 업장이 존재하지 않습니다."));
-        User targetUser = socialId == null ? null : userRepository.findBySocialId(socialId);
 
-        if (targetUser == null) {
+        if (socialId == null) {
             return new StoreCardResponseDto(store, "N");
         } else {
             String isBookmark = "N";

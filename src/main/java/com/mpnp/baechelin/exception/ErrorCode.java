@@ -7,8 +7,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum ErrorCode {
 
-    SUCCESS_MESSAGE(200, "S-SUC200","SUCCESS"),
-//    NOT_FOUND_MESSAGE(500, "BE001", "NOT FOUND"),
     FAILED_MESSAGE(500, "E-FAI500","서버에서 오류가 발생하였습니다."),
     INVALID_ACCESS_TOKEN(401, "E-IAT401","유효하지 않은 Access Token입니다."),
     INVALID_REFRESH_TOKEN(401, "E-IRT401", "유효하지 않은 Refresh Token입니다."),
@@ -21,7 +19,9 @@ public enum ErrorCode {
     ALREADY_LOGIN_ACCOUNT(400, "E-ALA400","다른 계정으로 로그인 되었습니다."),
 
     API_LOAD_FAILURE(500, "E-ALF500", "API 로딩에 실패하였습니다."),
-    API_NO_RESULT(500, "E-ALF500", "API 결과가 존재하지 않습니다.");
+    API_NO_RESULT(500, "E-ALF500", "API 결과가 존재하지 않습니다."),
+
+    NULL_POINTER_EXCEPTION(500, "E-NPE500", "NULL값이 들어올 수 없습니다.");
 
     private final int status;
     private final String code;

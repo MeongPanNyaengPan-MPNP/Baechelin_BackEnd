@@ -1,6 +1,6 @@
 package com.mpnp.baechelin.store.repository;
 
-import com.mpnp.baechelin.config.QuerydslLocation;
+import com.mpnp.baechelin.common.QuerydslLocation;
 import com.mpnp.baechelin.store.domain.Store;
 import com.mpnp.baechelin.store.dto.StoreCardResponseDto;
 import com.querydsl.core.BooleanBuilder;
@@ -17,7 +17,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 
-import static com.mpnp.baechelin.config.QuerydslLocation.locTwoPointAndConditions;
+import static com.mpnp.baechelin.common.QuerydslLocation.locTwoPointAndConditions;
 import static com.mpnp.baechelin.store.domain.QStore.store;
 
 @Repository

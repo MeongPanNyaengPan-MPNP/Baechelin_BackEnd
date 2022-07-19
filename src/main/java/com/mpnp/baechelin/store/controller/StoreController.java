@@ -68,6 +68,11 @@ public class StoreController {
     public StoreCardResponseDto getStore(
             @PathVariable(required = false) int storeId,
             @AuthenticationPrincipal User user) {
-        return storeService.getStore(storeId, user.getUsername());
+        String socialId = "";
+        if (user != null) {
+            socialId = user.getUsername();
+        }
+
+        return storeService.getStore(storeId, socialId);
     }
 }

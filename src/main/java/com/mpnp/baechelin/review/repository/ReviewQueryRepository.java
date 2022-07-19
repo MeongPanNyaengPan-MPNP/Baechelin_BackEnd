@@ -1,12 +1,9 @@
 package com.mpnp.baechelin.review.repository;
 
-import com.mpnp.baechelin.config.QuerydslLocation;
+import com.mpnp.baechelin.common.QuerydslLocation;
 import com.mpnp.baechelin.review.domain.Review;
-import com.mpnp.baechelin.store.domain.Store;
-import com.mpnp.baechelin.user.domain.User;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import org.springframework.stereotype.Repository;
 

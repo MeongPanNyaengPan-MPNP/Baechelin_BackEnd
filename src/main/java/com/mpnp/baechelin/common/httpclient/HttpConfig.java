@@ -1,4 +1,4 @@
-package com.mpnp.baechelin.config.httpclient;
+package com.mpnp.baechelin.common.httpclient;
 
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;

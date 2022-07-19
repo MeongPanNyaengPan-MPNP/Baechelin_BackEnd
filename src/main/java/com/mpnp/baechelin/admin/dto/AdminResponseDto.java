@@ -1,11 +1,14 @@
 package com.mpnp.baechelin.admin.dto;
 
+import com.mpnp.baechelin.store.domain.UserRegisterStore;
+import com.mpnp.baechelin.store.domain.UserRegisterStoreImg;
 import com.mpnp.baechelin.store.dto.userRegisterStore.UserRegisterStoreImgDto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @NoArgsConstructor
@@ -20,20 +23,15 @@ public class AdminResponseDto {
 
     @Builder
     public AdminResponseDto(
-            String name,
-            String address,
-            String elevator,
-            String toilet,
-            String heightDifferent,
-            String approach,
-            List<UserRegisterStoreImgDto> userRegisterStoreImageList
+            UserRegisterStore userRegisterStore
     ) {
-        this.name = name;
-        this.address = address;
-        this.elevator = elevator;
-        this.toilet = toilet;
-        this.heightDifferent = heightDifferent;
-        this.approach = approach;
-        this.userRegisterStoreImageList = userRegisterStoreImageList;
+        this.name = userRegisterStore.getName();
+        this.address = userRegisterStore.getAddress();
+        this.elevator = userRegisterStore.getElevator();
+        this.toilet = userRegisterStore.getToilet();
+        this.heightDifferent = userRegisterStore.getHeightDifferent();
+        this.approach = userRegisterStore.getApproach();
+        this.userRegisterStoreImageList = userRegisterStore.getUserRegisterStoreImgList().parallelStream()
+                .map(UserRegisterStoreImgDto::new).collect(Collectors.toList());
     }
 }

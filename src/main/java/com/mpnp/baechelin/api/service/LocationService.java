@@ -2,7 +2,7 @@ package com.mpnp.baechelin.api.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mpnp.baechelin.api.model.LocationAddressSearchForm;
-import com.mpnp.baechelin.config.httpclient.HttpConfig;
+import com.mpnp.baechelin.common.httpclient.HttpConfig;
 import com.mpnp.baechelin.api.model.LocationKeywordSearchForm;
 import com.mpnp.baechelin.store.domain.Category;
 import lombok.RequiredArgsConstructor;
