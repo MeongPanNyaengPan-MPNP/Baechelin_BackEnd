@@ -7,8 +7,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum ErrorCode {
 
-    SUCCESS_MESSAGE(200, "S-SUC200","SUCCESS"),
-//    NOT_FOUND_MESSAGE(500, "BE001", "NOT FOUND"),
     FAILED_MESSAGE(500, "E-FAI500","서버에서 오류가 발생하였습니다."),
     INVALID_ACCESS_TOKEN(401, "E-IAT401","유효하지 않은 Access Token입니다."),
     INVALID_REFRESH_TOKEN(401, "E-IRT401", "유효하지 않은 Refresh Token입니다."),

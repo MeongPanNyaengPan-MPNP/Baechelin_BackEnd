@@ -9,6 +9,8 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 // 인증되지 않은 유저가 요청을 했을 때 동작하는 클래스
 @Slf4j
@@ -47,8 +49,11 @@ public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
         JsonObject responseJson = new JsonObject();
-        responseJson.addProperty("message", errorCode.getMessage());
+        responseJson.addProperty("timestamp", String.valueOf(LocalDateTime.now()));
+        responseJson.addProperty("status", errorCode.getStatus());
         responseJson.addProperty("code", errorCode.getCode());
+        responseJson.addProperty("error", errorCode.name());
+        responseJson.addProperty("message", errorCode.getMessage());
 
         response.getWriter().print(responseJson);
     }

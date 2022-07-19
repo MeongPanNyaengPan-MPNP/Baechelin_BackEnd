@@ -1,5 +1,6 @@
 package com.mpnp.baechelin.util;
 
+import org.springframework.http.ResponseCookie;
 import org.springframework.util.SerializationUtils;
 
 import javax.servlet.http.Cookie;
@@ -27,13 +28,24 @@ public class CookieUtil {
 
     // 쿠키 생성
     public static void addCookie(HttpServletResponse response, String name, String value, int maxAge) {
-        Cookie cookie = new Cookie(name, value);
+        ResponseCookie cookie = ResponseCookie.from(name, value)
+                .domain(".bae-chelin.com")
+                .path("/")
+                .httpOnly(true)
+                .maxAge(maxAge)
+                .secure(true)
+                .sameSite("None")
+                .build();
 
-        cookie.setPath("/");
-        cookie.setHttpOnly(true); // XSS 공격을 막기 위한 설정
-        cookie.setMaxAge(maxAge);
-
-        response.addCookie(cookie);
+        response.addHeader("Set-Cookie", cookie.toString());
+//        Cookie cookie = new Cookie(name, value);
+//
+//        cookie.setPath("/");
+//        cookie.setHttpOnly(true); // XSS 공격을 막기 위한 설정
+//        cookie.setMaxAge(maxAge);
+//        cookie.setSecure(true);
+//
+//        response.addCookie(cookie);
     }
 
     // 쿠키 삭제
@@ -46,6 +58,7 @@ public class CookieUtil {
                     cookie.setValue("");
                     cookie.setPath("/");
                     cookie.setMaxAge(0);
+                    cookie.setSecure(false);
 
                     response.addCookie(cookie);
                 }

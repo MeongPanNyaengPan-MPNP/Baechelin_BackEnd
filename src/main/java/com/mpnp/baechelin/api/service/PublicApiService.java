@@ -1,14 +1,11 @@
 package com.mpnp.baechelin.api.service;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mpnp.baechelin.api.model.BarrierCode;
 import com.mpnp.baechelin.api.model.PublicApiCategoryForm;
 import com.mpnp.baechelin.api.model.PublicApiForm;
-import com.mpnp.baechelin.config.httpclient.HttpConfig;
 import com.mpnp.baechelin.api.dto.*;
 import com.mpnp.baechelin.api.model.LocationKeywordSearchForm;
 import com.mpnp.baechelin.store.domain.Category;
@@ -21,19 +18,14 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
-import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StopWatch;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import software.amazon.ion.Decimal;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.net.URLEncoder;
 import java.util.*;
 import java.util.stream.Collectors;
 
