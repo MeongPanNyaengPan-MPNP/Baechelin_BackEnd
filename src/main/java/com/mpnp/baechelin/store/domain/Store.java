@@ -3,6 +3,7 @@ package com.mpnp.baechelin.store.domain;
 import com.mpnp.baechelin.api.dto.PublicApiResponseDto;
 import com.mpnp.baechelin.api.model.PublicApiForm;
 import com.mpnp.baechelin.bookmark.domain.Bookmark;
+import com.mpnp.baechelin.common.DataClarification;
 import com.mpnp.baechelin.review.domain.Review;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
@@ -77,7 +78,7 @@ public class Store {
         //storeId - 임시
         this.id = row.getStoreId();
         this.name = row.getSISULNAME();
-        this.address = row.getADDR();
+        this.address = DataClarification.clarifyString(row.getADDR());
         this.phoneNumber = row.getTEL();
         //접근로
         this.approach = row.getST1();
@@ -117,7 +118,7 @@ public class Store {
         this.name = storeName;
         this.latitude = new BigDecimal(servList.getFaclLat());
         this.longitude = new BigDecimal(servList.getFaclLng());
-        this.address = servList.getLcMnad();
+        this.address = DataClarification.clarifyString(servList.getLcMnad());
         this.elevator = barrierTagList.contains("elevator") ? "Y" : "N";
         this.heightDifferent = barrierTagList.contains("height_different") ? "Y" : "N";
         this.toilet = barrierTagList.contains("toilet") ? "Y" : "N";
