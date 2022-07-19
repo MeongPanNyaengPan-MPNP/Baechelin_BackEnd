@@ -118,7 +118,7 @@ public class PublicApiService {
 
 
     private boolean setRowLngLat(PublicApiResponseDto.Row row) throws JsonProcessingException {
-        LocationKeywordSearchForm latLngSearchForm = locationService.giveLatLngByAddressRest(row.getADDR());
+        LocationKeywordSearchForm latLngSearchForm = locationService.getLatLngByAddressRest(row.getADDR());
 //        LocationKeywordSearchForm latLngSearchForm = locationService.giveLatLngByAddress(row.getADDR());
         if (latLngSearchForm == null) return false;
         LocationKeywordSearchForm.Documents latLngDoc = Arrays.stream(latLngSearchForm.getDocuments()).findFirst().orElse(null);
@@ -132,7 +132,7 @@ public class PublicApiService {
 
     private void setRowCategoryAndId(PublicApiResponseDto.Row row) throws JsonProcessingException {
         LocationKeywordSearchForm categorySearchForm = locationService
-                .giveCategoryByLatLngKeywordRest(String.valueOf(row.getLatitude()), String.valueOf(row.getLongitude()), row.getSISULNAME());
+                .getCategoryByLatLngKeywordRest(String.valueOf(row.getLatitude()), String.valueOf(row.getLongitude()), row.getSISULNAME());
 //        LocationKeywordSearchForm categorySearchForm = locationService.giveCategoryByLatLngKeyword(row.getLatitude(), row.getLongitude(), row.getSISULNAME());
         LocationKeywordSearchForm.Documents categoryDoc = Arrays.stream(categorySearchForm.getDocuments()).findFirst().orElse(null);
         if (categoryDoc == null || !Arrays.asList("FD6", "CE7").contains(categoryDoc.getCategory_group_code()))

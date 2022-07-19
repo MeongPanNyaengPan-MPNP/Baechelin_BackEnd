@@ -5,8 +5,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Getter
-@Setter
+@Getter @Setter
 public class PublicApiRequestDto {
     private String key;
     private String type;

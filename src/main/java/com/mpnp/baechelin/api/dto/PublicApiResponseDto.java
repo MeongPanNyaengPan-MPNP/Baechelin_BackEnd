@@ -88,5 +88,8 @@ public class PublicApiResponseDto {
         String ST11;
         @JsonProperty("ST12")
         String ST12;
+        public boolean validation(){
+            return this.latitude != null && this.longitude != null && this.category != null && this.storeId != null;
+        }
     }
 }

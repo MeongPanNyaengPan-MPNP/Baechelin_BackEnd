@@ -1,6 +1,5 @@
 package com.mpnp.baechelin.api.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mpnp.baechelin.api.model.LocationAddressSearchForm;
 import com.mpnp.baechelin.common.httpclient.HttpConfig;
 import com.mpnp.baechelin.api.model.LocationKeywordSearchForm;
@@ -29,7 +28,7 @@ public class LocationService {
      * @param address 주소
      * @return LocationKeywordSearchForm의 규격에 맞는 결과 하나를 가져옴
      */
-    public LocationKeywordSearchForm giveLatLngByAddress(String address) {
+    public LocationKeywordSearchForm getLatLngByAddress(String address) {
         WebClient client = WebClient.builder()
                 .baseUrl("https://dapi.kakao.com/v2/local/search/keyword.json")
                 .defaultUriVariables(Collections.singletonMap("url", "https://dapi.kakao.com/v2/local/search/keyword.json"))
@@ -55,7 +54,7 @@ public class LocationService {
      * @param storeName 업장명
      * @return 위도, 경도, 업장명을 만족하는 장소 찾기
      */
-    public LocationKeywordSearchForm giveCategoryByLatLngKeyword(String lat, String lng, String storeName) {
+    public LocationKeywordSearchForm getCategoryByLatLngKeyword(String lat, String lng, String storeName) {
         WebClient client = WebClient.builder()
                 .baseUrl("https://dapi.kakao.com/v2/local/search/keyword.json")
                 .defaultUriVariables(Collections.singletonMap("url", "https://dapi.kakao.com/v2/local/search/keyword.json"))
@@ -85,7 +84,7 @@ public class LocationService {
     public Map<String, Object> convertAddressToGeo(String address) {
         Map<String, Object> map = new HashMap<>();
         // status, latitude, longitude 를 키로 가지는 HashMap 생성
-        LocationKeywordSearchForm locationKeywordSearchForm = giveLatLngByAddress(address);
+        LocationKeywordSearchForm locationKeywordSearchForm = getLatLngByAddress(address);
 //        latLngDoc.getY()
         if (locationKeywordSearchForm == null) {
             map.put("status", false);
@@ -107,7 +106,7 @@ public class LocationService {
      * @param address 변환할 주소
      * @return RestTemplate를 이용해 변환한 위도, 경도
      */
-    public LocationKeywordSearchForm giveLatLngByAddressRest(String address) {
+    public LocationKeywordSearchForm getLatLngByAddressRest(String address) {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -128,10 +127,10 @@ public class LocationService {
         return resultRe.getBody();
     }
 
-    public LocationKeywordSearchForm giveCategoryByLatLngKeywordRest(String lat, String lng, String storeName) {
-        LocationKeywordSearchForm searchFormResult = giveCategoryByCode(lat, lng, storeName, "FD6");
+    public LocationKeywordSearchForm getCategoryByLatLngKeywordRest(String lat, String lng, String storeName) {
+        LocationKeywordSearchForm searchFormResult = getCategoryByCode(lat, lng, storeName, "FD6");
         if (searchFormResult == null) {
-            return giveCategoryByCode(lat, lng, storeName, "CE7");
+            return getCategoryByCode(lat, lng, storeName, "CE7");
         }
         return searchFormResult;
     }
@@ -143,7 +142,7 @@ public class LocationService {
      * @param cateCode 카테고리 코드
      * @return 위도, 경도, 업장명, 카테고리 코드 조건에 맞는 정보를 리턴
      */
-    public LocationKeywordSearchForm giveCategoryByCode(String lat, String lng, String storeName, String cateCode) {
+    public LocationKeywordSearchForm getCategoryByCode(String lat, String lng, String storeName, String cateCode) {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -177,7 +176,7 @@ public class LocationService {
     public Map<String, Object> convertGeoAndStoreNameToKeyword(String lat, String lng, String storeName) {
         Map<String, Object> map = new HashMap<>();
         // status?, latitude, longitude 를 키로 가지는 HashMap 생성
-        LocationKeywordSearchForm locationKeywordSearchForm = giveCategoryByLatLngKeywordRest(lat, lng, storeName);
+        LocationKeywordSearchForm locationKeywordSearchForm = getCategoryByLatLngKeywordRest(lat, lng, storeName);
 //        latLngDoc.getY()
         if (locationKeywordSearchForm == null) {
             map.put("status", false);
