@@ -158,18 +158,18 @@ public class LocationService {
 //        latLngDoc.getY()
         if (locationKeywordSearchForm == null) {
             map.put("status", false);
+            return map;
+        }
+        LocationKeywordSearchForm.Documents latLngDoc
+                = Arrays.stream(locationKeywordSearchForm.getDocuments()).findFirst().orElse(null);
+        if (latLngDoc != null) {
+            map.put("category", categoryFilter(latLngDoc.getCategory_name()));
+            map.put("storeId", Integer.parseInt(latLngDoc.getId()));
+            map.put("storeName", latLngDoc.getPlace_name());
+            map.put("phoneNumber", latLngDoc.getPhone());
+            map.put("status", map.get("category") != null && map.get("storeId") != null && map.get("storeName") != null);
         } else {
-            LocationKeywordSearchForm.Documents latLngDoc
-                    = Arrays.stream(locationKeywordSearchForm.getDocuments()).findFirst().orElse(null);
-            if (latLngDoc != null) {
-                map.put("category", categoryFilter(latLngDoc.getCategory_name()));
-                map.put("storeId", Integer.parseInt(latLngDoc.getId()));
-                map.put("storeName", latLngDoc.getPlace_name());
-                map.put("phoneNumber", latLngDoc.getPhone());
-                map.put("status", true);
-            } else {
-                map.put("status", false);
-            }
+            map.put("status", false);
         }
         return map;
     }

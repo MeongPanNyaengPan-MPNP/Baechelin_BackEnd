@@ -1,8 +1,6 @@
 package com.mpnp.baechelin.api.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mpnp.baechelin.api.model.BarrierCode;
 import com.mpnp.baechelin.api.model.PublicApiCategoryForm;
 import com.mpnp.baechelin.api.model.PublicApiForm;
@@ -13,8 +11,6 @@ import com.mpnp.baechelin.store.domain.Store;
 import com.mpnp.baechelin.store.dto.StoreCardResponseDto;
 import com.mpnp.baechelin.store.repository.StoreRepository;
 import com.mpnp.baechelin.store.service.StoreService;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
@@ -155,7 +151,7 @@ public class PublicApiService {
 
 
     private void saveDTO(List<PublicApiResponseDto.Row> rows) {
-        List<Store> storeList = rows.stream().filter(this::storeValidation)
+        List<Store> storeList = rows.stream().filter(this::publicRowValidation)
                 .map(Store::new).collect(Collectors.toList());
         // storeRepository 구현 시 save 호출하기
         for (Store store : storeList) {
@@ -193,20 +189,31 @@ public class PublicApiService {
                 uri, HttpMethod.GET, new HttpEntity<>(headers), PublicApiForm.class
         );
         PublicApiForm result = resultRe.getBody();
-        if (result == null || result.getServList()==null) return null;
+        return getStoreCardResponseDto(key, result);
+    }
+
+    private List<StoreCardResponseDto> getStoreCardResponseDto(String key, PublicApiForm result) {
+        if (result == null || result.getServList() == null) return null;
         List<Store> storeList = new ArrayList<>();
         for (PublicApiForm.ServList servList : result.getServList()) {
             // servList + Barrier Free Tag 합치기 + category
-            List<String> barrierTagList = processNewApiSecondStage(key, servList.getWfcltId());
-            log.info("barrierlist : {}", barrierTagList.toString());
-            Map<String, Object> infoMap = locationService.convertGeoAndStoreNameToKeyword(servList.getFaclLat(), servList.getFaclLng(), servList.getFaclNm());
+            if (!servList.validateServList()) continue;
+
+            List<String> barrierTagList = tagStringToList(key, servList.getWfcltId());
+            if (barrierTagList.isEmpty()) continue;
+
+            log.info("barrierlist : {}", barrierTagList);
+
+            Map<String, Object> infoMap
+                    = locationService.convertGeoAndStoreNameToKeyword(servList.getFaclLat(), servList.getFaclLng(), servList.getFaclNm());
+
             if ((boolean) infoMap.get("status")) {
                 int storeId = (Integer) infoMap.get("storeId");
                 String category = (String) infoMap.get("category");
                 String phoneNumber = (String) infoMap.get("phoneNumber");
                 String storeName = (String) infoMap.get("storeName");
                 Store nStore = new Store(storeId, servList, barrierTagList, phoneNumber, category, storeName);
-                if(!storeRepository.existsById(nStore.getId())){
+                if (!storeRepository.existsById(nStore.getId())) {
                     storeRepository.save(nStore);
                     storeList.add(nStore);
                 }
@@ -215,7 +222,7 @@ public class PublicApiService {
         return storeList.stream().map(StoreCardResponseDto::new).collect(Collectors.toList());
     }
 
-    public List<String> processNewApiSecondStage(String key, String sisulNum) {
+    public List<String> tagStringToList(String key, String sisulNum) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_XML);
         headers.setAccept(List.of(MediaType.APPLICATION_XML));
@@ -233,6 +240,10 @@ public class PublicApiService {
                 uri, HttpMethod.GET, new HttpEntity<>(headers), PublicApiCategoryForm.class
         );
         PublicApiCategoryForm result = resultRe.getBody();
+        return tagMapping(result);
+    }
+
+    private List<String> tagMapping(PublicApiCategoryForm result) {
         List<String> barrierTagResult = new ArrayList<>(); // 태그 결과들을 담을 리스트
         if (result == null || result.getServList() == null) {
             return barrierTagResult;
@@ -265,7 +276,7 @@ public class PublicApiService {
         }
     }
 
-    private boolean storeValidation(PublicApiResponseDto.Row row) {
+    private boolean publicRowValidation(PublicApiResponseDto.Row row) {
         return row.getLatitude() != null && row.getLongitude() != null && row.getCategory() != null && row.getStoreId() != null;
     }
 
