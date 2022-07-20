@@ -33,19 +33,9 @@ public class CookieUtil {
                 .path("/")
                 .httpOnly(true)
                 .maxAge(maxAge)
-                .secure(true)
-                .sameSite("None")
                 .build();
 
         response.addHeader("Set-Cookie", cookie.toString());
-//        Cookie cookie = new Cookie(name, value);
-//
-//        cookie.setPath("/");
-//        cookie.setHttpOnly(true); // XSS 공격을 막기 위한 설정
-//        cookie.setMaxAge(maxAge);
-//        cookie.setSecure(true);
-//
-//        response.addCookie(cookie);
     }
 
     // 쿠키 삭제
@@ -55,12 +45,14 @@ public class CookieUtil {
         if (cookies != null && cookies.length > 0) {
             for (Cookie cookie : cookies) {
                 if (name.equals(cookie.getName())) {
-                    cookie.setValue("");
-                    cookie.setPath("/");
-                    cookie.setMaxAge(0);
-                    cookie.setSecure(false);
+                    ResponseCookie deleteCookie = ResponseCookie.from(name, "")
+                            .domain("bae-chelin.com")
+                            .path("/")
+                            .httpOnly(true)
+                            .maxAge(0)
+                            .build();
 
-                    response.addCookie(cookie);
+                    response.addHeader("Set-Cookie", deleteCookie.toString());
                 }
             }
         }

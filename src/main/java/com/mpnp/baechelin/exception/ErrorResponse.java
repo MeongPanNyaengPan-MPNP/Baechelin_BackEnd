@@ -1,7 +1,9 @@
 package com.mpnp.baechelin.exception;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.http.ResponseEntity;
 
 import javax.validation.ConstraintViolationException;
