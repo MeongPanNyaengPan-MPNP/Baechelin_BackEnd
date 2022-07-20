@@ -29,36 +29,6 @@ public class AwsS3Manager {
 
     private final AmazonS3 amazonS3;
 
-
-    // 이미지 여러장 저장
-    public List<String> uploadFile(List<MultipartFile> multipartFile) {
-        List<String> fileNameList = new ArrayList<>();
-
-        // 파일이 넘어오지 않으면 빈 리스트 반환
-        if (multipartFile == null) {
-            return fileNameList;
-        }
-
-        // forEach 구문을 통해 multipartFile로 넘어온 파일들 하나씩 fileNameList에 추가
-        multipartFile.forEach(file -> {
-            String fileName = createFileName(file.getOriginalFilename());
-            ObjectMetadata objectMetadata = new ObjectMetadata();
-            objectMetadata.setContentLength(file.getSize());
-            objectMetadata.setContentType(file.getContentType());
-
-            try(InputStream inputStream = file.getInputStream()) {
-                amazonS3.putObject(new PutObjectRequest(bucket, fileName, inputStream, objectMetadata)
-                        .withCannedAcl(CannedAccessControlList.PublicRead));
-            } catch(IOException e) {
-                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다.");
-            }
-
-            fileNameList.add(String.format("https://%s.s3.amazonaws.com/%s", bucket, fileName));
-        });
-
-        return fileNameList;
-    }
-
     // 이미지 단건 저장
     public String uploadFile(MultipartFile file) {
         if (Objects.equals(file.getOriginalFilename(), "")) {
