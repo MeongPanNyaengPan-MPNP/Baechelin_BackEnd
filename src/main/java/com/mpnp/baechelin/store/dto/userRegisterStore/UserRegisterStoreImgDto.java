@@ -13,8 +13,4 @@ public class UserRegisterStoreImgDto {
     public UserRegisterStoreImgDto(String userRegisterStoreImageUrl) {
         this.userRegisterStoreImageUrl = userRegisterStoreImageUrl;
     }
-
-    public UserRegisterStoreImgDto(UserRegisterStoreImg userRegisterStoreImg) {
-        this.userRegisterStoreImageUrl = userRegisterStoreImg.getUserRegisterStoreImageUrl();
-    }
 }

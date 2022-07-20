@@ -87,12 +87,19 @@ public class UserPrincipal implements OAuth2User, UserDetails, OidcUser {
     // spring security -> userService(CustomOAuth2UserService)에서 사용자의 속성을 가져오기 위한 전처리.
     // spring security -> userDetailService 설정을 위해 사용
     public static UserPrincipal create(User user) {
+        SimpleGrantedAuthority simpleGrantedAuthority;
+        if (user.getRoleType().getCode().equals("ROLE_ADMIN")) {
+            simpleGrantedAuthority = new SimpleGrantedAuthority(RoleType.ADMIN.getCode());
+        } else {
+            simpleGrantedAuthority = new SimpleGrantedAuthority(RoleType.USER.getCode());
+        }
+        
         return UserPrincipal.builder()
                 .userId(user.getSocialId())
                 .password(user.getPassword())
                 .providerType(user.getProviderType())
                 .roleType(user.getRoleType())
-                .authorities(Collections.singletonList(new SimpleGrantedAuthority(RoleType.USER.getCode())))
+                .authorities(Collections.singletonList(simpleGrantedAuthority))
                 .build();
     }
 

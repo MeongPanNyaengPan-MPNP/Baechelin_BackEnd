@@ -64,7 +64,7 @@ public class TokenService {
                 .orElse((null));
         AuthToken authRefreshToken = tokenProvider.convertAuthToken(refreshToken);
 
-        if (!authRefreshToken.tokenValidate()) {
+        if (authRefreshToken.getToken() == null || !authRefreshToken.tokenValidate()) {
             throw new CustomException(ErrorCode.INVALID_REFRESH_TOKEN);
         }
 
