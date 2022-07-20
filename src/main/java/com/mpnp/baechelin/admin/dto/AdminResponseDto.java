@@ -1,7 +1,6 @@
 package com.mpnp.baechelin.admin.dto;
 
 import com.mpnp.baechelin.store.domain.UserRegisterStore;
-import com.mpnp.baechelin.store.domain.UserRegisterStoreImg;
 import com.mpnp.baechelin.store.dto.userRegisterStore.UserRegisterStoreImgDto;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,6 +12,7 @@ import java.util.stream.Collectors;
 @Getter
 @NoArgsConstructor
 public class AdminResponseDto {
+    private int id;
     private String name;
     private String address;
     private String elevator;
