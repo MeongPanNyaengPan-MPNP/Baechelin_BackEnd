@@ -6,9 +6,11 @@ import com.mpnp.baechelin.api.model.LocationKeywordSearchForm;
 import com.mpnp.baechelin.store.domain.Category;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -24,11 +26,14 @@ import java.util.*;
 public class LocationService {
     private final HttpConfig httpConfig;
 
+    @Value("${kakao.api.key}")
+    private String kakaoApiKey;
+
     /**
      * @param address 주소
      * @return LocationKeywordSearchForm의 규격에 맞는 결과 하나를 가져옴
      */
-    public LocationKeywordSearchForm getLatLngByAddress(String address) {
+    public LocationKeywordSearchForm getLatLngByAddressWC(String address) {
         WebClient client = WebClient.builder()
                 .baseUrl("https://dapi.kakao.com/v2/local/search/keyword.json")
                 .defaultUriVariables(Collections.singletonMap("url", "https://dapi.kakao.com/v2/local/search/keyword.json"))
@@ -41,7 +46,7 @@ public class LocationService {
                         .queryParam("size", 1)
                         .build())
                 .accept(MediaType.APPLICATION_JSON)
-                .header("Authorization", "KakaoAK 04940cceefec44d7adb62166b7971cd5")
+                .header("Authorization", "")
                 .retrieve().bodyToMono(LocationKeywordSearchForm.class).flux()
                 .toStream()
                 .findFirst()
@@ -49,12 +54,12 @@ public class LocationService {
     }
 
     /**
-     * @param lat 위도
-     * @param lng 경도
+     * @param lat       위도
+     * @param lng       경도
      * @param storeName 업장명
      * @return 위도, 경도, 업장명을 만족하는 장소 찾기
      */
-    public LocationKeywordSearchForm getCategoryByLatLngKeyword(String lat, String lng, String storeName) {
+    public LocationKeywordSearchForm getCategoryByLatLngKeywordWC(String lat, String lng, String storeName) {
         WebClient client = WebClient.builder()
                 .baseUrl("https://dapi.kakao.com/v2/local/search/keyword.json")
                 .defaultUriVariables(Collections.singletonMap("url", "https://dapi.kakao.com/v2/local/search/keyword.json"))
@@ -70,7 +75,7 @@ public class LocationService {
                         .queryParam("size", 1)
                         .build())
                 .accept(MediaType.APPLICATION_JSON)
-                .header("Authorization", "KakaoAK 04940cceefec44d7adb62166b7971cd5")
+                .header("Authorization", kakaoApiKey)
                 .retrieve().bodyToMono(LocationKeywordSearchForm.class)
                 .flux()
                 .toStream().findFirst()
@@ -84,8 +89,7 @@ public class LocationService {
     public Map<String, Object> convertAddressToGeo(String address) {
         Map<String, Object> map = new HashMap<>();
         // status, latitude, longitude 를 키로 가지는 HashMap 생성
-        LocationKeywordSearchForm locationKeywordSearchForm = getLatLngByAddress(address);
-//        latLngDoc.getY()
+        LocationKeywordSearchForm locationKeywordSearchForm = getLatLngByAddressRT(address, 1, 1);
         if (locationKeywordSearchForm == null) {
             map.put("status", false);
         } else {
@@ -106,11 +110,11 @@ public class LocationService {
      * @param address 변환할 주소
      * @return RestTemplate를 이용해 변환한 위도, 경도
      */
-    public LocationKeywordSearchForm getLatLngByAddressRest(String address, int page, int size) {
+    public LocationKeywordSearchForm getLatLngByAddressRT(String address, int page, int size) {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("Authorization", "KakaoAK 04940cceefec44d7adb62166b7971cd5");
+        headers.set("Authorization", kakaoApiKey);
         URI uri = UriComponentsBuilder
                 .fromUriString("https://dapi.kakao.com/v2/local/search/keyword.json")
                 .queryParam("query", address)
@@ -128,25 +132,25 @@ public class LocationService {
     }
 
     public LocationKeywordSearchForm getCategoryByLatLngKeywordRest(String lat, String lng, String storeName) {
-        LocationKeywordSearchForm searchFormResult = getCategoryByCode(lat, lng, storeName, "FD6",1,1);
+        LocationKeywordSearchForm searchFormResult = getCategoryByCodeRT(lat, lng, storeName, "FD6", 1, 1);
         if (searchFormResult == null) {
-            return getCategoryByCode(lat, lng, storeName, "CE7",1,1);
+            return getCategoryByCodeRT(lat, lng, storeName, "CE7", 1, 1);
         }
         return searchFormResult;
     }
 
     /**
-     * @param lat 위도
-     * @param lng 경도
+     * @param lat       위도
+     * @param lng       경도
      * @param storeName 업장명
-     * @param cateCode 카테고리 코드
+     * @param cateCode  카테고리 코드
      * @return 위도, 경도, 업장명, 카테고리 코드 조건에 맞는 정보를 리턴
      */
-    public LocationKeywordSearchForm getCategoryByCode(String lat, String lng, String storeName, String cateCode, int page, int size) {
+    public LocationKeywordSearchForm getCategoryByCodeRT(String lat, String lng, String storeName, String cateCode, int page, int size) {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("Authorization", "KakaoAK 04940cceefec44d7adb62166b7971cd5");
+        headers.set("Authorization", kakaoApiKey);
         URI uri = UriComponentsBuilder
                 .fromUriString("https://dapi.kakao.com/v2/local/search/keyword.json")
                 .queryParam("query", storeName)
@@ -168,8 +172,8 @@ public class LocationService {
     }
 
     /**
-     * @param lat 검색할 위도
-     * @param lng 검색할 경도
+     * @param lat       검색할 위도
+     * @param lng       검색할 경도
      * @param storeName 검색할 업장명
      * @return 위도, 경도, 업장명을 통해 업장의 정보 반환
      */
@@ -215,11 +219,11 @@ public class LocationService {
      * @param lng 경도
      * @return 위도, 경도를 카카오맵 API(RestTemplate)를 통해 주소로 변환 후 Map에 넣어 반환
      */
-    public Map<String, Object> convertGeoToAddress(String lat, String lng) {
+    public Map<String, Object> convertGeoToAddressRT(String lat, String lng) {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("Authorization", "KakaoAK 04940cceefec44d7adb62166b7971cd5");
+        headers.set("Authorization", kakaoApiKey);
         URI uri = UriComponentsBuilder
                 .fromUriString("https://dapi.kakao.com/v2/local/geo/coord2address.json")
                 .queryParam("x", lng)//위도, 경도 지정

@@ -117,7 +117,7 @@ public class PublicApiService {
 
 
     private boolean setRowLngLat(PublicApiResponseDto.Row row) throws JsonProcessingException {
-        LocationKeywordSearchForm latLngSearchForm = locationService.getLatLngByAddressRest(row.getADDR(),1,1);
+        LocationKeywordSearchForm latLngSearchForm = locationService.getLatLngByAddressRT(row.getADDR(),1,1);
 //        LocationKeywordSearchForm latLngSearchForm = locationService.giveLatLngByAddress(row.getADDR());
         if (latLngSearchForm == null) return false;
         LocationKeywordSearchForm.Documents latLngDoc = Arrays.stream(latLngSearchForm.getDocuments()).findFirst().orElse(null);
