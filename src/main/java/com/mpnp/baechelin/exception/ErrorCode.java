@@ -21,7 +21,7 @@ public enum ErrorCode {
     API_LOAD_FAILURE(500, "E-ALF500", "API 로딩에 실패하였습니다."),
     API_NO_RESULT(500, "E-ALF500", "API 결과가 존재하지 않습니다."),
 
-    NULL_POINTER_EXCEPTION(500, "E-NPE500", "NULL값이 들어올 수 없습니다.");
+    NULL_POINTER_EXCEPTION(500, "E-NPE500", "빈 값이 들어올 수 없습니다.");
 
     private final int status;
     private final String code;
