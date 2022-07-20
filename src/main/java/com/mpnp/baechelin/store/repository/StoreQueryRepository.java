@@ -15,6 +15,7 @@ import org.springframework.stereotype.Repository;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Collections;
 import java.util.List;
 
 import static com.mpnp.baechelin.common.QuerydslLocation.locTwoPointAndConditions;
@@ -42,20 +43,6 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
                                          Pageable pageable) {
 
         BooleanBuilder builder = QuerydslLocation.locAndConditions(latStart, latEnd, lngStart, lngEnd, category, facility);
-
-//        BigDecimal nowLat = (latStart.add(latEnd)).divide(new BigDecimal("2"), 22, RoundingMode.HALF_UP);
-//        BigDecimal nowLng = (lngStart.add(lngEnd)).divide(new BigDecimal("2"), 22, RoundingMode.HALF_UP);
-//        List<Store> storeResultList = queryFactory.selectFrom(store)
-//                .where(builder)
-//                .fetch();
-//        // 가까운순으로 정렬하기
-//        storeResultList.sort((thisStore, newStore) -> {
-//            BigDecimal thisDiff = nowLat.subtract(thisStore.getLatitude()).abs().add(nowLng.subtract(thisStore.getLongitude()).abs());
-//            BigDecimal newDiff = nowLat.subtract(newStore.getLatitude()).abs().add(nowLng.subtract(newStore.getLongitude()).abs());
-//            return thisDiff.compareTo(newDiff);
-//        });
-//        getStorePaged(storeResultList, pageable);
-
         List<Store> storeList = queryFactory.selectFrom(store)
                 .where(builder)
                 .limit(pageable.getPageSize())
@@ -65,14 +52,18 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
         if (latEnd != null && latStart != null && lngStart != null && lngEnd != null) {
             BigDecimal nowLat = (latStart.add(latEnd)).divide(new BigDecimal("2"), 22, RoundingMode.HALF_UP);
             BigDecimal nowLng = (lngStart.add(lngEnd)).divide(new BigDecimal("2"), 22, RoundingMode.HALF_UP);
-            storeList.sort((thisStore, newStore) -> {
-                BigDecimal thisDiff = nowLat.subtract(thisStore.getLatitude()).abs().add(nowLng.subtract(thisStore.getLongitude()).abs());
-                BigDecimal newDiff = nowLat.subtract(newStore.getLatitude()).abs().add(nowLng.subtract(newStore.getLongitude()).abs());
-                return thisDiff.compareTo(newDiff);
-            });
+            storeSortByDistance(storeList, nowLat, nowLng);
         }
         int fetchCount = queryFactory.selectFrom(store).where(builder).fetch().size();
         return new PageImpl<>(storeList, pageable, fetchCount);
+    }
+
+    private void storeSortByDistance(List<Store> storeList, BigDecimal nowLat, BigDecimal nowLng) {
+        storeList.sort((thisStore, newStore) -> {
+            BigDecimal thisDiff = nowLat.subtract(thisStore.getLatitude()).abs().add(nowLng.subtract(thisStore.getLongitude()).abs());
+            BigDecimal newDiff = nowLat.subtract(newStore.getLatitude()).abs().add(nowLng.subtract(newStore.getLongitude()).abs());
+            return thisDiff.compareTo(newDiff);
+        });
     }
 
     //TODO 별점순 - 쿼리 결과로 산출된 리스트의 평균 구하기, 정렬, 페이징
@@ -84,24 +75,6 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
                                              Pageable pageable) {
 
         BooleanBuilder builder = locTwoPointAndConditions(lat, lng, category, facility);
-// 직접 DTO를 조작
-//        List<Store> resultList = queryFactory.selectFrom(store)
-//                .where(builder)
-//                .fetch();
-
-//        List<StoreCardResponseDto> resultAvgList = resultList.stream()
-//                .map(store -> {
-//                    long count = user == null ? 0L : user.getBookmarkList().stream()
-//                            .filter(b -> b.getUserId() == user && b.getStoreId() == store).count();
-//                    double avg = Double.parseDouble(String.format(String.valueOf(store.getReviewList().stream()
-//                            .collect(Collectors.averagingDouble(Review::getPoint))), "0.1f"));
-//                    StoreCardResponseDto storeCardResponseDto = new StoreCardResponseDto(store, count > 0);
-//                    storeCardResponseDto.setPointAvg(avg);
-//                    return storeCardResponseDto;
-//                }).sorted().collect(Collectors.toList());
-//
-//        return getStoreCardPaged(resultAvgList, pageable);
-
 //  업데이트시 쿼리
         List<Store> updateResultList = queryFactory.selectFrom(store)
                 .where(builder)
@@ -109,6 +82,7 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
                 .offset(pageable.getOffset())
                 .orderBy(store.pointAvg.desc())
                 .fetch();
+        storeSortByDistance(updateResultList, lat, lng);
         int fetchCount = queryFactory.selectFrom(store).where(builder).fetch().size();
         return new PageImpl<>(updateResultList, pageable, fetchCount);
     }
