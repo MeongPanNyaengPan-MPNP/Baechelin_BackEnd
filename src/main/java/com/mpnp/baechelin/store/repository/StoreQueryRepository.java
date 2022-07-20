@@ -51,14 +51,14 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
         NumberPath<BigDecimal> diff = Expressions.numberPath(BigDecimal.class, "diff");
         List<Tuple> tupleList =
                 queryFactory
-                .select(store,
-                        store.latitude.subtract(nowLat).abs().add(store.longitude.subtract(nowLng)).abs().as(diff))
-                .from(store)
-                .where(builder)
-                .limit(pageable.getPageSize())
-                .orderBy(diff.asc())
-                .offset(pageable.getOffset())
-                .fetch();
+                        .select(store,
+                                store.latitude.subtract(nowLat).abs().add(store.longitude.subtract(nowLng)).abs().as(diff))
+                        .from(store)
+                        .where(builder)
+                        .orderBy(diff.asc())
+                        .limit(pageable.getPageSize())
+                        .offset(pageable.getOffset())
+                        .fetch();
         List<Store> storeList = tupleList.stream().map(tuple -> tuple.get(store)).collect(Collectors.toList());
         int fetchCount = queryFactory.selectFrom(store).where(builder).fetch().size();
         return new PageImpl<>(storeList, pageable, fetchCount);
@@ -78,9 +78,9 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
                         store.latitude.subtract(lat).abs().add(store.longitude.subtract(lng)).abs().as(diff))
                 .from(store)
                 .where(builder)
-                .limit(pageable.getPageSize())
                 .orderBy(store.pointAvg.desc())
                 .orderBy(diff.asc())
+                .limit(pageable.getPageSize())
                 .offset(pageable.getOffset())
                 .fetch();
 
