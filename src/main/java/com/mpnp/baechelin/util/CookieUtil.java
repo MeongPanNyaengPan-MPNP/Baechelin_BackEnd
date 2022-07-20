@@ -36,14 +36,6 @@ public class CookieUtil {
                 .build();
 
         response.addHeader("Set-Cookie", cookie.toString());
-//        Cookie cookie = new Cookie(name, value);
-//
-//        cookie.setPath("/");
-//        cookie.setHttpOnly(true); // XSS 공격을 막기 위한 설정
-//        cookie.setMaxAge(maxAge);
-//        cookie.setDomain(".bae-chelin.com");
-//
-//        response.addCookie(cookie);
     }
 
     // 쿠키 삭제
@@ -59,10 +51,6 @@ public class CookieUtil {
                             .httpOnly(true)
                             .maxAge(0)
                             .build();
-
-//                    cookie.setValue("");
-//                    cookie.setPath("/");
-//                    cookie.setMaxAge(0);
 
                     response.addHeader("Set-Cookie", deleteCookie.toString());
                 }
