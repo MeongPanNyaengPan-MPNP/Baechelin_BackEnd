@@ -5,7 +5,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.ArrayList;
 import java.util.List;
 
 @NoArgsConstructor
@@ -23,5 +22,8 @@ public class PublicApiCategoryForm {
         private String evalInfo;
         private String faclNm;
         private String wfcltId;
+        public boolean validation(){
+            return this.evalInfo != null;
+        }
     }
 }

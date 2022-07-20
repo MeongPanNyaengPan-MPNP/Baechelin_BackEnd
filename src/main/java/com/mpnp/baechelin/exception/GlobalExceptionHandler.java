@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @Slf4j
@@ -47,5 +48,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<ErrorResponse> handleUnsupportedJwtException(UnsupportedJwtException e) {
         log.error("지원되지 않는 형식이나 구성의 JWT 토큰입니다.");
         return ErrorResponse.toResponseEntity(ErrorCode.WRONG_TYPE_TOKEN);
+    }
+
+    @ExceptionHandler(value = RestClientException.class)
+    protected ResponseEntity<ErrorResponse> handleUnsupportedJwtException(RestClientException e) {
+        log.error("지원되지 않는 형식이나 구성의 JWT 토큰입니다.");
+        return ErrorResponse.toResponseEntity(ErrorCode.API_LOAD_FAILURE);
     }
 }

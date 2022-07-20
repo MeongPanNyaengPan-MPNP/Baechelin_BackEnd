@@ -23,6 +23,7 @@ public class ReviewMainResponseDto {
     private String storeName;
     private String userName;
     private String content; //리뷰 코멘트
+    private String address;
     private double point; //별점
     private List<ReviewImageResponseDto> reviewImageUrlList; //리뷰 이미지 사진
     private List<ReviewResponseDto.TagResponseDto> tagList;
@@ -31,6 +32,7 @@ public class ReviewMainResponseDto {
         this.storeId = store.getId();
         this.userId = user.getId();
         this.storeName = store.getName();
+        this.address = store.getAddress();
         this.userName = user.getEmail();
         this.content = review.getContent();
         this.point = review.getPoint();

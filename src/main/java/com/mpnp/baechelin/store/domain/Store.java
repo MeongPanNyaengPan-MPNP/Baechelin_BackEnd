@@ -3,8 +3,10 @@ package com.mpnp.baechelin.store.domain;
 import com.mpnp.baechelin.api.dto.PublicApiResponseDto;
 import com.mpnp.baechelin.api.model.PublicApiForm;
 import com.mpnp.baechelin.bookmark.domain.Bookmark;
+import com.mpnp.baechelin.common.DataClarification;
 import com.mpnp.baechelin.review.domain.Review;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -16,6 +18,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @AllArgsConstructor
+@Slf4j
 public class Store {
     @Id
     private int id;
@@ -75,7 +78,7 @@ public class Store {
         //storeId - 임시
         this.id = row.getStoreId();
         this.name = row.getSISULNAME();
-        this.address = row.getADDR();
+        this.address = DataClarification.clarifyString(row.getADDR());
         this.phoneNumber = row.getTEL();
         //접근로
         this.approach = row.getST1();
@@ -93,13 +96,13 @@ public class Store {
         this.category = row.getCategory();
     }
 
-    public Store updateBookmarkCount(int upOrDown){
+    public Store updateBookmarkCount(int upOrDown) {
         this.bookMarkCount += upOrDown;
         return this;
     }
 
     // TODO 리뷰가 삭제될 때도 고려하기 - 삭제 후 적용되어야 함
-    public Store updatePointAvg(double changePoint){
+    public Store updatePointAvg(double changePoint) {
         this.reviewCount = reviewList.size();
         double totalPoint = 0.0;
         for (Review review : reviewList) {
@@ -109,10 +112,21 @@ public class Store {
         return this;
     }
 
-    public Store publicApiAndTagToStore(PublicApiForm.ServList servList, List<String> barrierTagList) {
-        // TagList 매핑 및 생성
-        // Store 매핑 및 생성
-        return null;
+    public Store(int storeId, PublicApiForm.ServList servList, List<String> barrierTagList,
+                                        String phoneNumber, String category, String storeName) {
+        this.id = storeId;
+        this.name = storeName;
+        this.latitude = new BigDecimal(servList.getFaclLat());
+        this.longitude = new BigDecimal(servList.getFaclLng());
+        this.address = DataClarification.clarifyString(servList.getLcMnad());
+        this.elevator = barrierTagList.contains("elevator") ? "Y" : "N";
+        this.heightDifferent = barrierTagList.contains("height_different") ? "Y" : "N";
+        this.toilet = barrierTagList.contains("toilet") ? "Y" : "N";
+        this.parking = barrierTagList.contains("parking") ? "Y" : "N";
+        this.approach = barrierTagList.contains("approach") ? "Y" : "N";
+
+        this.phoneNumber = phoneNumber;
+        this.category = category;
     }
 
 }

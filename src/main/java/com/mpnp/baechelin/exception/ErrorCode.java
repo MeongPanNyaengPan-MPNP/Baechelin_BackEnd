@@ -17,7 +17,7 @@ public enum ErrorCode {
     ACCESS_DENIED(401, "E-ACD401","접근이 거부되었습니다."),
     TOKEN_NOT_EXIST(401, "E-TNE401", "토큰이 존재하지 않습니다."),
     ALREADY_LOGIN_ACCOUNT(400, "E-ALA400","다른 계정으로 로그인 되었습니다."),
-
+    WRONG_INPUT(400, "E_WI400", "입력 값을 확인해주세요"),
     API_LOAD_FAILURE(500, "E-ALF500", "API 로딩에 실패하였습니다."),
     API_NO_RESULT(500, "E-ALF500", "API 결과가 존재하지 않습니다."),
 
