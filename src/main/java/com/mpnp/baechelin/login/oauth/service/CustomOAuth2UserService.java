@@ -86,7 +86,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         return userRepository.saveAndFlush(user);
     }
 
-    private User updateUser(User user, OAuth2UserInfo userInfo) {
+    private void updateUser(User user, OAuth2UserInfo userInfo) {
         // DB에 있는 user name과 소셜에서 보내준 user name이 다를 시 DB 업데이트
         // 즉, 소셜에서 이름을 바꿨으면 업데이트
         if (userInfo.getName() != null && !user.getName().equals(userInfo.getName())) {
@@ -98,7 +98,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             user.setProfileImageUrl(userInfo.getImageUrl());
         }
 
-        return user;
     }
 
 }
