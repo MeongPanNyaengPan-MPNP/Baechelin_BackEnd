@@ -130,11 +130,13 @@ public class LocationService {
         );
         return resultRe.getBody();
     }
+    // 주소 넣는 것으로 바꾸기
+    // 주소 넣는 것으로 바꾸기
 
-    public LocationKeywordSearchForm getCategoryByLatLngKeywordRest(String lat, String lng, String storeName) {
-        LocationKeywordSearchForm searchFormResult = getCategoryByCodeRT(lat, lng, storeName, "FD6", 1, 1);
+    public LocationKeywordSearchForm getCategoryByLatLngKeywordRest(String lat, String lng, String keyword) {
+        LocationKeywordSearchForm searchFormResult = getCategoryByCodeRT(lat, lng, keyword, "FD6", 1, 1);
         if (searchFormResult == null) {
-            return getCategoryByCodeRT(lat, lng, storeName, "CE7", 1, 1);
+            return getCategoryByCodeRT(lat, lng, keyword, "CE7", 1, 1);
         }
         return searchFormResult;
     }

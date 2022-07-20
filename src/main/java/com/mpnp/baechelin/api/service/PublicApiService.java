@@ -6,6 +6,7 @@ import com.mpnp.baechelin.api.model.PublicApiCategoryForm;
 import com.mpnp.baechelin.api.model.PublicApiForm;
 import com.mpnp.baechelin.api.dto.*;
 import com.mpnp.baechelin.api.model.LocationKeywordSearchForm;
+import com.mpnp.baechelin.common.httpclient.HttpConfig;
 import com.mpnp.baechelin.store.domain.Category;
 import com.mpnp.baechelin.store.domain.Store;
 import com.mpnp.baechelin.store.dto.StoreCardResponseDto;
@@ -13,14 +14,19 @@ import com.mpnp.baechelin.store.repository.StoreRepository;
 import com.mpnp.baechelin.store.service.StoreService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import software.amazon.ion.Decimal;
 
 import javax.transaction.Transactional;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -33,56 +39,57 @@ public class PublicApiService {
     private final StoreRepository storeRepository;
     private final LocationService locationService;
     private final StoreService storeService;
+    @Value("${public.api.v1.key}")
+    private String publicV1Key;
+    private final HttpConfig httpConfig;
 
-//    private final HttpConfig httpConfig;
-//
-//    public PublicApiResponseDto processApiToDBWithWebclientMono(PublicApiRequestDto publicApiRequestDto) throws UnsupportedEncodingException {
-//        WebClient client = WebClient.builder()
-//                .baseUrl("http://openapi.seoul.go.kr:8088")
-////                .defaultCookie("cookieKey", "cookieValue")
-//                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML_VALUE)
-//                .defaultUriVariables(Collections.singletonMap("url", "http://openapi.seoul.go.kr:8088"))
-//                .clientConnector(new ReactorClientHttpConnector(httpConfig.httpClient())) // 위의 타임아웃 적용
-//                .build();
-//
-//        String key = URLEncoder.encode(publicApiRequestDto.getKey(), "UTF-8"); /*인증키 (sample사용시에는 호출시 제한됩니다.)*/
-//        String type = URLEncoder.encode(publicApiRequestDto.getType(), "UTF-8"); /*요청파일타입 (xml,xmlf,xls,json) */
-//        String service = URLEncoder.encode(publicApiRequestDto.getService(), "UTF-8"); /*서비스명 (대소문자 구분 필수입니다.)*/
-//        String start = URLEncoder.encode(String.valueOf(publicApiRequestDto.getStartIndex()), "UTF-8"); /*요청시작위치 (sample인증키 사용시 5이내 숫자)*/
-//        String end = URLEncoder.encode(String.valueOf(publicApiRequestDto.getEndIndex()), "UTF-8"); /*요청종료위치(sample인증키 사용시 5이상 숫자 선택 안 됨)*/
-//
-//        PublicApiResponseDto result = client.get().uri(
-//                        uriBuilder -> uriBuilder.pathSegment(key, type, service, start, end).path("/")
-//                                .build())
-//                .accept(MediaType.APPLICATION_JSON)
-//                .retrieve()
-//                .onStatus(HttpStatus::is4xxClientError, response -> {
-//                    throw new IllegalAccessError("400");
-//                })
-//                .onStatus(HttpStatus::is5xxServerError, response -> {
-//                    throw new IllegalAccessError("500");
-//                })
-//                .bodyToMono(PublicApiResponseDto.class).flux()
-//                .toStream()
-//                .findFirst()
-//                .orElse(null);
-//        if (result == null) {
-//            return null;
-//        }
-//        setInfos(result);
-//        saveDTO(result.getTouristFoodInfo().getRow());
-//        return result;
-//
-//    }
+    public PublicApiResponseDto processApiToDBWithWebclientMono(PublicApiRequestDto publicApiRequestDto) throws UnsupportedEncodingException {
+        WebClient client = WebClient.builder()
+                .baseUrl("http://openapi.seoul.go.kr:8088")
+//                .defaultCookie("cookieKey", "cookieValue")
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML_VALUE)
+                .defaultUriVariables(Collections.singletonMap("url", "http://openapi.seoul.go.kr:8088"))
+                .clientConnector(new ReactorClientHttpConnector(httpConfig.httpClient())) // 위의 타임아웃 적용
+                .build();
 
-    public void processApiToDBWithRestTemplate(PublicApiRequestDto publicApiRequestDto) {
+        String key = URLEncoder.encode(publicV1Key, "UTF-8"); /*인증키 (sample사용시에는 호출시 제한됩니다.)*/
+        String type = URLEncoder.encode(publicApiRequestDto.getType(), "UTF-8"); /*요청파일타입 (xml,xmlf,xls,json) */
+        String service = URLEncoder.encode(publicApiRequestDto.getService(), "UTF-8"); /*서비스명 (대소문자 구분 필수입니다.)*/
+        String start = URLEncoder.encode(String.valueOf(publicApiRequestDto.getStartIndex()), "UTF-8"); /*요청시작위치 (sample인증키 사용시 5이내 숫자)*/
+        String end = URLEncoder.encode(String.valueOf(publicApiRequestDto.getEndIndex()), "UTF-8"); /*요청종료위치(sample인증키 사용시 5이상 숫자 선택 안 됨)*/
+
+        PublicApiResponseDto result = client.get().uri(
+                        uriBuilder -> uriBuilder.pathSegment(key, type, service, start, end).path("/")
+                                .build())
+                .accept(MediaType.APPLICATION_JSON)
+                .retrieve()
+                .onStatus(HttpStatus::is4xxClientError, response -> {
+                    throw new IllegalAccessError("400");
+                })
+                .onStatus(HttpStatus::is5xxServerError, response -> {
+                    throw new IllegalAccessError("500");
+                })
+                .bodyToMono(PublicApiResponseDto.class).flux()
+                .toStream()
+                .findFirst()
+                .orElse(null);
+        if (result == null) {
+            return null;
+        }
+        setInfos(result);
+        saveDTO(result.getTouristFoodInfo().getRow());
+        return result;
+
+    }
+
+    public void processApiV1(PublicApiRequestDto publicApiRequestDto) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_XML);
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
         URI uri = UriComponentsBuilder
                 .fromUriString("http://openapi.seoul.go.kr:8088")
                 .path("/{key}/{type}/{service}/{start}/{end}")
-                .buildAndExpand(publicApiRequestDto.getKey(), publicApiRequestDto.getType(), publicApiRequestDto.getService(), publicApiRequestDto.getStartIndex(), publicApiRequestDto.getEndIndex())
+                .buildAndExpand(publicV1Key, publicApiRequestDto.getType(), publicApiRequestDto.getService(), publicApiRequestDto.getStartIndex(), publicApiRequestDto.getEndIndex())
                 .encode()
                 .toUri();
         RestTemplate restTemplate = new RestTemplate();
@@ -149,115 +156,14 @@ public class PublicApiService {
         for (Store store : storeList) {
             if (!storeRepository.existsById(store.getId())) {
                 storeRepository.save(store);
-//            } else {
-//                storeRepository.findById(store.getId())
-//                        .ifPresent(s -> {
-//                            s.setCategory(store.getCategory());
-//                            storeRepository.save(s);
-//                        });
-//
-//            }
             }
         }
     }
 
-    public void processNewApi(String key, int requestSize, String siDoNm) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_XML);
-        headers.setAccept(List.of(MediaType.APPLICATION_XML));
-        URI uri = UriComponentsBuilder
-                .fromUriString("http://apis.data.go.kr/B554287/DisabledPersonConvenientFacility/getDisConvFaclList")
-                .queryParam("serviceKey", key)
-                .queryParam("numOfRows", requestSize)
-                .queryParam("siDoNm", siDoNm)
-                .queryParam("faclTyCd", "UC0B01")
-                .build()
-                .encode()
-                .toUri();
-
-        RestTemplate restTemplate = new RestTemplate();
-        log.warn(uri.toString());
-        ResponseEntity<PublicApiForm> resultRe = restTemplate.exchange(
-                uri, HttpMethod.GET, new HttpEntity<>(headers), PublicApiForm.class
-        );
-        PublicApiForm result = resultRe.getBody();
-        getStoreCardResponseDto(key, result);
-    }
-
-    private List<StoreCardResponseDto> getStoreCardResponseDto(String key, PublicApiForm result) {
-        if (result == null || result.getServList() == null) return null;
-        List<Store> storeList = new ArrayList<>();
-        for (PublicApiForm.ServList servList : result.getServList()) {
-            // servList + Barrier Free Tag 합치기 + category
-            if (!servList.validateServList()) continue;
-
-            List<String> barrierTagList = tagStringToList(key, servList.getWfcltId());
-            if (barrierTagList.isEmpty()) continue;
-
-            log.info("barrierlist : {}", barrierTagList);
-
-            Map<String, Object> infoMap
-                    = locationService.convertGeoAndStoreNameToKeyword(servList.getFaclLat(), servList.getFaclLng(), servList.getFaclNm());
-
-            if ((boolean) infoMap.get("status")) {
-                int storeId = (Integer) infoMap.get("storeId");
-                String category = (String) infoMap.get("category");
-                String phoneNumber = (String) infoMap.get("phoneNumber");
-                String storeName = (String) infoMap.get("storeName");
-                Store nStore = new Store(storeId, servList, barrierTagList, phoneNumber, category, storeName);
-                if (!storeRepository.existsById(nStore.getId())) {
-                    storeRepository.save(nStore);
-                    storeList.add(nStore);
-                }
-            }
-        }
-        return storeList.stream().map(StoreCardResponseDto::new).collect(Collectors.toList());
-    }
-
-    public List<String> tagStringToList(String key, String sisulNum) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_XML);
-        headers.setAccept(List.of(MediaType.APPLICATION_XML));
-        URI uri = UriComponentsBuilder
-                .fromUriString("http://apis.data.go.kr/B554287/DisabledPersonConvenientFacility/getFacInfoOpenApiJpEvalInfoList")
-                .queryParam("serviceKey", key)
-                .queryParam("wfcltId", sisulNum)
-                .build()
-                .encode()
-                .toUri();
-
-        RestTemplate restTemplate = new RestTemplate();
-        log.warn(uri.toString());
-        ResponseEntity<PublicApiCategoryForm> resultRe = restTemplate.exchange(
-                uri, HttpMethod.GET, new HttpEntity<>(headers), PublicApiCategoryForm.class
-        );
-        PublicApiCategoryForm result = resultRe.getBody();
-        return tagMapping(result);
-    }
-
-    private List<String> tagMapping(PublicApiCategoryForm result) {
-        List<String> barrierTagResult = new ArrayList<>(); // 태그 결과들을 담을 리스트
-        if (result == null || result.getServList() == null) {
-            return barrierTagResult;
-        } else {
-            PublicApiCategoryForm.ServList first = result.getServList().stream().findFirst().orElse(null);
-            // Input 한 개당 하나의 배리어 프리 정보가 생성되므로 하나만 찾는다
-            if (first != null && first.validation()) { // 결과가 존재할 떄
-                String[] splitInput = first.getEvalInfo().split(",");
-                return Arrays.stream(splitInput)
-                        .map(BarrierCode::getColumnFromDesc)
-                        .filter(code -> code != null && !code.equals(""))
-                        .collect(Collectors.toList());
-            }
-        }
-        return barrierTagResult;
-    }
-
-    /*
-     *계단 또는 승강설비,대변기,복도,소변기,일반사항,장애인전용주차구역,주출입구 높이차이 제거,주출입구 접근로,출입구(문),해당시설 층수
-     *  */
-
-
+    /**
+     * @param category 카테고리가 ,로 구분되어 있는 스트링
+     * @return 맞는 카테고리 반환
+     */
     private String categoryFilter(String category) {
         if (category == null) {
             return Category.ETC.getDesc();
