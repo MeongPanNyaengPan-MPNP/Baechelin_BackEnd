@@ -14,7 +14,7 @@ import java.util.List;
 @Getter
 @Setter
 @XmlRootElement(name = "facInfoList")
-public class PublicApiForm {
+public class PublicApiV2Form {
     private int totalCount;
     private int resultCode;
     private String resultMessage;
@@ -44,9 +44,9 @@ public class PublicApiForm {
         }
     }
 
-    public List<Store> ApiFormToStore(PublicApiForm publicApiForm) {
+    public List<Store> ApiFormToStore(PublicApiV2Form publicApiV2Form) {
         List<Store> mappingResult = new ArrayList<>();
-        for (ServList serv : publicApiForm.getServList()) {
+        for (ServList serv : publicApiV2Form.getServList()) {
             mappingResult.add(Store.builder()
                     .address(serv.getLcMnad())
                     .latitude(new BigDecimal(serv.faclLat))

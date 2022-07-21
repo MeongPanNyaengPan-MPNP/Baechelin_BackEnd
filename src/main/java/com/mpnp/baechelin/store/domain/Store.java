@@ -1,10 +1,11 @@
 package com.mpnp.baechelin.store.domain;
 
-import com.mpnp.baechelin.api.dto.PublicApiResponseDto;
-import com.mpnp.baechelin.api.model.PublicApiForm;
+import com.mpnp.baechelin.api.model.PublicApiV1Form;
+import com.mpnp.baechelin.api.model.PublicApiV2Form;
 import com.mpnp.baechelin.bookmark.domain.Bookmark;
 import com.mpnp.baechelin.common.DataClarification;
 import com.mpnp.baechelin.review.domain.Review;
+import com.mpnp.baechelin.store.dto.StoreResultDto;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
@@ -74,7 +75,7 @@ public class Store {
     @OneToMany(mappedBy = "storeId", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Bookmark> bookmarkList = new ArrayList<>();
 
-    public Store(PublicApiResponseDto.Row row) {
+    public Store(PublicApiV1Form.Row row) {
         //storeId - 임시
         this.id = row.getStoreId();
         this.name = row.getSISULNAME();
@@ -112,10 +113,9 @@ public class Store {
         return this;
     }
 
-    public Store(int storeId, PublicApiForm.ServList servList, List<String> barrierTagList,
-                                        String phoneNumber, String category, String storeName) {
-        this.id = storeId;
-        this.name = storeName;
+    public Store(StoreResultDto.StoreResult sr, PublicApiV2Form.ServList servList, List<String> barrierTagList) {
+        this.id = sr.getStoreId();
+        this.name = sr.getStoreName();
         this.latitude = new BigDecimal(servList.getFaclLat());
         this.longitude = new BigDecimal(servList.getFaclLng());
         this.address = DataClarification.clarifyString(servList.getLcMnad());
@@ -125,8 +125,8 @@ public class Store {
         this.parking = barrierTagList.contains("parking") ? "Y" : "N";
         this.approach = barrierTagList.contains("approach") ? "Y" : "N";
 
-        this.phoneNumber = phoneNumber;
-        this.category = category;
+        this.phoneNumber = sr.getPhoneNumber();
+        this.category = sr.getCategory();
     }
 
 }
