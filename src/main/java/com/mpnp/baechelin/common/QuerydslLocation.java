@@ -57,7 +57,7 @@ public class QuerydslLocation {
     }
 
     public static BooleanBuilder getBooleanBuilder(String category, List<String> facility, BooleanBuilder builder) {
-        builder.and(category == null ? null : store.category.eq(Category.giveCategoryDesc(category.toUpperCase())));
+        builder.and((category == null || category.equalsIgnoreCase("ALL")) ? null : store.category.eq(Category.giveCategoryDesc(category.toUpperCase())));
         if (facility != null && facility.size() > 0) {
             for (String fac : facility) {
                 builder.and(facilityTF(fac));
@@ -77,8 +77,7 @@ public class QuerydslLocation {
     }
 
 
-
-    public static int[] getStartEndPage(List<?> resultList, Pageable pageable){
+    public static int[] getStartEndPage(List<?> resultList, Pageable pageable) {
         int totalCount = resultList.size();
         int totalPage = totalCount / pageable.getPageSize();
         int pageStartIndex = Long.valueOf(resultList.size() / pageable.getPageSize() * pageable.getOffset()).intValue();
