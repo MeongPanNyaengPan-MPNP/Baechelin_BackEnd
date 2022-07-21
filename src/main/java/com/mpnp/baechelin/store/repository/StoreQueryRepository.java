@@ -90,19 +90,22 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
     }
 
     //TODO 북마크순
-    public List<Store> findStoreOrderByBookmark(BigDecimal lat,
+    public Page<Store> findStoreOrderByBookmark(BigDecimal lat,
                                                 BigDecimal lng,
                                                 String category,
                                                 List<String> facility,
-                                                int limit) {
+                                                Pageable pageable) {
 
         BooleanBuilder builder = locTwoPointAndConditions(lat, lng, category, facility);
 
-        return queryFactory.selectFrom(store)
+        List<Store> storeList = queryFactory.selectFrom(store)
                 .where(builder)
                 .orderBy(store.bookMarkCount.desc())
-                .limit(limit)
+                .limit(pageable.getPageSize())
+                .offset(pageable.getOffset())
                 .fetch();
+        int fetchCount = queryFactory.selectFrom(store).where(builder).fetch().size();
+        return new PageImpl<>(storeList, pageable, fetchCount);
     }
 
 }
