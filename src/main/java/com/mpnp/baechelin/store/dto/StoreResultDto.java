@@ -8,7 +8,8 @@ import java.util.Map;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter @Setter
+@Getter
+@Setter
 @Builder
 public class StoreResultDto {
     @Builder.Default
@@ -18,17 +19,21 @@ public class StoreResultDto {
 
     @NoArgsConstructor
     @AllArgsConstructor
-    @Getter @Setter
+    @Getter
+    @Setter
     @Builder
-    public static class StoreResult{
+    public static class StoreResult {
+
         String category;
         Integer storeId;
         String storeName;
+        String longitude;
+        String latitude;
         String phoneNumber;
 
-        public boolean validate(){
-            return this.category!=null && this.storeId!=null
-                    && this.storeName!=null;
+        public boolean validate() {
+            return this.category != null && this.storeId != null && this.latitude != null
+                    && this.longitude != null && this.storeName != null;
         }
     }
 }
