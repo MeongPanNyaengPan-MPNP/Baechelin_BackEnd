@@ -1,28 +1,27 @@
-package com.mpnp.baechelin.store.dto;
+package com.mpnp.baechelin.api.dto;
 
 import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
 @Builder
-public class StoreResultDto {
+public class LocationInfoDto {
     @Builder.Default
     private boolean isEnd = true;
     @Builder.Default
-    private List<StoreResult> storeResultMapList = new ArrayList<>();
+    private List<LocationResponse> locationResponseMapList = new ArrayList<>();
 
     @NoArgsConstructor
     @AllArgsConstructor
     @Getter
     @Setter
     @Builder
-    public static class StoreResult {
+    public static class LocationResponse {
 
         String category;
         Integer storeId;

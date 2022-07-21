@@ -5,7 +5,7 @@ import com.mpnp.baechelin.api.model.PublicApiV2Form;
 import com.mpnp.baechelin.bookmark.domain.Bookmark;
 import com.mpnp.baechelin.common.DataClarification;
 import com.mpnp.baechelin.review.domain.Review;
-import com.mpnp.baechelin.store.dto.StoreResultDto;
+import com.mpnp.baechelin.api.dto.LocationInfoDto;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
@@ -113,7 +113,7 @@ public class Store {
         return this;
     }
 
-    public Store(StoreResultDto.StoreResult sr, PublicApiV2Form.ServList servList, List<String> barrierTagList) {
+    public Store(LocationInfoDto.LocationResponse sr, PublicApiV2Form.ServList servList, List<String> barrierTagList) {
         this.id = sr.getStoreId();
         this.name = sr.getStoreName();
         this.latitude = new BigDecimal(servList.getFaclLat());

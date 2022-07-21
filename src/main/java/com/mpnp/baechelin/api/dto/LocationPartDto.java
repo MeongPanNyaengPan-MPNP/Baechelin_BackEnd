@@ -1,14 +1,11 @@
-package com.mpnp.baechelin.store.dto;
+package com.mpnp.baechelin.api.dto;
 
 import lombok.*;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @AllArgsConstructor
 @Getter @Setter
 @Builder
-public class StoreSingleResultDto {
+public class LocationPartDto {
 
     @AllArgsConstructor
     @Getter @Setter

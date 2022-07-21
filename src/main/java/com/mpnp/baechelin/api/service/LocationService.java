@@ -4,9 +4,8 @@ import com.mpnp.baechelin.api.model.LocationAddressSearchForm;
 import com.mpnp.baechelin.common.httpclient.HttpConfig;
 import com.mpnp.baechelin.api.model.LocationKeywordSearchForm;
 import com.mpnp.baechelin.store.domain.Category;
-import com.mpnp.baechelin.store.domain.Store;
-import com.mpnp.baechelin.store.dto.StoreResultDto;
-import com.mpnp.baechelin.store.dto.StoreSingleResultDto;
+import com.mpnp.baechelin.api.dto.LocationInfoDto;
+import com.mpnp.baechelin.api.dto.LocationPartDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,7 +17,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.transaction.Transactional;
-import java.math.BigDecimal;
 import java.net.URI;
 import java.util.*;
 
@@ -91,23 +89,23 @@ public class LocationService {
      * 주소 -> 위도/경도 이므로 <<1개 반환>>
      * Controller, Service에서 같은 Map 형태로 사용
      */
-    public StoreSingleResultDto.LatLong convertAddressToGeo(String address) {
+    public LocationPartDto.LatLong convertAddressToGeo(String address) {
         // status, latitude, longitude 를 키로 가지는 HashMap 생성
-        StoreSingleResultDto.LatLong srd = StoreSingleResultDto.LatLong.builder().build();
+        LocationPartDto.LatLong locLl = LocationPartDto.LatLong.builder().build();
         LocationKeywordSearchForm locationKeywordSearchForm = getLatLngByAddressRT(address);
         if (locationKeywordSearchForm == null) { // 비어 있을 때 status-false 저장
-            return srd;
+            return locLl;
         }
         LocationKeywordSearchForm.Documents latLngDoc
                 = Arrays.stream(locationKeywordSearchForm.getDocuments()).findAny().orElse(null);
         if (latLngDoc != null) {
-            srd = StoreSingleResultDto.LatLong.builder()
+            locLl = LocationPartDto.LatLong.builder()
                     .latitude(latLngDoc.getY())
                     .longitude(latLngDoc.getX())
                     .status(true)
                     .build();
         }
-        return srd;
+        return locLl;
     }
 
     /**
@@ -190,7 +188,7 @@ public class LocationService {
      * @param storeName 검색할 업장명
      * @return 위도, 경도, 업장명을 통해 업장의 정보 반환
      */
-    public StoreResultDto.StoreResult convertGeoAndStoreNameToKeyword(String lat, String lng, String storeName) {
+    public LocationInfoDto.LocationResponse convertGeoAndStoreNameToKeyword(String lat, String lng, String storeName) {
         LocationKeywordSearchForm locationKeywordSearchForm = getCategoryByLatLngKeywordRT(lat, lng, storeName);
         // 위도, 경도, 업장명을 가지고 업장 정보를 찾는다
         if (locationKeywordSearchForm == null) {
@@ -201,7 +199,7 @@ public class LocationService {
         if (latLngDoc == null) {
             return null;
         }
-        return StoreResultDto.StoreResult.builder()
+        return LocationInfoDto.LocationResponse.builder()
                 .storeId(Integer.parseInt(latLngDoc.getId()))
                 .latitude(latLngDoc.getY())
                 .longitude(latLngDoc.getX())
@@ -219,14 +217,21 @@ public class LocationService {
      */
 
     // TODO 페이징 까지 완료하기 - 여러 건이 필요
-    public List<StoreResultDto.StoreResult> convertGeoAndAddressToKeyword(String lat, String lng, String address) {
-        List<StoreResultDto.StoreResult> resultList = new ArrayList<>();
+    public List<LocationInfoDto.LocationResponse> convertGeoAndAddressToKeyword(String lat, String lng, String address) {
+        List<LocationInfoDto.LocationResponse> resultList = new ArrayList<>();
         getStoreResults(lat, lng, address, "FD6", resultList);
         getStoreResults(lat, lng, address, "CE7", resultList);
         return resultList;
     }
 
-    private void getStoreResults(String lat, String lng, String address, String type, List<StoreResultDto.StoreResult> resultList) {
+    /**
+     * @param lat 위도
+     * @param lng 경도
+     * @param address 주소
+     * @param type 검색 타입
+     * @param resultList 검색 결과
+     */
+    private void getStoreResults(String lat, String lng, String address, String type, List<LocationInfoDto.LocationResponse> resultList) {
         LocationKeywordSearchForm locationKeywordSearchForm;
         int page = 1;
         do {
@@ -239,7 +244,7 @@ public class LocationService {
             // 다음 페이지가 있는지 조사가 필요 - SearchForm에서 확인한다
             for (LocationKeywordSearchForm.Documents latLngDoc : latLngDocArr) {
                 if (latLngDoc != null) {
-                    StoreResultDto.StoreResult newResult = StoreResultDto.StoreResult.builder()
+                    LocationInfoDto.LocationResponse newResult = LocationInfoDto.LocationResponse.builder()
                             .latitude(latLngDoc.getY())
                             .longitude(latLngDoc.getX())
                             .category(categoryFilter(latLngDoc.getCategory_name()))
@@ -252,12 +257,9 @@ public class LocationService {
                     }
                 }
             }
-        } while (locationKeywordSearchForm.getMeta().is_end());
+        } while (locationKeywordSearchForm.getMeta().is_end()); // 마지막 페이지까지 검사
     }
 
-    private StoreResultDto.StoreResult getNewResult(StoreResultDto.StoreResult newResult) {
-        return newResult;
-    }
 
     /**
      * @param category 변환할 카테고리

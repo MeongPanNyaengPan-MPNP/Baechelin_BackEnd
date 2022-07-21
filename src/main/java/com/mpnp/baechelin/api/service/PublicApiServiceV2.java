@@ -5,11 +5,10 @@ import com.mpnp.baechelin.api.model.PublicApiCategoryForm;
 import com.mpnp.baechelin.api.model.PublicApiV2Form;
 import com.mpnp.baechelin.common.DataClarification;
 import com.mpnp.baechelin.store.domain.Store;
-import com.mpnp.baechelin.store.dto.StoreResultDto;
+import com.mpnp.baechelin.api.dto.LocationInfoDto;
 import com.mpnp.baechelin.store.repository.StoreRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -106,6 +105,9 @@ public class PublicApiServiceV2 {
         // 검증 완료된 store들을 저장
     }
 
+    /**
+     * @param servList V2의 결과 Row
+     */
     private void mapApiToStoreWithPaging(PublicApiV2Form.ServList servList) {
         // 태그 String을 분리 & 매핑해 리스트에 저장
         List<String> barrierTagList = tagStrToList(servList.getWfcltId());
@@ -123,8 +125,13 @@ public class PublicApiServiceV2 {
         searchWithAddress(servList, barrierTagList);
     }
 
+    /**
+     * @param servList 대상 Row
+     * @param barrierTagList 배리어 태그 리스트
+     * @return 검색 결과 존재 여부
+     */
     private boolean searchWithStoreName(PublicApiV2Form.ServList servList, List<String> barrierTagList) {
-        StoreResultDto.StoreResult resultDto =
+        LocationInfoDto.LocationResponse resultDto =
                 locationService.convertGeoAndStoreNameToKeyword(servList.getFaclLat(), servList.getFaclLng(), servList.getFaclNm());
         if (resultDto == null)
             return false;
@@ -134,12 +141,16 @@ public class PublicApiServiceV2 {
         return true;
     }
 
+    /**
+     * @param servList 대상 Row
+     * @param barrierTagList 배리어 태그 리스트
+     */
     private void searchWithAddress(PublicApiV2Form.ServList servList, List<String> barrierTagList) {
-        List<StoreResultDto.StoreResult> storeResultMapList = locationService
+        List<LocationInfoDto.LocationResponse> locationResponseMapList = locationService
                 .convertGeoAndAddressToKeyword(servList.getFaclLat(), servList.getFaclLng(), DataClarification.clarifyString(servList.getLcMnad()));
 
-        for (StoreResultDto.StoreResult storeResult : storeResultMapList) {
-            Store nStore = new Store(storeResult, servList, barrierTagList);
+        for (LocationInfoDto.LocationResponse locationResponse : locationResponseMapList) {
+            Store nStore = new Store(locationResponse, servList, barrierTagList);
 
             // ID 값으로 store 중복 검사해 중복되지 않을 시에만 리스트에 저장
             if (!storeRepository.existsById(nStore.getId())) {
@@ -148,6 +159,10 @@ public class PublicApiServiceV2 {
         }
     }
 
+    /**
+     * @param sisulNum 시설 고유 번호
+     * @return API 결과로 나온 문자열을 리스트로 분리
+     */
     public List<String> tagStrToList(String sisulNum) {
         HttpHeaders headers = setHttpHeaders();
         URI uri = UriComponentsBuilder
@@ -167,6 +182,10 @@ public class PublicApiServiceV2 {
         return mapTags(result);
     }
 
+    /**
+     * @param result API 결과로 나온 리스트
+     * @return DB에 맞게 리스트를 변환
+     */
     private List<String> mapTags(PublicApiCategoryForm result) {
         List<String> barrierTagResult = new ArrayList<>(); // 태그 결과들을 담을 리스트
         if (result == null || result.getServList() == null) {
@@ -180,9 +199,13 @@ public class PublicApiServiceV2 {
         return barrierTagResult;
     }
 
-    private List<String> getStrings(PublicApiCategoryForm.ServList first) {
-        if (first != null && first.validation()) { // 결과가 존재할 떄
-            String[] splitInput = first.getEvalInfo().split(",");
+    /**
+     * @param serv API 결과
+     * @return Enum을 통해 String 가공해서 변환
+     */
+    private List<String> getStrings(PublicApiCategoryForm.ServList serv) {
+        if (serv != null && serv.validation()) { // 결과가 존재할 떄
+            String[] splitInput = serv.getEvalInfo().split(",");
             return Arrays.stream(splitInput)
                     .map(BarrierCode::getColumnFromDesc)
                     .filter(code -> code != null && !code.equals(""))
