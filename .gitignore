@@ -38,3 +38,4 @@ out/
 ## Properties
 src/main/resources/application-key.properties
 src/main/resources/application.properties
+src/main/java/com/mpnp/baechelin/util/CookieUtil.java

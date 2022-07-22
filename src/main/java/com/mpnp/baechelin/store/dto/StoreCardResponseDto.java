@@ -13,8 +13,7 @@ import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
-@Getter
-@Setter
+@Getter @Setter
 @Builder
 @Slf4j
 public class StoreCardResponseDto implements Comparable<StoreCardResponseDto> {

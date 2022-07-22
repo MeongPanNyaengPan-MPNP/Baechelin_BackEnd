@@ -4,13 +4,14 @@ import com.mpnp.baechelin.api.model.LocationAddressSearchForm;
 import com.mpnp.baechelin.common.httpclient.HttpConfig;
 import com.mpnp.baechelin.api.model.LocationKeywordSearchForm;
 import com.mpnp.baechelin.store.domain.Category;
+import com.mpnp.baechelin.api.dto.LocationInfoDto;
+import com.mpnp.baechelin.api.dto.LocationPartDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -85,32 +86,34 @@ public class LocationService {
     /**
      * @param address 주소
      * @return 위도, 경도, Status를 가지는 Map 반환
+     * 주소 -> 위도/경도 이므로 <<1개 반환>>
+     * Controller, Service에서 같은 Map 형태로 사용
      */
-    public Map<String, Object> convertAddressToGeo(String address) {
-        Map<String, Object> map = new HashMap<>();
+    public LocationPartDto.LatLong convertAddressToGeo(String address) {
         // status, latitude, longitude 를 키로 가지는 HashMap 생성
-        LocationKeywordSearchForm locationKeywordSearchForm = getLatLngByAddressRT(address, 1, 1);
-        if (locationKeywordSearchForm == null) {
-            map.put("status", false);
-        } else {
-            LocationKeywordSearchForm.Documents latLngDoc
-                    = Arrays.stream(locationKeywordSearchForm.getDocuments()).findAny().orElse(null);
-            if (latLngDoc != null) {
-                map.put("latitude", latLngDoc.getY());
-                map.put("longitude", latLngDoc.getX());
-                map.put("status", true);
-            } else {
-                map.put("status", false);
-            }
+        LocationPartDto.LatLong locLl = LocationPartDto.LatLong.builder().build();
+        LocationKeywordSearchForm locationKeywordSearchForm = getLatLngByAddressRT(address);
+        if (locationKeywordSearchForm == null) { // 비어 있을 때 status-false 저장
+            return locLl;
         }
-        return map;
+        LocationKeywordSearchForm.Documents latLngDoc
+                = Arrays.stream(locationKeywordSearchForm.getDocuments()).findAny().orElse(null);
+        if (latLngDoc != null) {
+            locLl = LocationPartDto.LatLong.builder()
+                    .latitude(latLngDoc.getY())
+                    .longitude(latLngDoc.getX())
+                    .status(true)
+                    .build();
+        }
+        return locLl;
     }
 
     /**
      * @param address 변환할 주소
      * @return RestTemplate를 이용해 변환한 위도, 경도
+     * 위도/경도 -> 주소 이므로 <<1개 반환>>
      */
-    public LocationKeywordSearchForm getLatLngByAddressRT(String address, int page, int size) {
+    public LocationKeywordSearchForm getLatLngByAddressRT(String address) {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -118,8 +121,8 @@ public class LocationService {
         URI uri = UriComponentsBuilder
                 .fromUriString("https://dapi.kakao.com/v2/local/search/keyword.json")
                 .queryParam("query", address)
-                .queryParam("page", page)
-                .queryParam("size", size)
+                .queryParam("page", 1)
+                .queryParam("size", 1)
                 .encode()
                 .build()
                 .toUri();
@@ -133,10 +136,16 @@ public class LocationService {
     // 주소 넣는 것으로 바꾸기
     // 주소 넣는 것으로 바꾸기
 
-    public LocationKeywordSearchForm getCategoryByLatLngKeywordRest(String lat, String lng, String keyword) {
-        LocationKeywordSearchForm searchFormResult = getCategoryByCodeRT(lat, lng, keyword, "FD6", 1, 1);
+    /**
+     * @param lat     위도
+     * @param lng     경도
+     * @param keyword 검색 키워드
+     * @return 음식점, 카페 검색을 통해 얻은 결과 - V1, 1개의 결과만을 반환
+     */
+    public LocationKeywordSearchForm getCategoryByLatLngKeywordRT(String lat, String lng, String keyword) {
+        LocationKeywordSearchForm searchFormResult = getCategoryByCodeRT(lat, lng, keyword, "FD6", 1);
         if (searchFormResult == null) {
-            return getCategoryByCodeRT(lat, lng, keyword, "CE7", 1, 1);
+            searchFormResult = getCategoryByCodeRT(lat, lng, keyword, "CE7", 1);
         }
         return searchFormResult;
     }
@@ -148,7 +157,7 @@ public class LocationService {
      * @param cateCode  카테고리 코드
      * @return 위도, 경도, 업장명, 카테고리 코드 조건에 맞는 정보를 리턴
      */
-    public LocationKeywordSearchForm getCategoryByCodeRT(String lat, String lng, String storeName, String cateCode, int page, int size) {
+    public LocationKeywordSearchForm getCategoryByCodeRT(String lat, String lng, String storeName, String cateCode, int page) {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -158,10 +167,10 @@ public class LocationService {
                 .queryParam("query", storeName)
                 .queryParam("x", lng)//위도, 경도 지정
                 .queryParam("y", lat)
-                .queryParam("category_group_code", cateCode)
-                .queryParam("radius", 200)
+                .queryParam("category_group_code", cateCode) // 카테고리 그룹을 설정
+                .queryParam("radius", 20)
                 .queryParam("page", page)
-                .queryParam("size", size)
+                .queryParam("size", 15)
                 .encode()
                 .build()
                 .toUri();
@@ -179,28 +188,78 @@ public class LocationService {
      * @param storeName 검색할 업장명
      * @return 위도, 경도, 업장명을 통해 업장의 정보 반환
      */
-    public Map<String, Object> convertGeoAndStoreNameToKeyword(String lat, String lng, String storeName) {
-        Map<String, Object> map = new HashMap<>();
-        // status?, latitude, longitude 를 키로 가지는 HashMap 생성
-        LocationKeywordSearchForm locationKeywordSearchForm = getCategoryByLatLngKeywordRest(lat, lng, storeName);
-//        latLngDoc.getY()
+    public LocationInfoDto.LocationResponse convertGeoAndStoreNameToKeyword(String lat, String lng, String storeName) {
+        LocationKeywordSearchForm locationKeywordSearchForm = getCategoryByLatLngKeywordRT(lat, lng, storeName);
+        // 위도, 경도, 업장명을 가지고 업장 정보를 찾는다
         if (locationKeywordSearchForm == null) {
-            map.put("status", false);
-            return map;
+            return null;
         }
         LocationKeywordSearchForm.Documents latLngDoc
                 = Arrays.stream(locationKeywordSearchForm.getDocuments()).findFirst().orElse(null);
-        if (latLngDoc != null) {
-            map.put("category", categoryFilter(latLngDoc.getCategory_name()));
-            map.put("storeId", Integer.parseInt(latLngDoc.getId()));
-            map.put("storeName", latLngDoc.getPlace_name());
-            map.put("phoneNumber", latLngDoc.getPhone());
-            map.put("status", map.get("category") != null && map.get("storeId") != null && map.get("storeName") != null);
-        } else {
-            map.put("status", false);
+        if (latLngDoc == null) {
+            return null;
         }
-        return map;
+        return LocationInfoDto.LocationResponse.builder()
+                .storeId(Integer.parseInt(latLngDoc.getId()))
+                .latitude(latLngDoc.getY())
+                .longitude(latLngDoc.getX())
+                .category(categoryFilter(latLngDoc.getCategory_name()))
+                .storeId(Integer.parseInt(latLngDoc.getId()))
+                .storeName(latLngDoc.getPlace_name())
+                .phoneNumber(latLngDoc.getPhone()).build();
     }
+
+    /**
+     * @param lat     위도
+     * @param lng     경도
+     * @param address 주소
+     * @return 업장명 대신에 주소를 입력해 해당 건물에 있는 업장을 배리어 프리 시설로 등록한다
+     */
+
+    // TODO 페이징 까지 완료하기 - 여러 건이 필요
+    public List<LocationInfoDto.LocationResponse> convertGeoAndAddressToKeyword(String lat, String lng, String address) {
+        List<LocationInfoDto.LocationResponse> resultList = new ArrayList<>();
+        getStoreResults(lat, lng, address, "FD6", resultList);
+        getStoreResults(lat, lng, address, "CE7", resultList);
+        return resultList;
+    }
+
+    /**
+     * @param lat 위도
+     * @param lng 경도
+     * @param address 주소
+     * @param type 검색 타입
+     * @param resultList 검색 결과
+     */
+    private void getStoreResults(String lat, String lng, String address, String type, List<LocationInfoDto.LocationResponse> resultList) {
+        LocationKeywordSearchForm locationKeywordSearchForm;
+        int page = 1;
+        do {
+            locationKeywordSearchForm = getCategoryByCodeRT(lat, lng, address, type, page++);
+            // 위도, 경도, 업장명을 가지고 업장 정보를 찾는다
+            if (locationKeywordSearchForm == null) {
+                return;
+            }
+            LocationKeywordSearchForm.Documents[] latLngDocArr = locationKeywordSearchForm.getDocuments();
+            // 다음 페이지가 있는지 조사가 필요 - SearchForm에서 확인한다
+            for (LocationKeywordSearchForm.Documents latLngDoc : latLngDocArr) {
+                if (latLngDoc != null) {
+                    LocationInfoDto.LocationResponse newResult = LocationInfoDto.LocationResponse.builder()
+                            .latitude(latLngDoc.getY())
+                            .longitude(latLngDoc.getX())
+                            .category(categoryFilter(latLngDoc.getCategory_name()))
+                            .storeName(latLngDoc.getPlace_name())
+                            .storeId(Integer.parseInt(latLngDoc.getId()))
+                            .phoneNumber(latLngDoc.getPhone())
+                            .build();
+                    if (newResult.validate()) {
+                        resultList.add(newResult);
+                    }
+                }
+            }
+        } while (locationKeywordSearchForm.getMeta().is_end()); // 마지막 페이지까지 검사
+    }
+
 
     /**
      * @param category 변환할 카테고리

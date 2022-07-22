@@ -91,8 +91,8 @@ public class StoreService {
     public StorePagedResponseDto getStoreInRangeHighPoint(BigDecimal lat, BigDecimal lng, String
             category, List<String> facility, Pageable pageable, String socialId) {
         User targetUser = socialId == null ? null : userRepository.findBySocialId(socialId);
-        Page<Store> resultList = storeQueryRepository.findStoreOrderByPoint(lat, lng, category, facility, pageable);
-        return getStoreCardPagedResponseDto(targetUser, resultList);
+        Page<Store> pagedResultList = storeQueryRepository.findStoreOrderByPoint(lat, lng, category, facility, pageable);
+        return getStoreCardPagedResponseDto(targetUser, pagedResultList);
     }
 
     /**
@@ -100,15 +100,14 @@ public class StoreService {
      * @param lng      경도
      * @param category 업장 카테고리
      * @param facility 배리어 프리 태그
-     * @param limit    표시할 업장의 개수
      * @param socialId 유저 소셜 아이디
      * @return 위도, 경도, 카테고리, 배리어 프리 태그에 해당하는 북마크가 높은 업장 리스트를 설정한 숫자만큼 리턴
      */
-    public List<StoreCardResponseDto> getStoreInRangeHighBookmark(BigDecimal lat, BigDecimal lng, String
-            category, List<String> facility, int limit, String socialId) {
+    public StorePagedResponseDto getStoreInRangeHighBookmark(BigDecimal lat, BigDecimal lng, String
+            category, List<String> facility, Pageable pageable, String socialId) {
         User targetUser = socialId == null ? null : userRepository.findBySocialId(socialId);
-        List<Store> highBookmarkResultList = storeQueryRepository.findStoreOrderByBookmark(lat, lng, category, facility, limit);
-        return getStoreCardResponseDtos(targetUser, highBookmarkResultList);
+        Page<Store> highBookmarkResultList = storeQueryRepository.findStoreOrderByBookmark(lat, lng, category, facility, pageable);
+        return getStoreCardPagedResponseDto(targetUser, highBookmarkResultList);
     }
 
     /**

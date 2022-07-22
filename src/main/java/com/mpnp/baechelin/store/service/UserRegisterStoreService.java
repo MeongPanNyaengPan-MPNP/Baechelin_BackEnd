@@ -10,6 +10,7 @@ import com.mpnp.baechelin.user.repository.UserRepository;
 import com.mpnp.baechelin.util.AwsS3Manager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ public class UserRegisterStoreService {
     /**
      * 유저 업장 등록
      * @param userRegisterStoreRequestDto
+     * @param socialId
      */
     public void registerStore(UserRegisterStoreRequestDto userRegisterStoreRequestDto, String socialId) {
         User user = userRepository.findBySocialId(socialId);
@@ -45,20 +47,21 @@ public class UserRegisterStoreService {
                 .build();
 
         // 업장의 이미지 여러개 등록
-        // s3에 이미지 업로드 후 url 반환
-        List<String> uploadedImage = awsS3Manager.uploadFile(userRegisterStoreRequestDto.getUserRegisterStoreImageList());
-
         // saveAll을 위해 userRegisterStoreImg List에 저장
         List<UserRegisterStoreImg> userRegisterStoreImgList = new ArrayList<>();
 
-        for (String image : uploadedImage) {
+        // 유저가 등록한 업장 이미지 리스트
+        List<MultipartFile> userRegisterStoreImageFiles = userRegisterStoreRequestDto.getUserRegisterStoreImageList();
+
+        for (MultipartFile userRegisterStoreImageFile : userRegisterStoreImageFiles) {
             UserRegisterStoreImg userRegisterStoreImg = UserRegisterStoreImg.builder()
-                    .userRegisterStoreImageUrl(image)
+                    .userRegisterStoreImageUrl(awsS3Manager.uploadFile(userRegisterStoreImageFile)) // 유저가 등록한 업장 이미지 url 변환
                     .userRegisterStore(userRegisterStore)
                     .build();
 
             userRegisterStoreImgList.add(userRegisterStoreImg);
         }
+
 
         userRegisterStoreRepository.save(userRegisterStore);
         userRegisterStoreImgRepository.saveAll(userRegisterStoreImgList);

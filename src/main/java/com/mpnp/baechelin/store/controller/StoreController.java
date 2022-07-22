@@ -54,13 +54,13 @@ public class StoreController {
     }
 
     @GetMapping("/bookmark")
-    public List<StoreCardResponseDto> getStoreInRangeHighBookmark(@RequestParam(required = false) BigDecimal lat,
+    public StorePagedResponseDto getStoreInRangeHighBookmark(@RequestParam(required = false) BigDecimal lat,
                                                                   @RequestParam(required = false) BigDecimal lng,
                                                                   @RequestParam(required = false) String category,
                                                                   @RequestParam(required = false) List<String> facility,
-                                                                  @RequestParam int limit,
+                                                                  @PageableDefault Pageable pageable,
                                                                   @AuthenticationPrincipal User user) {
-        return storeService.getStoreInRangeHighBookmark(lat, lng, category, facility, limit, user == null ? null : user.getUsername());
+        return storeService.getStoreInRangeHighBookmark(lat, lng, category, facility, pageable, user == null ? null : user.getUsername());
     }
 
     @ApiOperation(value = "업장 상세정보를 조회하는 메소드")

@@ -1,10 +1,8 @@
-package com.mpnp.baechelin.api.dto;
+package com.mpnp.baechelin.api.model;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.mpnp.baechelin.api.model.LocationKeywordSearchForm;
-import com.mpnp.baechelin.store.domain.Store;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -16,7 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true) // 무시할 속성이나 속성 목록 표시
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
-public class PublicApiResponseDto {
+public class PublicApiV1Form {
     TouristFoodInfo touristFoodInfo;
 
     @Data

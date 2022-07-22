@@ -1,32 +1,26 @@
 package com.mpnp.baechelin.api.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.mpnp.baechelin.api.model.BarrierCode;
-import com.mpnp.baechelin.api.model.PublicApiCategoryForm;
-import com.mpnp.baechelin.api.model.PublicApiForm;
 import com.mpnp.baechelin.api.dto.*;
 import com.mpnp.baechelin.api.model.LocationKeywordSearchForm;
-import com.mpnp.baechelin.common.httpclient.HttpConfig;
+import com.mpnp.baechelin.api.model.PublicApiV1Form;
+import com.mpnp.baechelin.exception.CustomException;
+import com.mpnp.baechelin.exception.ErrorCode;
 import com.mpnp.baechelin.store.domain.Category;
 import com.mpnp.baechelin.store.domain.Store;
-import com.mpnp.baechelin.store.dto.StoreCardResponseDto;
 import com.mpnp.baechelin.store.repository.StoreRepository;
 import com.mpnp.baechelin.store.service.StoreService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
-import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import software.amazon.ion.Decimal;
 
 import javax.transaction.Transactional;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.net.URLEncoder;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -41,47 +35,50 @@ public class PublicApiService {
     private final StoreService storeService;
     @Value("${public.api.v1.key}")
     private String publicV1Key;
-//    private final HttpConfig httpConfig;
-//
-//    public PublicApiResponseDto processApiToDBWithWebclientMono(PublicApiRequestDto publicApiRequestDto) throws UnsupportedEncodingException {
-//        WebClient client = WebClient.builder()
-//                .baseUrl("http://openapi.seoul.go.kr:8088")
-////                .defaultCookie("cookieKey", "cookieValue")
-//                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML_VALUE)
-//                .defaultUriVariables(Collections.singletonMap("url", "http://openapi.seoul.go.kr:8088"))
-//                .clientConnector(new ReactorClientHttpConnector(httpConfig.httpClient())) // 위의 타임아웃 적용
-//                .build();
-//
-//        String key = URLEncoder.encode(publicV1Key, "UTF-8"); /*인증키 (sample사용시에는 호출시 제한됩니다.)*/
-//        String type = URLEncoder.encode(publicApiRequestDto.getType(), "UTF-8"); /*요청파일타입 (xml,xmlf,xls,json) */
-//        String service = URLEncoder.encode(publicApiRequestDto.getService(), "UTF-8"); /*서비스명 (대소문자 구분 필수입니다.)*/
-//        String start = URLEncoder.encode(String.valueOf(publicApiRequestDto.getStartIndex()), "UTF-8"); /*요청시작위치 (sample인증키 사용시 5이내 숫자)*/
-//        String end = URLEncoder.encode(String.valueOf(publicApiRequestDto.getEndIndex()), "UTF-8"); /*요청종료위치(sample인증키 사용시 5이상 숫자 선택 안 됨)*/
-//
-//        PublicApiResponseDto result = client.get().uri(
-//                        uriBuilder -> uriBuilder.pathSegment(key, type, service, start, end).path("/")
-//                                .build())
-//                .accept(MediaType.APPLICATION_JSON)
-//                .retrieve()
-//                .onStatus(HttpStatus::is4xxClientError, response -> {
-//                    throw new IllegalAccessError("400");
-//                })
-//                .onStatus(HttpStatus::is5xxServerError, response -> {
-//                    throw new IllegalAccessError("500");
-//                })
-//                .bodyToMono(PublicApiResponseDto.class).flux()
-//                .toStream()
-//                .findFirst()
-//                .orElse(null);
-//        if (result == null) {
-//            return null;
-//        }
-//        setInfos(result);
-//        saveDTO(result.getTouristFoodInfo().getRow());
-//        return result;
-//
-//    }
+    /*private final HttpConfig httpConfig;
 
+    public PublicApiResponseDto processApiToDBWithWebclientMono(PublicApiRequestDto publicApiRequestDto) throws UnsupportedEncodingException {
+        WebClient client = WebClient.builder()
+                .baseUrl("http://openapi.seoul.go.kr:8088")
+//                .defaultCookie("cookieKey", "cookieValue")
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML_VALUE)
+                .defaultUriVariables(Collections.singletonMap("url", "http://openapi.seoul.go.kr:8088"))
+                .clientConnector(new ReactorClientHttpConnector(httpConfig.httpClient())) // 위의 타임아웃 적용
+                .build();
+
+        String key = URLEncoder.encode(publicV1Key, "UTF-8"); *//*인증키 (sample사용시에는 호출시 제한됩니다.)*//*
+        String type = URLEncoder.encode(publicApiRequestDto.getType(), "UTF-8"); *//*요청파일타입 (xml,xmlf,xls,json) *//*
+        String service = URLEncoder.encode(publicApiRequestDto.getService(), "UTF-8"); *//*서비스명 (대소문자 구분 필수입니다.)*//*
+        String start = URLEncoder.encode(String.valueOf(publicApiRequestDto.getStartIndex()), "UTF-8"); *//*요청시작위치 (sample인증키 사용시 5이내 숫자)*//*
+        String end = URLEncoder.encode(String.valueOf(publicApiRequestDto.getEndIndex()), "UTF-8"); *//*요청종료위치(sample인증키 사용시 5이상 숫자 선택 안 됨)*//*
+
+        PublicApiResponseDto result = client.get().uri(
+                        uriBuilder -> uriBuilder.pathSegment(key, type, service, start, end).path("/")
+                                .build())
+                .accept(MediaType.APPLICATION_JSON)
+                .retrieve()
+                .onStatus(HttpStatus::is4xxClientError, response -> {
+                    throw new IllegalAccessError("400");
+                })
+                .onStatus(HttpStatus::is5xxServerError, response -> {
+                    throw new IllegalAccessError("500");
+                })
+                .bodyToMono(PublicApiResponseDto.class).flux()
+                .toStream()
+                .findFirst()
+                .orElse(null);
+        if (result == null) {
+            return null;
+        }
+        setInfos(result);
+        saveDTO(result.getTouristFoodInfo().getRow());
+        return result;
+
+    }*/
+
+    /**
+     * @param publicApiRequestDto Controller에서 받은 DTO(key 등이 포함됨)
+     */
     public void processApiV1(PublicApiRequestDto publicApiRequestDto) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_XML);
@@ -89,42 +86,51 @@ public class PublicApiService {
         URI uri = UriComponentsBuilder
                 .fromUriString("http://openapi.seoul.go.kr:8088")
                 .path("/{key}/{type}/{service}/{start}/{end}")
-                .buildAndExpand(publicV1Key, publicApiRequestDto.getType(), publicApiRequestDto.getService(), publicApiRequestDto.getStartIndex(), publicApiRequestDto.getEndIndex())
+                .buildAndExpand(publicV1Key, publicApiRequestDto.getType(),
+                        publicApiRequestDto.getService(), publicApiRequestDto.getStartIndex(),
+                        publicApiRequestDto.getEndIndex())
                 .encode()
                 .toUri();
         RestTemplate restTemplate = new RestTemplate();
-        log.warn(uri.toString());
-        ResponseEntity<PublicApiResponseDto> resultRe = restTemplate.exchange(
-                uri, HttpMethod.GET, new HttpEntity<>(headers), PublicApiResponseDto.class
+        ResponseEntity<PublicApiV1Form> resultRe = restTemplate.exchange(
+                uri, HttpMethod.GET, new HttpEntity<>(headers), PublicApiV1Form.class
         );
-        PublicApiResponseDto result = resultRe.getBody();
+        PublicApiV1Form result = resultRe.getBody();
         if (result == null) {
             return;
         }
         setInfos(result);
-        saveDTO(result.getTouristFoodInfo().getRow());
+        saveValidStores(result.getTouristFoodInfo().getRow());
     }
 
-    private void setInfos(PublicApiResponseDto publicApiResponseDto) {
-        publicApiResponseDto.getTouristFoodInfo().getRow().forEach(row -> {
+    /**
+     * @param publicApiV1Form API 호출 결과
+     *
+     */
+    private void setInfos(PublicApiV1Form publicApiV1Form) {
+        publicApiV1Form.getTouristFoodInfo().getRow().forEach(row -> {
                 try {
-                    if (!setRowLngLat(row)) return;
+                    if (!setRowLngLat(row)) return; // 주소를 가지고 위/경도를 찾는다
                 } catch (JsonProcessingException e) {
-                    throw new RuntimeException(e);
+                    throw new CustomException(ErrorCode.API_LOAD_FAILURE);
                 }
                 try {
-                    setRowCategoryAndId(row);
+                    setRowCategoryAndId(row); // 위/경도/매장명을 가지고 키워드 설정
                 } catch (JsonProcessingException e) {
-                    throw new RuntimeException(e);
+                    throw new CustomException(ErrorCode.API_LOAD_FAILURE);
                 }
             }
         );
-        saveDTO(publicApiResponseDto.getTouristFoodInfo().getRow());
     }
 
 
-    private boolean setRowLngLat(PublicApiResponseDto.Row row) throws JsonProcessingException {
-        LocationKeywordSearchForm latLngSearchForm = locationService.getLatLngByAddressRT(row.getADDR(),1,1);
+    /**
+     * @param row 공공 API 결과에서의 각각의 행
+     * @return 위도, 경도 매핑 성공/실패 여부
+     * @throws JsonProcessingException JSON 파싱, 매핑 오류시 발생하는 Exception
+     */
+    private boolean setRowLngLat(PublicApiV1Form.Row row) throws JsonProcessingException {
+        LocationKeywordSearchForm latLngSearchForm = locationService.getLatLngByAddressRT(row.getADDR());
 //        LocationKeywordSearchForm latLngSearchForm = locationService.giveLatLngByAddress(row.getADDR());
         if (latLngSearchForm == null) return false;
         LocationKeywordSearchForm.Documents latLngDoc = Arrays.stream(latLngSearchForm.getDocuments()).findFirst().orElse(null);
@@ -136,21 +142,27 @@ public class PublicApiService {
         return true;
     }
 
-    private void setRowCategoryAndId(PublicApiResponseDto.Row row) throws JsonProcessingException {
+    /**
+     * @param row 행 하나하나
+     * @throws JsonProcessingException JSON 파싱, 매핑 오류시 발생하는 Exception
+     */
+    private void setRowCategoryAndId(PublicApiV1Form.Row row) throws JsonProcessingException {
         LocationKeywordSearchForm categorySearchForm = locationService
-                .getCategoryByLatLngKeywordRest(String.valueOf(row.getLatitude()), String.valueOf(row.getLongitude()), row.getSISULNAME());
+                .getCategoryByLatLngKeywordRT(String.valueOf(row.getLatitude()), String.valueOf(row.getLongitude()), row.getSISULNAME());
 //        LocationKeywordSearchForm categorySearchForm = locationService.giveCategoryByLatLngKeyword(row.getLatitude(), row.getLongitude(), row.getSISULNAME());
         LocationKeywordSearchForm.Documents categoryDoc = Arrays.stream(categorySearchForm.getDocuments()).findFirst().orElse(null);
-        if (categoryDoc == null || !Arrays.asList("FD6", "CE7").contains(categoryDoc.getCategory_group_code()))
-            return;
+        if (categoryDoc == null)
+            return; // 결과가 비어있으면 진행하지 않는다
         row.setStoreId(Integer.parseInt(categoryDoc.getId()));
         row.setSISULNAME(categoryDoc.getPlace_name());
         row.setCategory(categoryFilter(Optional.of(categoryDoc.getCategory_name()).orElse(null)));
     }
 
-
-    private void saveDTO(List<PublicApiResponseDto.Row> rows) {
-        List<Store> storeList = rows.stream().filter(PublicApiResponseDto.Row::validation)
+    /**
+     * @param rows 검증할 행
+     */
+    private void saveValidStores(List<PublicApiV1Form.Row> rows) {
+        List<Store> storeList = rows.stream().filter(PublicApiV1Form.Row::validation)
                 .map(Store::new).collect(Collectors.toList());
         // storeRepository 구현 시 save 호출하기
         for (Store store : storeList) {

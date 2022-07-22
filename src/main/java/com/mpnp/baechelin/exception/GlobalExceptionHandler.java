@@ -1,5 +1,6 @@
 package com.mpnp.baechelin.exception;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
@@ -52,7 +53,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = RestClientException.class)
     protected ResponseEntity<ErrorResponse> handleUnsupportedJwtException(RestClientException e) {
-        log.error("지원되지 않는 형식이나 구성의 JWT 토큰입니다.");
+        log.error("API 로드에 실패했습니다");
         return ErrorResponse.toResponseEntity(ErrorCode.API_LOAD_FAILURE);
     }
 }
