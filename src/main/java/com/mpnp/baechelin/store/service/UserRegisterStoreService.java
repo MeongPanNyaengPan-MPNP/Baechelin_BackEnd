@@ -29,8 +29,8 @@ public class UserRegisterStoreService {
 
     /**
      * 유저 업장 등록
-     * @param userRegisterStoreRequestDto
-     * @param socialId
+     * @param userRegisterStoreRequestDto 유저가 등록한 업장 정보가 담겨있는 DTO
+     * @param socialId 유저 소셜 아이디
      */
     public void registerStore(UserRegisterStoreRequestDto userRegisterStoreRequestDto, String socialId) {
         User user = userRepository.findBySocialId(socialId);
