@@ -11,8 +11,8 @@ import org.springframework.context.annotation.Configuration;
 public class AppConfig {
     @Bean
     public LocationService locationService(){
-//        return new LocationServiceRT();
-        return new LocationServiceWC(new HttpConfig());
+        return new LocationServiceRT();
+//        return new LocationServiceWC(new HttpConfig());
     }
 
 }
