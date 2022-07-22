@@ -2,7 +2,6 @@ package com.mpnp.baechelin.api.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mpnp.baechelin.api.dto.*;
-import com.mpnp.baechelin.api.model.LocationKeywordSearchForm;
 import com.mpnp.baechelin.api.model.PublicApiV1Form;
 import com.mpnp.baechelin.exception.CustomException;
 import com.mpnp.baechelin.exception.ErrorCode;
@@ -32,49 +31,8 @@ import java.util.stream.Collectors;
 public class PublicApiService {
     private final StoreRepository storeRepository;
     private final LocationService locationService;
-    private final StoreService storeService;
     @Value("${public.api.v1.key}")
     private String publicV1Key;
-    /*private final HttpConfig httpConfig;
-
-    public PublicApiResponseDto processApiToDBWithWebclientMono(PublicApiRequestDto publicApiRequestDto) throws UnsupportedEncodingException {
-        WebClient client = WebClient.builder()
-                .baseUrl("http://openapi.seoul.go.kr:8088")
-//                .defaultCookie("cookieKey", "cookieValue")
-                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML_VALUE)
-                .defaultUriVariables(Collections.singletonMap("url", "http://openapi.seoul.go.kr:8088"))
-                .clientConnector(new ReactorClientHttpConnector(httpConfig.httpClient())) // 위의 타임아웃 적용
-                .build();
-
-        String key = URLEncoder.encode(publicV1Key, "UTF-8"); *//*인증키 (sample사용시에는 호출시 제한됩니다.)*//*
-        String type = URLEncoder.encode(publicApiRequestDto.getType(), "UTF-8"); *//*요청파일타입 (xml,xmlf,xls,json) *//*
-        String service = URLEncoder.encode(publicApiRequestDto.getService(), "UTF-8"); *//*서비스명 (대소문자 구분 필수입니다.)*//*
-        String start = URLEncoder.encode(String.valueOf(publicApiRequestDto.getStartIndex()), "UTF-8"); *//*요청시작위치 (sample인증키 사용시 5이내 숫자)*//*
-        String end = URLEncoder.encode(String.valueOf(publicApiRequestDto.getEndIndex()), "UTF-8"); *//*요청종료위치(sample인증키 사용시 5이상 숫자 선택 안 됨)*//*
-
-        PublicApiResponseDto result = client.get().uri(
-                        uriBuilder -> uriBuilder.pathSegment(key, type, service, start, end).path("/")
-                                .build())
-                .accept(MediaType.APPLICATION_JSON)
-                .retrieve()
-                .onStatus(HttpStatus::is4xxClientError, response -> {
-                    throw new IllegalAccessError("400");
-                })
-                .onStatus(HttpStatus::is5xxServerError, response -> {
-                    throw new IllegalAccessError("500");
-                })
-                .bodyToMono(PublicApiResponseDto.class).flux()
-                .toStream()
-                .findFirst()
-                .orElse(null);
-        if (result == null) {
-            return null;
-        }
-        setInfos(result);
-        saveDTO(result.getTouristFoodInfo().getRow());
-        return result;
-
-    }*/
 
     /**
      * @param publicApiRequestDto Controller에서 받은 DTO(key 등이 포함됨)
@@ -105,21 +63,20 @@ public class PublicApiService {
 
     /**
      * @param publicApiV1Form API 호출 결과
-     *
      */
     private void setInfos(PublicApiV1Form publicApiV1Form) {
         publicApiV1Form.getTouristFoodInfo().getRow().forEach(row -> {
-                try {
-                    if (!setRowLngLat(row)) return; // 주소를 가지고 위/경도를 찾는다
-                } catch (JsonProcessingException e) {
-                    throw new CustomException(ErrorCode.API_LOAD_FAILURE);
+                    try {
+                        if (!setRowLngLat(row)) return; // 주소를 가지고 위/경도를 찾는다
+                    } catch (JsonProcessingException e) {
+                        throw new CustomException(ErrorCode.API_LOAD_FAILURE);
+                    }
+                    try {
+                        setRowCategoryAndId(row); // 위/경도/매장명을 가지고 키워드 설정
+                    } catch (JsonProcessingException e) {
+                        throw new CustomException(ErrorCode.API_LOAD_FAILURE);
+                    }
                 }
-                try {
-                    setRowCategoryAndId(row); // 위/경도/매장명을 가지고 키워드 설정
-                } catch (JsonProcessingException e) {
-                    throw new CustomException(ErrorCode.API_LOAD_FAILURE);
-                }
-            }
         );
     }
 
@@ -130,15 +87,10 @@ public class PublicApiService {
      * @throws JsonProcessingException JSON 파싱, 매핑 오류시 발생하는 Exception
      */
     private boolean setRowLngLat(PublicApiV1Form.Row row) throws JsonProcessingException {
-        LocationKeywordSearchForm latLngSearchForm = locationService.getLatLngByAddressRT(row.getADDR());
-//        LocationKeywordSearchForm latLngSearchForm = locationService.giveLatLngByAddress(row.getADDR());
-        if (latLngSearchForm == null) return false;
-        LocationKeywordSearchForm.Documents latLngDoc = Arrays.stream(latLngSearchForm.getDocuments()).findFirst().orElse(null);
-        if (latLngDoc == null)
-            return false;
-        row.setLatitude(Decimal.valueOf(latLngDoc.getY()));
-        row.setLongitude(Decimal.valueOf(latLngDoc.getX()));
-        row.setCategory(categoryFilter(Optional.of(latLngDoc.getCategory_name()).orElse("기타")));
+        LocationPartDto.LatLong latLong = locationService.convertAddressToGeo(row.getADDR());
+        if (latLong == null || !latLong.validate()) return false;
+        row.setLatitude(Decimal.valueOf(latLong.getLatitude()));
+        row.setLongitude(Decimal.valueOf(latLong.getLongitude()));
         return true;
     }
 
@@ -147,15 +99,13 @@ public class PublicApiService {
      * @throws JsonProcessingException JSON 파싱, 매핑 오류시 발생하는 Exception
      */
     private void setRowCategoryAndId(PublicApiV1Form.Row row) throws JsonProcessingException {
-        LocationKeywordSearchForm categorySearchForm = locationService
-                .getCategoryByLatLngKeywordRT(String.valueOf(row.getLatitude()), String.valueOf(row.getLongitude()), row.getSISULNAME());
-//        LocationKeywordSearchForm categorySearchForm = locationService.giveCategoryByLatLngKeyword(row.getLatitude(), row.getLongitude(), row.getSISULNAME());
-        LocationKeywordSearchForm.Documents categoryDoc = Arrays.stream(categorySearchForm.getDocuments()).findFirst().orElse(null);
-        if (categoryDoc == null)
+        LocationInfoDto.LocationResponse locationResponse = locationService
+                .convertGeoAndStoreNameToKeyword(String.valueOf(row.getLatitude()), String.valueOf(row.getLongitude()), row.getSISULNAME());
+        if (locationResponse == null)
             return; // 결과가 비어있으면 진행하지 않는다
-        row.setStoreId(Integer.parseInt(categoryDoc.getId()));
-        row.setSISULNAME(categoryDoc.getPlace_name());
-        row.setCategory(categoryFilter(Optional.of(categoryDoc.getCategory_name()).orElse(null)));
+        row.setStoreId(locationResponse.getStoreId());
+        row.setSISULNAME(locationResponse.getStoreName());
+        row.setCategory(categoryFilter(Optional.of(locationResponse.getCategory()).orElse(null)));
     }
 
     /**

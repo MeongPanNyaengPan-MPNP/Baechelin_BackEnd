@@ -4,12 +4,12 @@ import com.mpnp.baechelin.api.model.BarrierCode;
 import com.mpnp.baechelin.api.model.PublicApiCategoryForm;
 import com.mpnp.baechelin.api.model.PublicApiV2Form;
 import com.mpnp.baechelin.common.DataClarification;
+import com.mpnp.baechelin.config.AppConfig;
 import com.mpnp.baechelin.store.domain.Store;
 import com.mpnp.baechelin.api.dto.LocationInfoDto;
 import com.mpnp.baechelin.store.repository.StoreRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.lang.annotation.Before;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -21,9 +21,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import javax.transaction.Transactional;
 import java.io.*;
 import java.net.URI;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -41,16 +39,6 @@ public class PublicApiServiceV2 {
     @Value("${public.api.v2.key}")
     private String publicV2Key;
 
-
-    /**
-     * @param totalDataCount 시 & 구에 해당하는 데이터 개수
-     * @param nowPage        현재 페이지
-     * @return 다음 페이지가 존재하는지 - 페이지는 1000으로 고정
-     */
-    private boolean hasNextPage(int totalDataCount, int nowPage) {
-        if (totalDataCount <= 1000) return false;
-        return totalDataCount > nowPage * 1000;
-    }
 
     /**
      * @return 헤더 세팅 - V2에서는 공통으로 XML 사용

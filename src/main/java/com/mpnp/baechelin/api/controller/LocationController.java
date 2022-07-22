@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -23,8 +22,9 @@ public class LocationController {
 
     @ApiOperation(value = "위도, 경도를 주소로 바꾸는 함수")
     @GetMapping("/convert/geo")
-    public LocationPartDto.Address getAddressByGeo(@RequestParam BigDecimal lat, @RequestParam BigDecimal lng) {
-        return locationService.convertGeoToAddressRT(String.valueOf(lat), String.valueOf(lng));
+    public LocationPartDto.Address getAddressByGeo(@RequestParam BigDecimal lat,
+                                                   @RequestParam BigDecimal lng) {
+        return locationService.convertGeoToAddress(String.valueOf(lat), String.valueOf(lng));
     }
 
     @ApiOperation(value = "주소를 위도, 경도로 바꾸는 함수")
@@ -35,13 +35,17 @@ public class LocationController {
 
     @ApiOperation(value = "위도, 경도, 업장명을 통해 업장 정보를 받아오는 함수")
     @GetMapping("/convert/store-name")
-    public LocationInfoDto.LocationResponse getKeywordByGeoAndStoreName(@RequestParam BigDecimal lat, @RequestParam BigDecimal lng, String storeName) {
+    public LocationInfoDto.LocationResponse getKeywordByGeoAndStoreName(@RequestParam BigDecimal lat,
+                                                                        @RequestParam BigDecimal lng,
+                                                                        String storeName) {
         return locationService.convertGeoAndStoreNameToKeyword(String.valueOf(lat), String.valueOf(lng), storeName);
     }
 
     @ApiOperation(value = "위도, 경도, 주소를 통해 후보 업장 정보 리스트를 받아오는 함수")
     @GetMapping("/convert/geo-address")
-    public List<LocationInfoDto.LocationResponse> getKeywordByGeoAndAddress(@RequestParam BigDecimal lat, @RequestParam BigDecimal lng, @RequestParam String address) {
+    public List<LocationInfoDto.LocationResponse> getKeywordByGeoAndAddress(@RequestParam BigDecimal lat,
+                                                                            @RequestParam BigDecimal lng,
+                                                                            @RequestParam String address) {
         return locationService.convertGeoAndAddressToKeyword(String.valueOf(lat), String.valueOf(lng), address);
     }
 }
