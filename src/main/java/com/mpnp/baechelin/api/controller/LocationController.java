@@ -23,7 +23,7 @@ public class LocationController {
 
     @ApiOperation(value = "위도, 경도를 주소로 바꾸는 함수")
     @GetMapping("/convert/geo")
-    public Map<String, Object> getAddressByGeo(@RequestParam BigDecimal lat, @RequestParam BigDecimal lng) {
+    public LocationPartDto.Address getAddressByGeo(@RequestParam BigDecimal lat, @RequestParam BigDecimal lng) {
         return locationService.convertGeoToAddressRT(String.valueOf(lat), String.valueOf(lng));
     }
 
