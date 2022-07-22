@@ -9,21 +9,28 @@ import com.mpnp.baechelin.api.dto.LocationInfoDto;
 import com.mpnp.baechelin.store.repository.StoreRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.lang.annotation.Before;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ResourceUtils;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.transaction.Transactional;
+import java.io.*;
 import java.net.URI;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @Transactional
-@RequiredArgsConstructor
 @Slf4j
+@RequiredArgsConstructor
 /**
  * 공공 API V2 서비스 - V1과의 분리를 위해
  */
@@ -31,12 +38,9 @@ public class PublicApiServiceV2 {
     private final StoreRepository storeRepository;
     private final LocationService locationService;
 
-
     @Value("${public.api.v2.key}")
     private String publicV2Key;
 
-    private String publicV2Uri = "http://apis.data.go.kr/B554287/DisabledPersonConvenientFacility/getDisConvFaclList";
-    private String publicV2CategoryUri = "http://apis.data.go.kr/B554287/DisabledPersonConvenientFacility/getFacInfoOpenApiJpEvalInfoList";
 
     /**
      * @param totalDataCount 시 & 구에 해당하는 데이터 개수
@@ -66,7 +70,9 @@ public class PublicApiServiceV2 {
     public void processApi(String siDoNm, String cggNm, int pageNo) {
         // 헤더 세팅
         HttpHeaders headers = setHttpHeaders();
+        log.info("{}, {}, print", siDoNm, cggNm);
         // URI 생성
+        String publicV2Uri = "http://apis.data.go.kr/B554287/DisabledPersonConvenientFacility/getDisConvFaclList";
         URI uri = UriComponentsBuilder
                 .fromUriString(publicV2Uri)
                 .queryParam("serviceKey", publicV2Key)
@@ -99,7 +105,7 @@ public class PublicApiServiceV2 {
         // servList + Barrier Free Tag  + category
         for (PublicApiV2Form.ServList servList : formResult.getServList()) {
             // servList 요소 - 각각의 배리어 프리 업장 하나하나를 검증
-            if(!servList.validateServList()) continue;
+            if (!servList.validateServList()) continue;
             mapApiToStoreWithPaging(servList);
         }
         // 검증 완료된 store들을 저장
@@ -126,7 +132,7 @@ public class PublicApiServiceV2 {
     }
 
     /**
-     * @param servList 대상 Row
+     * @param servList       대상 Row
      * @param barrierTagList 배리어 태그 리스트
      * @return 검색 결과 존재 여부
      */
@@ -136,13 +142,13 @@ public class PublicApiServiceV2 {
         if (resultDto == null)
             return false;
         Store nStore = new Store(resultDto, servList, barrierTagList);
-        if(!storeRepository.existsById(nStore.getId()))
+        if (!storeRepository.existsById(nStore.getId()))
             storeRepository.save(nStore);
         return true;
     }
 
     /**
-     * @param servList 대상 Row
+     * @param servList       대상 Row
      * @param barrierTagList 배리어 태그 리스트
      */
     private void searchWithAddress(PublicApiV2Form.ServList servList, List<String> barrierTagList) {
@@ -165,6 +171,7 @@ public class PublicApiServiceV2 {
      */
     public List<String> tagStrToList(String sisulNum) {
         HttpHeaders headers = setHttpHeaders();
+        String publicV2CategoryUri = "http://apis.data.go.kr/B554287/DisabledPersonConvenientFacility/getFacInfoOpenApiJpEvalInfoList";
         URI uri = UriComponentsBuilder
                 .fromUriString(publicV2CategoryUri)
                 .queryParam("serviceKey", publicV2Key)
@@ -212,5 +219,22 @@ public class PublicApiServiceV2 {
                     .collect(Collectors.toList());
         }
         return null;
+    }
+
+    public boolean start() throws IOException, InterruptedException {
+        List<String[]> list = new ArrayList<>();
+        BufferedReader br = null;
+        File file = ResourceUtils.getFile("classpath:static/sigungu.csv");
+        br = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
+        String line = null;
+        while ((line = br.readLine()) != null) {
+            String[] lineContents = line.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)", -1);
+            list.add(lineContents);
+        }
+        for (String[] strings : list) {
+            System.out.println("String 프린트중 : " + Arrays.toString(strings));
+            processApi(strings[0], strings[1], 1);
+        }
+        return true;
     }
 }

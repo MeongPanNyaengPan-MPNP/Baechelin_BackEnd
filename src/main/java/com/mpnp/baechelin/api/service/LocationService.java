@@ -34,7 +34,7 @@ public class LocationService {
      * @param address 주소
      * @return LocationKeywordSearchForm의 규격에 맞는 결과 하나를 가져옴
      */
-    public LocationKeywordSearchForm getLatLngByAddressWC(String address) {
+    public LocationKeywordSearchForm convertAddressToGeoWC(String address) {
         WebClient client = WebClient.builder()
                 .baseUrl("https://dapi.kakao.com/v2/local/search/keyword.json")
                 .defaultUriVariables(Collections.singletonMap("url", "https://dapi.kakao.com/v2/local/search/keyword.json"))
@@ -280,7 +280,7 @@ public class LocationService {
      * @param lng 경도
      * @return 위도, 경도를 카카오맵 API(RestTemplate)를 통해 주소로 변환 후 Map에 넣어 반환
      */
-    public Map<String, Object> convertGeoToAddressRT(String lat, String lng) {
+    public LocationPartDto.Address convertGeoToAddressRT(String lat, String lng) {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -298,18 +298,21 @@ public class LocationService {
                 uri, HttpMethod.GET, new HttpEntity<>(headers), LocationAddressSearchForm.class
         );
         LocationAddressSearchForm locationKeywordSearchForm = resultRe.getBody();
-        Map<String, Object> map = new HashMap<>();
-        if (locationKeywordSearchForm == null) {
-            map.put("status", false);
-        } else {
-            LocationAddressSearchForm.TotalAddress address = Arrays.stream(locationKeywordSearchForm.getDocuments()).findFirst().orElse(null);
-            if (address != null) {
-                map.put("address", address.getAddress().getAddress_name());
-                map.put("status", true);
-            } else {
-                map.put("status", false);
-            }
+        return formToDto(locationKeywordSearchForm);
+    }
+
+    private LocationPartDto.Address formToDto(LocationAddressSearchForm resultRe) {
+        LocationPartDto.Address addressInfoDto = LocationPartDto.Address.builder().build();
+        if (resultRe == null) {
+            return addressInfoDto;
         }
-        return map;
+        LocationAddressSearchForm.TotalAddress address = Arrays.stream(resultRe.getDocuments()).findFirst().orElse(null);
+        if (address != null) {
+            addressInfoDto = LocationPartDto.Address.builder()
+                    .address(address.getAddress().getAddress_name())
+                    .status(true)
+                    .build();
+        }
+        return addressInfoDto;
     }
 }
