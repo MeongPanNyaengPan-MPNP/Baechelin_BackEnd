@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 @Api(tags = {"매장 리스트를 반환하는 Controller"})
 @RestController
@@ -90,9 +91,9 @@ public class StoreController {
         return storeService.getStore(storeId, socialId);
     }
 
-    @ApiOperation(value = "DB에 존재하는 시/군/구 정보를 조회하는 메소드")
-    @GetMapping("/location/{sido}/sigungu")
-    public void getSigungu(@PathVariable(required = false) String sido) {
-
+    @ApiOperation(value = "시/도 정보를 이용해 DB에 존재하는 시/군/구 정보를 조회하는 메소드")
+    @GetMapping("/location/sigungu")
+    public Map<String, List<String>> getSigungu(@RequestParam(required = false) String sido) {
+        return storeService.getSigungu(sido);
     }
 }

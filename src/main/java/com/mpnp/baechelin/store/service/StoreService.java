@@ -3,12 +3,9 @@ package com.mpnp.baechelin.store.service;
 import com.mpnp.baechelin.bookmark.domain.Bookmark;
 import com.mpnp.baechelin.bookmark.repository.BookmarkRepository;
 import com.mpnp.baechelin.common.QuerydslLocation;
-import com.mpnp.baechelin.review.domain.Review;
 import com.mpnp.baechelin.review.repository.ReviewRepository;
 import com.mpnp.baechelin.store.domain.Store;
-import com.mpnp.baechelin.store.domain.StoreImage;
 import com.mpnp.baechelin.store.dto.StoreCardResponseDto;
-import com.mpnp.baechelin.store.dto.StoreImgResponseDto;
 import com.mpnp.baechelin.store.dto.StorePagedResponseDto;
 import com.mpnp.baechelin.store.repository.StoreQueryRepository;
 import com.mpnp.baechelin.store.repository.StoreRepository;
@@ -22,7 +19,9 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -179,5 +178,30 @@ public class StoreService {
             }
             return new StoreCardResponseDto(store, isBookmark);
         }
+    }
+
+    /**
+     * 시/도 (ex. 서울시, 대전광역시)의 시/군/구 리스트를 반환하는 메소드
+     * @param sido 시/도
+     * @return 시/군/구 리스트
+     */
+    public Map<String, List<String>> getSigungu(String sido) {
+        List<Store> storeList = storeRepository.findAll();
+
+        Map<String, List<String>> result = new HashMap<>();
+        List<String> sigungu = new ArrayList<>();
+
+        for (Store store : storeList) {
+            String addressSido = store.getAddress().split(" ")[0];
+            String addressSigungu = store.getAddress().split(" ")[1];
+
+            if (addressSido.equals(sido)) {
+                sigungu.add(addressSigungu);
+            }
+        }
+
+        result.put("sigungu", sigungu);
+
+        return result;
     }
 }
