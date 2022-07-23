@@ -1,6 +1,7 @@
 package com.mpnp.baechelin.login.jwt;
 
 import com.mpnp.baechelin.login.jwt.exception.TokenValidFailedException;
+import com.mpnp.baechelin.util.HeaderUtil;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +11,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 
+import javax.servlet.http.HttpServletRequest;
 import java.security.Key;
 import java.util.Arrays;
 import java.util.Collection;
@@ -37,9 +39,15 @@ public class AuthTokenProvider {
         return new AuthToken(id, role, expiry, key);
     }
 
-    // header 로 들어온 String 형태의 access token 을 AuthToken 형태로 변환
-    public AuthToken convertAuthToken(String token) {
+    // refresh token 을 AuthToken 형태로 변환
+    public AuthToken convertRefreshToken(String token) {
         return new AuthToken(token, key);
+    }
+
+    // 요청값으로 들어온 request를 가지고 header에서 String 형태의 access token을 뽑아 AuthToken 형태로 변환
+    public AuthToken convertAccessToken(HttpServletRequest request) {
+        String accessToken = HeaderUtil.getAccessToken(request);
+        return new AuthToken(accessToken, key);
     }
 
 
