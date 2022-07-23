@@ -77,7 +77,7 @@ public class TokenService {
             throw new CustomException(ErrorCode.INVALID_REFRESH_TOKEN);
         }
 
-        // userId와 refresh token 으로 DB 확인
+        // userId와 refresh token 으로 DB에 있는 refresh token과 cookie에 담긴 refresh token이 일치하는 지 확인
         UserRefreshToken userRefreshToken = userRefreshTokenRepository.findBySocialIdAndRefreshToken(userId, refreshToken);
         if (userRefreshToken == null) {
             throw new CustomException(ErrorCode.INVALID_REFRESH_TOKEN);
