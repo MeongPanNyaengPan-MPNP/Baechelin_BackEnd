@@ -3,14 +3,13 @@ package com.mpnp.baechelin.login.jwt.service;
 import com.mpnp.baechelin.common.properties.AppProperties;
 import com.mpnp.baechelin.exception.CustomException;
 import com.mpnp.baechelin.exception.ErrorCode;
-import com.mpnp.baechelin.login.oauth.common.AuthResponse;
-import com.mpnp.baechelin.login.oauth.entity.RoleType;
 import com.mpnp.baechelin.login.jwt.AuthToken;
 import com.mpnp.baechelin.login.jwt.AuthTokenProvider;
 import com.mpnp.baechelin.login.jwt.entity.UserRefreshToken;
 import com.mpnp.baechelin.login.jwt.repository.UserRefreshTokenRepository;
+import com.mpnp.baechelin.login.oauth.common.AuthResponse;
+import com.mpnp.baechelin.login.oauth.entity.RoleType;
 import com.mpnp.baechelin.util.CookieUtil;
-import com.mpnp.baechelin.util.HeaderUtil;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,13 +36,12 @@ public class TokenService {
      * 새로운 Access Token을 재발급 받는 메소드
      * Access Token이 만료되었는 지와 상관없이 재발급
      * Access Token을 재발급 받을 때, Refresh Token도 재발급해주어서 보안을 높인다.
-     * @param request Access Token이 들어있는
+     * @param request Access Token이 들어있는 request
      * @param response 쿠키를 삭제하기 위한 response
      * @return 재발급된 Access Token
      */
     public AuthResponse refreshToken(HttpServletRequest request, HttpServletResponse response) {
-        String accessToken = HeaderUtil.getAccessToken(request);
-        AuthToken authToken = tokenProvider.convertAuthToken(accessToken);
+        AuthToken authToken = tokenProvider.convertAccessToken(request);
 
         Claims claims = authToken.getExpiredTokenClaims();
 
@@ -59,8 +57,22 @@ public class TokenService {
         String refreshToken = CookieUtil.getCookie(request, REFRESH_TOKEN)
                 .map(Cookie::getValue)
                 .orElse((null));
-        AuthToken authRefreshToken = tokenProvider.convertAuthToken(refreshToken);
 
+        // refresh token이 존재하지 않을 때 = 로그인 상태가 아닐 때
+        if (refreshToken == null) {
+            throw new CustomException(ErrorCode.REFRESH_TOKEN_NOT_EXIST);
+        }
+
+        AuthToken authRefreshToken = tokenProvider.convertRefreshToken(refreshToken);
+
+        Date now = new Date();
+
+        // Refresh Token이 만료되었을 때
+        if (authRefreshToken.getExpiredTokenClaims().getExpiration().getTime() <= now.getTime()) {
+            throw new CustomException(ErrorCode.EXPIRED_REFRESH_TOKEN);
+        }
+
+        // Refresh Token이 유효하지 않을 때
         if (authRefreshToken.getToken() == null || !authRefreshToken.tokenValidate()) {
             throw new CustomException(ErrorCode.INVALID_REFRESH_TOKEN);
         }
@@ -72,8 +84,6 @@ public class TokenService {
         }
 
         // Access token 재발급
-        Date now = new Date();
-
         AuthToken newAccessToken = tokenProvider.createAuthToken(
                 userId,
                 roleType.getCode(),
@@ -81,7 +91,7 @@ public class TokenService {
         );
 
 
-        // refresh 토큰 유효기간 가져오기
+        // refresh 토큰 유효기간 설정값 가져오기
         long refreshTokenExpiry = appProperties.getAuth().getRefreshTokenExpiry();
 
         // refresh 토큰 생성

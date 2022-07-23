@@ -3,7 +3,6 @@ package com.mpnp.baechelin.login.jwt.filter;
 import com.mpnp.baechelin.exception.ErrorCode;
 import com.mpnp.baechelin.login.jwt.AuthToken;
 import com.mpnp.baechelin.login.jwt.AuthTokenProvider;
-import com.mpnp.baechelin.util.HeaderUtil;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
@@ -37,9 +36,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
             FilterChain filterChain) throws ServletException, IOException {
 
         // 요청값의 header에서 토큰을 뽑아온다.
-        String tokenStr = HeaderUtil.getAccessToken(request);
-        // String으로 된 token을 AuthToken객체로 변환해준다.
-        AuthToken token = tokenProvider.convertAuthToken(tokenStr);
+        AuthToken token = tokenProvider.convertAccessToken(request);
 
         try {
             if (token != null && token.tokenValidate()) {
@@ -56,13 +53,13 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
             request.setAttribute("exception", ErrorCode.WRONG_TYPE_TOKEN.getCode());
         } catch (ExpiredJwtException e) {
             log.info("만료된 JWT 토큰입니다.");
-            request.setAttribute("exception", ErrorCode.EXPIRED_TOKEN.getCode());
+            request.setAttribute("exception", ErrorCode.EXPIRED_ACCESS_TOKEN.getCode());
         } catch (UnsupportedJwtException e) {
             log.info("지원되지 않는 형식이나 구성의 JWT 토큰입니다.");
             request.setAttribute("exception", ErrorCode.WRONG_TYPE_TOKEN.getCode());
         } catch (IllegalArgumentException e) {
             log.info(e.toString().split(":")[1].trim());
-            request.setAttribute("exception", ErrorCode.TOKEN_NOT_EXIST.getCode());
+            request.setAttribute("exception", ErrorCode.INVALID_ACCESS_TOKEN.getCode());
         }
 
         filterChain.doFilter(request, response);

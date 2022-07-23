@@ -42,7 +42,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(value = ExpiredJwtException.class)
     protected ResponseEntity<ErrorResponse> handleExpiredJwtException(ExpiredJwtException e) {
         log.error("만료된 JWT 토큰입니다.");
-        return ErrorResponse.toResponseEntity(ErrorCode.EXPIRED_TOKEN);
+        return ErrorResponse.toResponseEntity(ErrorCode.EXPIRED_ACCESS_TOKEN);
     }
 
     @ExceptionHandler(value = UnsupportedJwtException.class)
