@@ -1,5 +1,9 @@
 package com.mpnp.baechelin.store.controller;
 
+import com.mpnp.baechelin.exception.CustomException;
+import com.mpnp.baechelin.exception.ErrorCode;
+import com.mpnp.baechelin.login.jwt.AuthToken;
+import com.mpnp.baechelin.login.jwt.AuthTokenProvider;
 import com.mpnp.baechelin.store.dto.StoreCardResponseDto;
 import com.mpnp.baechelin.store.dto.StorePagedResponseDto;
 import com.mpnp.baechelin.store.service.StoreService;
@@ -12,6 +16,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -22,6 +27,7 @@ import java.util.List;
 public class StoreController {
 
     private final StoreService storeService;
+    private final AuthTokenProvider tokenProvider;
 
     @ApiOperation(value = "조건에 맞는 업장 목록을 반환하는 메소드")
     @GetMapping("/near")
@@ -67,12 +73,26 @@ public class StoreController {
     @GetMapping("/detail/{storeId}")
     public StoreCardResponseDto getStore(
             @PathVariable(required = false) int storeId,
+            HttpServletRequest request,
             @AuthenticationPrincipal User user) {
+
+        // TODO 토큰 유효성 검사하기
+        AuthToken authToken = tokenProvider.convertAccessToken(request);
+        if (!authToken.tokenValidate()) {
+            throw new CustomException(ErrorCode.INVALID_ACCESS_TOKEN);
+        }
+
         String socialId = "";
         if (user != null) {
             socialId = user.getUsername();
         }
 
         return storeService.getStore(storeId, socialId);
+    }
+
+    @ApiOperation(value = "DB에 존재하는 시/군/구 정보를 조회하는 메소드")
+    @GetMapping("/location/{sido}/sigungu")
+    public void getSigungu(@PathVariable(required = false) String sido) {
+
     }
 }
