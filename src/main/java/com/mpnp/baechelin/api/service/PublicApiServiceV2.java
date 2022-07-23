@@ -109,12 +109,10 @@ public class PublicApiServiceV2 {
         // TODO 태그가 비어있다면 어떻게 해야 할 지 ? -> 저장 혹은 버리기 (현재 버리기로 구현)
         if (barrierTagList.isEmpty()) return;
 
-        // 위도, 경도, 업장 이름을 통해 업장 정보를 얻어온다
         /*
-         * Strategy = 업장명 + 위/경도를 사용해 Store가 존재한다면, 하나만 저장
-         * 존재하지 않는다면, 주소 + 위/경도를 사용해 해당 건물의 배리어 프리 매장들을
+         * 주소 + 위/경도를 사용해 해당 건물의 배리어 프리 매장들을
          * 등록하도록 변경             */
-        if (searchWithStoreName(servList, barrierTagList)) return;
+//        if (searchWithStoreName(servList, barrierTagList)) return;
         // 검색 결과가 없을 경우
         searchWithAddress(servList, barrierTagList);
     }
