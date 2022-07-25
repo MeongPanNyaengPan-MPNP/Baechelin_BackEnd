@@ -4,13 +4,11 @@ import com.mpnp.baechelin.api.model.BarrierCode;
 import com.mpnp.baechelin.api.model.PublicApiCategoryForm;
 import com.mpnp.baechelin.api.model.PublicApiV2Form;
 import com.mpnp.baechelin.common.DataClarification;
-import com.mpnp.baechelin.config.AppConfig;
 import com.mpnp.baechelin.store.domain.Store;
 import com.mpnp.baechelin.api.dto.LocationInfoDto;
 import com.mpnp.baechelin.store.repository.StoreRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -38,7 +36,8 @@ public class PublicApiServiceV2 {
 
     @Value("${public.api.v2.key}")
     private String publicV2Key;
-
+    @Value("${public.api.v2.key2}")
+    private String publicV2Key2;
 
     /**
      * @return 헤더 세팅 - V2에서는 공통으로 XML 사용
@@ -88,7 +87,7 @@ public class PublicApiServiceV2 {
     /**
      * @param formResult 공공 API 결과에서 각각의 Row
      */
-    private void processForm(PublicApiV2Form formResult) {
+    public void processForm(PublicApiV2Form formResult) {
         if (formResult == null || formResult.getServList() == null) return;
         // servList + Barrier Free Tag  + category
         for (PublicApiV2Form.ServList servList : formResult.getServList()) {
@@ -137,7 +136,7 @@ public class PublicApiServiceV2 {
      * @param servList       대상 Row
      * @param barrierTagList 배리어 태그 리스트
      */
-    private void searchWithAddress(PublicApiV2Form.ServList servList, List<String> barrierTagList) {
+    public void searchWithAddress(PublicApiV2Form.ServList servList, List<String> barrierTagList) {
         List<LocationInfoDto.LocationResponse> locationResponseMapList = locationService
                 .convertGeoAndAddressToKeyword(servList.getFaclLat(), servList.getFaclLng(), DataClarification.clarifyString(servList.getLcMnad()));
 
@@ -146,7 +145,7 @@ public class PublicApiServiceV2 {
 
             // ID 값으로 store 중복 검사해 중복되지 않을 시에만 리스트에 저장
             if (!storeRepository.existsById(nStore.getId())) {
-                storeRepository.save(nStore);
+                storeRepository.saveAndFlush(nStore);
             }
         }
     }
@@ -160,7 +159,7 @@ public class PublicApiServiceV2 {
         String publicV2CategoryUri = "http://apis.data.go.kr/B554287/DisabledPersonConvenientFacility/getFacInfoOpenApiJpEvalInfoList";
         URI uri = UriComponentsBuilder
                 .fromUriString(publicV2CategoryUri)
-                .queryParam("serviceKey", publicV2Key)
+                .queryParam("serviceKey", publicV2Key2)
                 .queryParam("wfcltId", sisulNum)
                 .build()
                 .encode()
@@ -207,7 +206,7 @@ public class PublicApiServiceV2 {
         return null;
     }
 
-    public boolean start() throws IOException, InterruptedException {
+    public void start() throws IOException, InterruptedException {
         List<String[]> list = new ArrayList<>();
         BufferedReader br = null;
         File file = ResourceUtils.getFile("classpath:static/sigungu.csv");
@@ -221,6 +220,5 @@ public class PublicApiServiceV2 {
             System.out.println("String 프린트중 : " + Arrays.toString(strings));
             processApi(strings[0], strings[1], 1);
         }
-        return true;
     }
 }
