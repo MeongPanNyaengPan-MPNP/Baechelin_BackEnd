@@ -203,7 +203,12 @@ public class StoreService {
         return result;
     }
 
-    public List<StoreCardResponseDto> searchStoresByKeyword(String sido, String sigungu, String keyword) {
+    public List<StoreCardResponseDto> searchStores(String sido, String sigungu, String keyword) {
+        List<Store> storeList = storeQueryRepository.searchStores(sido, sigungu, keyword);
+
+//        for (Store store : storeList) {
+//
+//        }
         return null;
     }
 }

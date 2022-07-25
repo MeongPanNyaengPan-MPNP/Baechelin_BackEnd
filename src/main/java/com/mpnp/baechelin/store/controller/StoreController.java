@@ -78,16 +78,12 @@ public class StoreController {
             @AuthenticationPrincipal User user) {
 
         AuthToken authToken = tokenProvider.convertAccessToken(request);
-        if (!authToken.tokenValidate()) {
+
+        if (authToken != null && !authToken.tokenValidate()) {
             throw new CustomException(ErrorCode.INVALID_ACCESS_TOKEN);
         }
 
-        String socialId = "";
-        if (user != null) {
-            socialId = user.getUsername();
-        }
-
-        return storeService.getStore(storeId, socialId);
+        return storeService.getStore(storeId, user == null ? null : user.getUsername());
     }
 
     @ApiOperation(value = "시/도 정보를 이용해 DB에 존재하는 시/군/구 정보를 조회하는 메소드")
@@ -100,7 +96,10 @@ public class StoreController {
     public List<StoreCardResponseDto> searchStoresByKeyword(
             @RequestParam String sido,
             @RequestParam String sigungu,
-            @RequestParam String keyword) {
+            @RequestParam String keyword,
+            @AuthenticationPrincipal User user) {
+
+        storeService.searchStores(sido, sigungu, keyword);
         return null;
     }
 }

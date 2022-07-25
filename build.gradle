@@ -65,6 +65,8 @@ dependencies {
 	implementation 'io.awspring.cloud:spring-cloud-starter-aws:2.4.1'
 	//swagger
 	implementation 'io.springfox:springfox-boot-starter:3.0.0'
+	// commons lang3
+	implementation 'org.apache.commons:commons-lang3:3.12.0'
 
 }
 tasks.named('test') {

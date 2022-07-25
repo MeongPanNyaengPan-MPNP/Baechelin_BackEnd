@@ -1,6 +1,8 @@
 package com.mpnp.baechelin.store.repository;
 
+import com.mpnp.baechelin.common.QueryDslSearch;
 import com.mpnp.baechelin.common.QuerydslLocation;
+import com.mpnp.baechelin.store.domain.QStore;
 import com.mpnp.baechelin.store.domain.Store;
 import com.mpnp.baechelin.store.dto.StoreCardResponseDto;
 import com.querydsl.core.BooleanBuilder;
@@ -106,6 +108,18 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
                 .fetch();
         int fetchCount = queryFactory.selectFrom(store).where(builder).fetch().size();
         return new PageImpl<>(storeList, pageable, fetchCount);
+    }
+
+    // 주소로 검색, 검색어로 검색
+    public List<Store> searchStores(String sido, String sigungu, String keyword) {
+        BooleanExpression matchAddress = QueryDslSearch.matchAddress(sido, sigungu);
+        BooleanExpression matchKeyword = QueryDslSearch.matchKeyword(keyword);
+
+        return queryFactory
+                .selectFrom(store)
+                .where(matchAddress,
+                        matchKeyword)
+                .fetch();
     }
 
 }
