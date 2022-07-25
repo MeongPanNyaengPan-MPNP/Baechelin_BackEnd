@@ -25,10 +25,9 @@ public class UserController {
     @RequestMapping("/logout")
     public SuccessResponse logout(
             HttpServletRequest request,
-            HttpServletResponse response,
-            @AuthenticationPrincipal User user
+            HttpServletResponse response
             ) {
-        userService.logout(request, response, user.getUsername());
+        userService.logout(request, response);
 
         return new SuccessResponse("로그아웃");
     }

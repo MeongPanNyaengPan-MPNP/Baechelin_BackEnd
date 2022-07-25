@@ -1,5 +1,6 @@
 package com.mpnp.baechelin.login.jwt.filter;
 
+import com.mpnp.baechelin.exception.CustomException;
 import com.mpnp.baechelin.exception.ErrorCode;
 import com.mpnp.baechelin.login.jwt.AuthToken;
 import com.mpnp.baechelin.login.jwt.AuthTokenProvider;
