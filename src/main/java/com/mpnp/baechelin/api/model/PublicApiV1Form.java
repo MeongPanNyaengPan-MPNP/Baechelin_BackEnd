@@ -46,7 +46,7 @@ public class PublicApiV1Form {
     public static class Row {
         @JsonProperty("SEQ")
         int SEQ;
-        Integer storeId;
+        Long storeId;
         BigDecimal latitude;
         BigDecimal longitude;
         String category;

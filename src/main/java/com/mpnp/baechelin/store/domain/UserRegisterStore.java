@@ -16,7 +16,7 @@ public class UserRegisterStore extends TimeStamped {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private int id;
+    private long id;
 
     @Column(nullable = false)
     private String name;
