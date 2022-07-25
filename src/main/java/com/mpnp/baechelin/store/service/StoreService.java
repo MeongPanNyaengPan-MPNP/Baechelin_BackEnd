@@ -203,12 +203,26 @@ public class StoreService {
         return result;
     }
 
-    public List<StoreCardResponseDto> searchStores(String sido, String sigungu, String keyword) {
-        List<Store> storeList = storeQueryRepository.searchStores(sido, sigungu, keyword);
+    public List<StoreCardResponseDto> searchStores(String sido, String sigungu, String keyword, String socialId, Pageable pageable) {
+        List<Store> storeList = storeQueryRepository.searchStores(sido, sigungu, keyword, pageable);
 
-//        for (Store store : storeList) {
-//
-//        }
-        return null;
+        List<StoreCardResponseDto> result = new ArrayList<>();
+
+        for (Store store : storeList) {
+            if (socialId == null) {
+                result.add(new StoreCardResponseDto(store, "N"));
+            } else {
+                String isBookmark = "N";
+                for (Bookmark bookmark : store.getBookmarkList()) {
+                    if (bookmark.getStoreId().getId() == store.getId()
+                            && bookmark.getUserId().getSocialId().equals(socialId)) {
+                        isBookmark = "Y";
+                        break;
+                    }
+                }
+                result.add(new StoreCardResponseDto(store, isBookmark));
+            }
+        }
+        return result;
     }
 }

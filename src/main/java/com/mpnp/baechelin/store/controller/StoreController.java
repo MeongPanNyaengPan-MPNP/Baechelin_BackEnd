@@ -97,9 +97,9 @@ public class StoreController {
             @RequestParam String sido,
             @RequestParam String sigungu,
             @RequestParam String keyword,
+            @PageableDefault Pageable pageable,
             @AuthenticationPrincipal User user) {
 
-        storeService.searchStores(sido, sigungu, keyword);
-        return null;
+        return storeService.searchStores(sido, sigungu, keyword, user == null ? null : user.getUsername(), pageable);
     }
 }

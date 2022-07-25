@@ -111,7 +111,7 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
     }
 
     // 주소로 검색, 검색어로 검색
-    public List<Store> searchStores(String sido, String sigungu, String keyword) {
+    public List<Store> searchStores(String sido, String sigungu, String keyword, Pageable pageable) {
         BooleanExpression matchAddress = QueryDslSearch.matchAddress(sido, sigungu);
         BooleanExpression matchKeyword = QueryDslSearch.matchKeyword(keyword);
 
@@ -119,6 +119,8 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
                 .selectFrom(store)
                 .where(matchAddress,
                         matchKeyword)
+                .limit(pageable.getPageSize())
+                .offset(pageable.getOffset())
                 .fetch();
     }
 
