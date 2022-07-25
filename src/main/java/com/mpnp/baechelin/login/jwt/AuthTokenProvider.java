@@ -47,7 +47,7 @@ public class AuthTokenProvider {
     // 요청값으로 들어온 request를 가지고 header에서 String 형태의 access token을 뽑아 AuthToken 형태로 변환
     public AuthToken convertAccessToken(HttpServletRequest request) {
         String accessToken = HeaderUtil.getAccessToken(request);
-        return new AuthToken(accessToken, key);
+        return accessToken == null ? null : new AuthToken(accessToken, key);
     }
 
 
