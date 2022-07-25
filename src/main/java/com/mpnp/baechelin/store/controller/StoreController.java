@@ -77,7 +77,6 @@ public class StoreController {
             HttpServletRequest request,
             @AuthenticationPrincipal User user) {
 
-        // TODO 토큰 유효성 검사하기
         AuthToken authToken = tokenProvider.convertAccessToken(request);
         if (!authToken.tokenValidate()) {
             throw new CustomException(ErrorCode.INVALID_ACCESS_TOKEN);
@@ -95,5 +94,13 @@ public class StoreController {
     @GetMapping("/location/sigungu")
     public Map<String, List<String>> getSigungu(@RequestParam(required = false) String sido) {
         return storeService.getSigungu(sido);
+    }
+
+    @GetMapping("/search")
+    public List<StoreCardResponseDto> searchStoresByKeyword(
+            @RequestParam String sido,
+            @RequestParam String sigungu,
+            @RequestParam String keyword) {
+        return null;
     }
 }

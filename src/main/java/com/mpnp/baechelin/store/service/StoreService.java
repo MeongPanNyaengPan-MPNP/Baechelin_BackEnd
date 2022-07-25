@@ -3,7 +3,6 @@ package com.mpnp.baechelin.store.service;
 import com.mpnp.baechelin.bookmark.domain.Bookmark;
 import com.mpnp.baechelin.bookmark.repository.BookmarkRepository;
 import com.mpnp.baechelin.common.QuerydslLocation;
-import com.mpnp.baechelin.review.repository.ReviewRepository;
 import com.mpnp.baechelin.store.domain.Store;
 import com.mpnp.baechelin.store.dto.StoreCardResponseDto;
 import com.mpnp.baechelin.store.dto.StorePagedResponseDto;
@@ -30,7 +29,6 @@ import java.util.stream.Collectors;
 public class StoreService {
 
     private final StoreRepository storeRepository;
-    private final ReviewRepository reviewRepository;
     private final StoreQueryRepository storeQueryRepository;
     private final UserRepository userRepository;
     private final BookmarkRepository bookmarkRepository;
@@ -181,7 +179,7 @@ public class StoreService {
     }
 
     /**
-     * 시/도 (ex. 서울시, 대전광역시)의 시/군/구 리스트를 반환하는 메소드
+     * 시/도 (ex. 서울시, 대전광역시)의 시/군/구 리스트 조회
      * @param sido 시/도
      * @return 시/군/구 리스트
      */
@@ -203,5 +201,9 @@ public class StoreService {
         result.put("sigungu", sigungu);
 
         return result;
+    }
+
+    public List<StoreCardResponseDto> searchStoresByKeyword(String sido, String sigungu, String keyword) {
+        return null;
     }
 }
