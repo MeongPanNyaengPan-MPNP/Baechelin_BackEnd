@@ -15,13 +15,6 @@ public class Nginx {
 
     @GetMapping("/health")
     public String main() {
-        final List<String> profiles = Arrays.asList(environment.getActiveProfiles());
-        final List<String> prodProfiles = Arrays.asList("prod1", "prod2");
-        final String defaultProfile = profiles.get(0);
-
-        return Arrays.stream(environment.getActiveProfiles())
-                .filter(prodProfiles::contains)
-                .findAny()
-                .orElse(defaultProfile);
+        return "Health UP";
     }
 }
