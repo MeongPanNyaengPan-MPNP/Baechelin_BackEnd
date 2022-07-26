@@ -7,6 +7,7 @@ import com.mpnp.baechelin.common.DataClarification;
 import com.mpnp.baechelin.store.domain.Store;
 import com.mpnp.baechelin.api.dto.LocationInfoDto;
 import com.mpnp.baechelin.store.repository.StoreRepository;
+import com.mpnp.baechelin.store.service.StoreImageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,7 +25,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional
 @Slf4j
 @RequiredArgsConstructor
 /**
@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 public class PublicApiServiceV2 {
     private final StoreRepository storeRepository;
     private final LocationService locationService;
-
+    private final StoreImageService storeImageService;
     @Value("${public.api.v2.key}")
     private String publicV2Key;
     @Value("${public.api.v2.key2}")
@@ -121,14 +121,17 @@ public class PublicApiServiceV2 {
      * @param barrierTagList 배리어 태그 리스트
      * @return 검색 결과 존재 여부
      */
-    private boolean searchWithStoreName(PublicApiV2Form.ServList servList, List<String> barrierTagList) {
+    @Transactional
+    boolean searchWithStoreName(PublicApiV2Form.ServList servList, List<String> barrierTagList) {
         LocationInfoDto.LocationResponse resultDto =
                 locationService.convertGeoAndStoreNameToKeyword(servList.getFaclLat(), servList.getFaclLng(), servList.getFaclNm());
         if (resultDto == null)
             return false;
         Store nStore = new Store(resultDto, servList, barrierTagList);
-        if (!storeRepository.existsById(nStore.getId()))
-            storeRepository.save(nStore);
+        if (!storeRepository.existsById(nStore.getId())) {
+            storeRepository.saveAndFlush(nStore);
+            storeImageService.saveImage(nStore.getId());
+        }
         return true;
     }
 
@@ -136,6 +139,7 @@ public class PublicApiServiceV2 {
      * @param servList       대상 Row
      * @param barrierTagList 배리어 태그 리스트
      */
+    @Transactional
     public void searchWithAddress(PublicApiV2Form.ServList servList, List<String> barrierTagList) {
         List<LocationInfoDto.LocationResponse> locationResponseMapList = locationService
                 .convertGeoAndAddressToKeyword(servList.getFaclLat(), servList.getFaclLng(), DataClarification.clarifyString(servList.getLcMnad()));
@@ -146,6 +150,7 @@ public class PublicApiServiceV2 {
             // ID 값으로 store 중복 검사해 중복되지 않을 시에만 리스트에 저장
             if (!storeRepository.existsById(nStore.getId())) {
                 storeRepository.saveAndFlush(nStore);
+                storeImageService.saveImage(nStore.getId());
             }
         }
     }
