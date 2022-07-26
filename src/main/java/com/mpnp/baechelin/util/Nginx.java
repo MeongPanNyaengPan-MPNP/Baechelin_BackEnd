@@ -15,6 +15,6 @@ public class Nginx {
 
     @GetMapping("/health")
     public String main() {
-        return "Health UP";
+        return "Health Check";
     }
 }
