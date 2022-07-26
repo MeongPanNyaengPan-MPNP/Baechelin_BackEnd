@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 @Builder
 public class ReviewMainResponseDto {
     // review 테이블 컬럼
-    private int storeId;
+    private long storeId;
     private int userId;
     private String storeName;
     private String userName;

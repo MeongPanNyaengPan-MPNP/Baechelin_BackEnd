@@ -22,7 +22,7 @@ import java.util.List;
 @Slf4j
 public class Store {
     @Id
-    private int id;
+    private long id;
 
     @Column(nullable = false)
     private String category;
@@ -103,7 +103,7 @@ public class Store {
     }
 
     // TODO 리뷰가 삭제될 때도 고려하기 - 삭제 후 적용되어야 함
-    public Store updatePointAvg(double changePoint) {
+    public Store updatePointAvg() {
         this.reviewCount = reviewList.size();
         double totalPoint = 0.0;
         for (Review review : reviewList) {

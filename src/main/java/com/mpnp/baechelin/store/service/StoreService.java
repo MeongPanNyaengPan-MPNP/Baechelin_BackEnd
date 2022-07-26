@@ -160,7 +160,7 @@ public class StoreService {
      * @param socialId 유저 social 아이디
      * @return 업장 상세 정보
      */
-    public StoreCardResponseDto getStore(int storeId, String socialId) {
+    public StoreCardResponseDto getStore(long storeId, String socialId) {
         Store store = storeRepository.findById(storeId).orElseThrow(() -> new IllegalArgumentException("해당하는 업장이 존재하지 않습니다."));
 
         if (socialId == null) {
@@ -203,12 +203,26 @@ public class StoreService {
         return result;
     }
 
-    public List<StoreCardResponseDto> searchStores(String sido, String sigungu, String keyword) {
-        List<Store> storeList = storeQueryRepository.searchStores(sido, sigungu, keyword);
+    public List<StoreCardResponseDto> searchStores(String sido, String sigungu, String keyword, String socialId, Pageable pageable) {
+        List<Store> storeList = storeQueryRepository.searchStores(sido, sigungu, keyword, pageable);
 
-//        for (Store store : storeList) {
-//
-//        }
-        return null;
+        List<StoreCardResponseDto> result = new ArrayList<>();
+
+        for (Store store : storeList) {
+            if (socialId == null) {
+                result.add(new StoreCardResponseDto(store, "N"));
+            } else {
+                String isBookmark = "N";
+                for (Bookmark bookmark : store.getBookmarkList()) {
+                    if (bookmark.getStoreId().getId() == store.getId()
+                            && bookmark.getUserId().getSocialId().equals(socialId)) {
+                        isBookmark = "Y";
+                        break;
+                    }
+                }
+                result.add(new StoreCardResponseDto(store, isBookmark));
+            }
+        }
+        return result;
     }
 }

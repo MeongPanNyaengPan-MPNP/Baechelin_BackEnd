@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 @Builder
 @Slf4j
 public class StoreCardResponseDto implements Comparable<StoreCardResponseDto> {
-    private int storeId;
+    private long storeId;
     private String category;
     private String name;
     private BigDecimal latitude;

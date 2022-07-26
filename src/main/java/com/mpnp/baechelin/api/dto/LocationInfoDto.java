@@ -24,7 +24,7 @@ public class LocationInfoDto {
     public static class LocationResponse {
 
         String category;
-        Integer storeId;
+        Long storeId;
         String storeName;
         String longitude;
         String latitude;

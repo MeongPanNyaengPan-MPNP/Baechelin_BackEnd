@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class AdminResponseDto {
-    private int registerStoreId;
+    private long registerStoreId;
     private String name;
     private String address;
     private String elevator;
