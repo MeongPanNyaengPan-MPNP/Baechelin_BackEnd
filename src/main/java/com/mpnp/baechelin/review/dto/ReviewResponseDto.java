@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @Getter @Setter
 public class ReviewResponseDto {
     private int reviewId; // storeId
-    private int storeId;
+    private long storeId;
     private int userId;
     private Double point;
 

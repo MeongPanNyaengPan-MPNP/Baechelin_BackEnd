@@ -46,7 +46,7 @@ public class ReviewService {
     /** 리뷰 작성 */
     public void review(ReviewRequestDto reviewRequestDto, String socialId) throws IOException {
 
-        int    storeId = reviewRequestDto.getStoreId();
+        long    storeId = reviewRequestDto.getStoreId();
         Store  store   = storeRepository.findById(storeId).orElseThrow(() -> new IllegalArgumentException("해당하는 업장이 존재하지 않습니다."));
         User   user    = userRepository.findBySocialId(socialId);
         Review review  = new Review(reviewRequestDto, store, user);
@@ -82,7 +82,7 @@ public class ReviewService {
 
 
 
-    public List<ReviewResponseDto> getReview(int storeId) {
+    public List<ReviewResponseDto> getReview(long storeId) {
         Store store = storeRepository.findById(storeId).orElseThrow(() -> new IllegalArgumentException("해당 가게가 없습니다"));
         return reviewRepository.findAllByStoreId(store)
                 .stream().map(ReviewResponseDto::new).collect(Collectors.toList());
@@ -94,7 +94,7 @@ public class ReviewService {
     /** 리뷰 수정 */
     public void reviewUpdate(ReviewRequestDto reviewRequestDto, String socialId, int reviewId) throws IOException {
 
-        int       storeId    = reviewRequestDto.getStoreId();
+        long       storeId    = reviewRequestDto.getStoreId();
         User      user       = userRepository.findBySocialId(socialId); if(user == null){ new IllegalArgumentException("해당하는 소셜아이디를 찾을 수 없습니다."); }
         Store     store      = storeRepository.findById(storeId)       .orElseThrow(() -> new IllegalArgumentException("해당하는 업장이 존재하지 않습니다."));
         Review    review     = reviewRepository.findById(reviewId)     .orElseThrow(() -> new IllegalArgumentException("해당하는 리뷰가 없습니다."));

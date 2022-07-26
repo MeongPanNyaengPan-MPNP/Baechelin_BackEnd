@@ -22,7 +22,7 @@ import java.util.List;
 @Slf4j
 public class Store {
     @Id
-    private int id;
+    private long id;
 
     @Column(nullable = false)
     private String category;

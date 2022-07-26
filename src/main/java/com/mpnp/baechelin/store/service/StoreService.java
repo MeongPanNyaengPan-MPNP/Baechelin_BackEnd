@@ -160,7 +160,7 @@ public class StoreService {
      * @param socialId 유저 social 아이디
      * @return 업장 상세 정보
      */
-    public StoreCardResponseDto getStore(int storeId, String socialId) {
+    public StoreCardResponseDto getStore(long storeId, String socialId) {
         Store store = storeRepository.findById(storeId).orElseThrow(() -> new IllegalArgumentException("해당하는 업장이 존재하지 않습니다."));
 
         if (socialId == null) {

@@ -134,11 +134,10 @@ public class LocationServiceWC implements LocationService {
             return null;
         }
         return LocationInfoDto.LocationResponse.builder()
-                .storeId(Integer.parseInt(latLngDoc.getId()))
+                .storeId(Long.parseLong(latLngDoc.getId()))
                 .latitude(latLngDoc.getY())
                 .longitude(latLngDoc.getX())
                 .category(categoryFilter(latLngDoc.getCategory_name()))
-                .storeId(Integer.parseInt(latLngDoc.getId()))
                 .storeName(latLngDoc.getPlace_name())
                 .phoneNumber(latLngDoc.getPhone()).build();
     }
@@ -178,7 +177,7 @@ public class LocationServiceWC implements LocationService {
                             .longitude(latLngDoc.getX())
                             .category(categoryFilter(latLngDoc.getCategory_name()))
                             .storeName(latLngDoc.getPlace_name())
-                            .storeId(Integer.parseInt(latLngDoc.getId()))
+                            .storeId(Long.parseLong(latLngDoc.getId()))
                             .phoneNumber(latLngDoc.getPhone())
                             .build();
                     if (newResult.validate()) {

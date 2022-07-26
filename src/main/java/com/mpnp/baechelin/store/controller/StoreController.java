@@ -92,6 +92,7 @@ public class StoreController {
         return storeService.getSigungu(sido);
     }
 
+    @ApiOperation(value = "시/도, 시/군/구, 검색어를 이용해 업장 리스트를 조회하는 메소드")
     @GetMapping("/search")
     public List<StoreCardResponseDto> searchStoresByKeyword(
             @RequestParam String sido,
