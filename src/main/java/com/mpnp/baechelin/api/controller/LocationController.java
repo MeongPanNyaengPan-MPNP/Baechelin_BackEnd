@@ -48,8 +48,4 @@ public class LocationController {
                                                                             @RequestParam String address) {
         return locationService.convertGeoAndAddressToKeyword(String.valueOf(lat), String.valueOf(lng), address);
     }
-    @GetMapping("/health")
-    public String main(){
-        return "Good";
-    }
 }
