@@ -77,7 +77,7 @@ public class ReviewService {
         tagRepository        .saveAll(tagList);
         reviewImageRepository.saveAll(reviewImageUrlList);
         reviewRepository     .save(review); // 아래의 {store.updatePointAvg()} 보다 리뷰가 먼저 처리되게 해야한다.
-        storeRepository.save(store.updatePointAvg(reviewRequestDto.getPoint())); //별점 평균 구하는 코드
+        storeRepository.save(store.updatePointAvg()); //별점 평균 구하는 코드
     }
 
 
@@ -151,7 +151,7 @@ public class ReviewService {
 
         review.update(reviewRequestDto);
         reviewRepository.save(review); // 아래의 store.updatePointAvg() 보다 리뷰가 먼저 처리되게 해야한다.
-        storeRepository .save(store.updatePointAvg(reviewRequestDto.getPoint())); // 별점 평점 구하는 코드
+        storeRepository .save(store.updatePointAvg()); // 별점 평점 구하는 코드
         reviewImageRepository.saveAll(reviewImageUrlList);
     }
 

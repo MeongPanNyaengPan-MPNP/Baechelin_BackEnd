@@ -77,7 +77,7 @@ public class Store {
 
     public Store(PublicApiV1Form.Row row) {
         //storeId - 임시
-        this.id = Long.valueOf(row.getStoreId());
+        this.id = row.getStoreId();
         this.name = row.getSISULNAME();
         this.address = DataClarification.clarifyString(row.getADDR());
         this.phoneNumber = row.getTEL();
@@ -103,7 +103,7 @@ public class Store {
     }
 
     // TODO 리뷰가 삭제될 때도 고려하기 - 삭제 후 적용되어야 함
-    public Store updatePointAvg(double changePoint) {
+    public Store updatePointAvg() {
         this.reviewCount = reviewList.size();
         double totalPoint = 0.0;
         for (Review review : reviewList) {
@@ -114,7 +114,7 @@ public class Store {
     }
 
     public Store(LocationInfoDto.LocationResponse sr, PublicApiV2Form.ServList servList, List<String> barrierTagList) {
-        this.id = Long.valueOf(sr.getStoreId());
+        this.id = sr.getStoreId();
         this.name = sr.getStoreName();
         this.latitude = new BigDecimal(servList.getFaclLat());
         this.longitude = new BigDecimal(servList.getFaclLng());

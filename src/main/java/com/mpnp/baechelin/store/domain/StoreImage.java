@@ -1,6 +1,5 @@
 package com.mpnp.baechelin.store.domain;
 
-import com.mpnp.baechelin.review.domain.Review;
 import com.mpnp.baechelin.util.TimeStamped;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
