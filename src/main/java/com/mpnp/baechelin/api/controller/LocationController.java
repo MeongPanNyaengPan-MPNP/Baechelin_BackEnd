@@ -50,6 +50,6 @@ public class LocationController {
     }
     @GetMapping
     public String main(){
-        return "Hello World!";
+        return "Hello World!2";
     }
 }
