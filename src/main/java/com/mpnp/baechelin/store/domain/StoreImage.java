@@ -15,6 +15,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Builder
 public class StoreImage extends TimeStamped {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
