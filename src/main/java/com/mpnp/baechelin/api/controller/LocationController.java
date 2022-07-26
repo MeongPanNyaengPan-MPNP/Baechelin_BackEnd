@@ -48,4 +48,8 @@ public class LocationController {
                                                                             @RequestParam String address) {
         return locationService.convertGeoAndAddressToKeyword(String.valueOf(lat), String.valueOf(lng), address);
     }
+    @GetMapping
+    public String main(){
+        return "Hello World!";
+    }
 }
