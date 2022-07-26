@@ -65,6 +65,11 @@ dependencies {
 	implementation 'io.awspring.cloud:spring-cloud-starter-aws:2.4.1'
 	//swagger
 	implementation 'io.springfox:springfox-boot-starter:3.0.0'
+	//jsoup
+	implementation 'org.jsoup:jsoup:1.14.3'
+	//file upload
+	implementation 'commons-fileupload:commons-fileupload:1.4'
+	compile 'commons-io:commons-io:2.11.0'
 
 }
 tasks.named('test') {
