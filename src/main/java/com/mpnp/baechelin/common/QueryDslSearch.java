@@ -17,7 +17,7 @@ public class QueryDslSearch {
         }
         return Expressions.numberTemplate(
                 Integer.class,
-                "function('match', {0}, {1}, {2})", store.address, store.address, sido + " " + sigungu).gt(0);
+                "function('match', {0}, {1}, {2})", store.address, store.address, sido + " +" + sigungu).gt(0);
     }
 
     public static BooleanExpression matchKeyword(String keyword) {

@@ -19,11 +19,14 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
+
 /* naver의 oauth2 인증을 통해서 불러온 유저 정보를 처리하기 위한 custom 클래스
  * 소셜 api에서 가져온 유저의 정보를 db에 저장하기 위해 구현
  */
 @Slf4j
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
