@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
+import java.io.IOException;
+
 import static java.lang.System.currentTimeMillis;
 
 @RestController
@@ -38,4 +40,8 @@ public class PublicApiController {
         return new SuccessResponse("공공 API V2 적용 완료");
     }
 
+    @GetMapping("test")
+    public void go() throws IOException, InterruptedException {
+        publicApiServiceV2.start();
+    }
 }

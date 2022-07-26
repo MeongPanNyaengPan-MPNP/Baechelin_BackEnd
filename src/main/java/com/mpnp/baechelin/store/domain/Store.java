@@ -77,7 +77,7 @@ public class Store {
 
     public Store(PublicApiV1Form.Row row) {
         //storeId - 임시
-        this.id = row.getStoreId();
+        this.id = Long.valueOf(row.getStoreId());
         this.name = row.getSISULNAME();
         this.address = DataClarification.clarifyString(row.getADDR());
         this.phoneNumber = row.getTEL();
@@ -114,7 +114,7 @@ public class Store {
     }
 
     public Store(LocationInfoDto.LocationResponse sr, PublicApiV2Form.ServList servList, List<String> barrierTagList) {
-        this.id = sr.getStoreId();
+        this.id = Long.valueOf(sr.getStoreId());
         this.name = sr.getStoreName();
         this.latitude = new BigDecimal(servList.getFaclLat());
         this.longitude = new BigDecimal(servList.getFaclLng());
