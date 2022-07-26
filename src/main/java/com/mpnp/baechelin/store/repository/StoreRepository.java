@@ -6,5 +6,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-public interface StoreRepository extends JpaRepository<Store, Integer> {
+@Repository
+public interface StoreRepository extends JpaRepository<Store, Long> {
 }

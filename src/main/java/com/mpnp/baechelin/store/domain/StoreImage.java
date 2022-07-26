@@ -27,15 +27,6 @@ public class StoreImage extends TimeStamped {
     @JoinColumn(name = "STORE_ID", nullable = false)
     private Store store;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "REVIEW_ID")
-    private Review review;
-
-    public void setReview(Review review) {
-        this.review = review;
-    }
-
-
     // 값이 많지 않아 builder 생략
     public StoreImage(String storeImageUrl) {
         this.storeImageUrl = storeImageUrl;

@@ -21,7 +21,8 @@ public enum ErrorCode {
     WRONG_INPUT(400, "E_WRI400", "입력 값을 확인해주세요."),
     API_LOAD_FAILURE(500, "E-ALF500", "API 로딩에 실패하였습니다."),
     API_NO_RESULT(500, "E-ANR500", "API 결과가 존재하지 않습니다."),
-    NULL_POINTER_EXCEPTION(500, "E-NPE500", "Null 값이 들어올 수 없습니다.");
+    NULL_POINTER_EXCEPTION(500, "E-NPE500", "빈 값이 들어올 수 없습니다."),
+    IMAGE_PROCESS_FAIL(500,"E-IPF500","이미지 오류 발생");
 
     private final int status;
     private final String code;

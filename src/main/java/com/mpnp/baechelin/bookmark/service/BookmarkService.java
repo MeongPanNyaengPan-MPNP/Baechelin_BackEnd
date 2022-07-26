@@ -24,7 +24,7 @@ public class BookmarkService {
     public void bookmark(BookmarkRequestDto bookmarkRequestDto, String socialId) {
 
         Folder folder = folderRepository.findById(bookmarkRequestDto.getFolderId()).orElseThrow(()-> new IllegalArgumentException("폴더가 존재하지 않습니다"));
-        Store store   = storeRepository.findById(bookmarkRequestDto.getStoreId()).orElseThrow(()-> new IllegalArgumentException("가게가 존재하지 않습니다"));
+        Store store   = storeRepository.findById((long) bookmarkRequestDto.getStoreId()).orElseThrow(()-> new IllegalArgumentException("가게가 존재하지 않습니다"));
         User user     = userRepository.findBySocialId(socialId); if(user == null) { throw new IllegalArgumentException("해당하는 유저가 없습니다."); }
 
         Bookmark bookmark = Bookmark
