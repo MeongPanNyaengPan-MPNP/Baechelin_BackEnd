@@ -2,14 +2,12 @@ package com.mpnp.baechelin.store.repository;
 
 import com.mpnp.baechelin.common.QueryDslSearch;
 import com.mpnp.baechelin.common.QuerydslLocation;
-import com.mpnp.baechelin.store.domain.QStore;
 import com.mpnp.baechelin.store.domain.Store;
-import com.mpnp.baechelin.store.dto.StoreCardResponseDto;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
-import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.Path;
-import com.querydsl.core.types.dsl.*;
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.NumberPath;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -21,8 +19,6 @@ import org.springframework.stereotype.Repository;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
