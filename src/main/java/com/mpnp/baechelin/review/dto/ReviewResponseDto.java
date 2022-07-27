@@ -7,7 +7,6 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Builder
@@ -18,8 +17,16 @@ public class ReviewResponseDto {
     private int reviewId; // storeId
     private long storeId;
     private int userId;
-    private Double point;
 
+    private String email;
+
+    private String name;
+
+    private String profile_image_url;
+
+    private String myReview;
+
+    private Double point;
     private String content;
     private List<ReviewImageResponseDto> reviewImageUrlList;
 
@@ -36,8 +43,23 @@ public class ReviewResponseDto {
         this.createdAt  = review.getCreatedAt();
         this.modifiedAt = review.getModifiedAt();
 
+
         this.reviewImageUrlList = review.getReviewImageList().parallelStream().map(ReviewImageResponseDto::new).collect(Collectors.toList());
         this.tagList            = review.getTagList().parallelStream().map(TagResponseDto::new).collect(Collectors.toList());
+    }
+
+    public void userInfo(User user, User myUser){
+        this.email             = user.getEmail();
+        this.name              = user.getName();
+        this.profile_image_url = user.getProfileImageUrl();
+
+        if(this.userId == myUser.getId()){
+            this.myReview = "Y";
+        } else if (this.userId != myUser.getId()){
+            this.myReview = "N";
+        }
+
+
     }
     @Builder
     @AllArgsConstructor

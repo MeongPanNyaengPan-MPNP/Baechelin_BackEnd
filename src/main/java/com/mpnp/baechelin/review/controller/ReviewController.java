@@ -33,10 +33,11 @@ public class ReviewController {
     private final ReviewService reviewService;
 
     @GetMapping("/review/{storeId}")
-    public ResponseEntity<List<ReviewResponseDto>> getStoreReview(@PathVariable int storeId
+    public ResponseEntity<List<ReviewResponseDto>> getStoreReview(@PathVariable int storeId,
+                                                                  @AuthenticationPrincipal User user
                                                                   //@PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        List<ReviewResponseDto> reviewList = reviewService.getReview(storeId);
+        List<ReviewResponseDto> reviewList = reviewService.getReview(storeId, user.getUsername());
         return new ResponseEntity<>(reviewList, HttpStatus.OK);
     }
 

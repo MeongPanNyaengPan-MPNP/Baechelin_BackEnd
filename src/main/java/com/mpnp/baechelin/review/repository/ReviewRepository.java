@@ -10,4 +10,5 @@ import java.util.Optional;
 
 public interface ReviewRepository extends JpaRepository<Review, Integer> {
     List<Review> findAllByStoreId(Store store);
+
 }
