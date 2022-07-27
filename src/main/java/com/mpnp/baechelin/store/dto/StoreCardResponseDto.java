@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @Getter @Setter
 @Builder
 @Slf4j
-public class StoreCardResponseDto implements Comparable<StoreCardResponseDto> {
+public class StoreCardResponseDto {
     private long storeId;
     private String category;
     private String name;
@@ -29,7 +29,7 @@ public class StoreCardResponseDto implements Comparable<StoreCardResponseDto> {
     private String phoneNumber;
     private String heightDifferent;
     private String approach;
-    private List<StoreImgResponseDto> storeImgList = new ArrayList<>();
+    private List<StoreImgResponseDto> storeImgList;
     private int bookmarkCount;
     private String bookmark;
 
@@ -51,17 +51,6 @@ public class StoreCardResponseDto implements Comparable<StoreCardResponseDto> {
         this.approach = store.getApproach();
         this.bookmarkCount = store.getBookMarkCount();
     }
-
-    @Override
-    public int compareTo(StoreCardResponseDto sad) {
-        if (this.pointAvg > sad.pointAvg) {
-            return -1;
-        } else if (this.pointAvg < sad.pointAvg) {
-            return 1;
-        }
-        return 0;
-    }
-
 
     public StoreCardResponseDto(Store store, String isBookMark) {
         this.storeId = store.getId();
