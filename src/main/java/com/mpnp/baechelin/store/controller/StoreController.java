@@ -5,6 +5,7 @@ import com.mpnp.baechelin.exception.ErrorCode;
 import com.mpnp.baechelin.login.jwt.AuthToken;
 import com.mpnp.baechelin.login.jwt.AuthTokenProvider;
 import com.mpnp.baechelin.store.dto.StoreCardResponseDto;
+import com.mpnp.baechelin.store.dto.StoreDetailResponseDto;
 import com.mpnp.baechelin.store.dto.StorePagedResponseDto;
 import com.mpnp.baechelin.store.service.StoreService;
 import io.swagger.annotations.Api;
@@ -72,7 +73,7 @@ public class StoreController {
 
     @ApiOperation(value = "업장 상세정보를 조회하는 메소드")
     @GetMapping("/detail/{storeId}")
-    public StoreCardResponseDto getStore(
+    public StoreDetailResponseDto getStore(
             @PathVariable(required = false) int storeId,
             HttpServletRequest request,
             @AuthenticationPrincipal User user) {

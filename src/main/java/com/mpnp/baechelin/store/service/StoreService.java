@@ -3,8 +3,12 @@ package com.mpnp.baechelin.store.service;
 import com.mpnp.baechelin.bookmark.domain.Bookmark;
 import com.mpnp.baechelin.bookmark.repository.BookmarkRepository;
 import com.mpnp.baechelin.common.QuerydslLocation;
+import com.mpnp.baechelin.review.domain.Review;
+import com.mpnp.baechelin.review.domain.ReviewImage;
 import com.mpnp.baechelin.store.domain.Store;
+import com.mpnp.baechelin.store.domain.StoreImage;
 import com.mpnp.baechelin.store.dto.StoreCardResponseDto;
+import com.mpnp.baechelin.store.dto.StoreDetailResponseDto;
 import com.mpnp.baechelin.store.dto.StorePagedResponseDto;
 import com.mpnp.baechelin.store.repository.StoreQueryRepository;
 import com.mpnp.baechelin.store.repository.StoreRepository;
@@ -160,11 +164,23 @@ public class StoreService {
      * @param socialId 유저 social 아이디
      * @return 업장 상세 정보
      */
-    public StoreCardResponseDto getStore(long storeId, String socialId) {
+    public StoreDetailResponseDto getStore(long storeId, String socialId) {
         Store store = storeRepository.findById(storeId).orElseThrow(() -> new IllegalArgumentException("해당하는 업장이 존재하지 않습니다."));
 
+        List<String> storeImageList = new ArrayList<>();
+
+        for (StoreImage storeImage : store.getStoreImageList()) {
+            storeImageList.add(storeImage.getStoreImageUrl());
+        }
+
+        for (Review review : store.getReviewList()) {
+            for (ReviewImage reviewImage : review.getReviewImageList()) {
+                storeImageList.add(reviewImage.getReviewImageUrl());
+            }
+        }
+
         if (socialId == null) {
-            return new StoreCardResponseDto(store, "N");
+            return new StoreDetailResponseDto(store, "N", storeImageList);
         } else {
             String isBookmark = "N";
             for (Bookmark bookmark : store.getBookmarkList()) {
@@ -174,7 +190,7 @@ public class StoreService {
                     break;
                 }
             }
-            return new StoreCardResponseDto(store, isBookmark);
+            return new StoreDetailResponseDto(store, isBookmark, storeImageList);
         }
     }
 
@@ -203,6 +219,15 @@ public class StoreService {
         return result;
     }
 
+    /**
+     * 업장 검색
+     * @param sido 시/도명
+     * @param sigungu 시/군/구명
+     * @param keyword 검색어
+     * @param socialId 업장 pk
+     * @param pageable page, size
+     * @return
+     */
     public List<StoreCardResponseDto> searchStores(String sido, String sigungu, String keyword, String socialId, Pageable pageable) {
         List<Store> storeList = storeQueryRepository.searchStores(sido, sigungu, keyword, pageable);
 
