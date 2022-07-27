@@ -36,13 +36,13 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
         this.queryFactory = queryFactory;
     }
 
-    public Page<Store> findBetweenLngLat(BigDecimal latStart,
-                                         BigDecimal latEnd,
-                                         BigDecimal lngStart,
-                                         BigDecimal lngEnd,
-                                         String category,
-                                         List<String> facility,
-                                         Pageable pageable) {
+    public Page<Store> findBetweenOnePointOrder(BigDecimal latStart,
+                                                BigDecimal latEnd,
+                                                BigDecimal lngStart,
+                                                BigDecimal lngEnd,
+                                                String category,
+                                                List<String> facility,
+                                                Pageable pageable) {
         BigDecimal nowLat = (latStart.add(latEnd)).divide(new BigDecimal("2"), 22, RoundingMode.HALF_UP);
         BigDecimal nowLng = (lngStart.add(lngEnd)).divide(new BigDecimal("2"), 22, RoundingMode.HALF_UP);
         BooleanBuilder builder = QuerydslLocation.locAndConditions(latStart, latEnd, lngStart, lngEnd, category, facility);
@@ -58,6 +58,25 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
                         .offset(pageable.getOffset())
                         .fetch();
         List<Store> storeList = tupleList.stream().map(tuple -> tuple.get(store)).collect(Collectors.toList());
+        int fetchCount = queryFactory.selectFrom(store).where(builder).fetch().size();
+        return new PageImpl<>(storeList, pageable, fetchCount);
+    }
+
+    public Page<Store> findBetweenTwoPoint(BigDecimal latStart,
+                                           BigDecimal latEnd,
+                                           BigDecimal lngStart,
+                                           BigDecimal lngEnd,
+                                           String category,
+                                           List<String> facility,
+                                           Pageable pageable) {
+        BooleanBuilder builder = QuerydslLocation.locAndConditions(latStart, latEnd, lngStart, lngEnd, category, facility);
+        List<Store> storeList =
+                queryFactory
+                        .selectFrom(store)
+                        .where(builder)
+                        .limit(pageable.getPageSize())
+                        .offset(pageable.getOffset())
+                        .fetch();
         int fetchCount = queryFactory.selectFrom(store).where(builder).fetch().size();
         return new PageImpl<>(storeList, pageable, fetchCount);
     }

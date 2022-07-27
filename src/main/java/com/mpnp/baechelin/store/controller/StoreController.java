@@ -33,21 +33,26 @@ public class StoreController {
 
     @ApiOperation(value = "조건에 맞는 업장 목록을 반환하는 메소드")
     @GetMapping("/near")
-//    public List<StoreCardResponseDto> getStoreInRange(@RequestParam(required = false) BigDecimal latStart,
-    public StorePagedResponseDto getStoreInRange(@RequestParam(required = false) BigDecimal latStart,
-                                                 @RequestParam(required = false) BigDecimal latEnd,
-                                                 @RequestParam(required = false) BigDecimal lngStart,
-                                                 @RequestParam(required = false) BigDecimal lngEnd,
-                                                 @RequestParam(required = false) BigDecimal lat,
+    public StorePagedResponseDto getStoreInRange(@RequestParam(required = false) BigDecimal lat,
                                                  @RequestParam(required = false) BigDecimal lng,
                                                  @RequestParam(required = false) String category,
                                                  @RequestParam(required = false) List<String> facility,
                                                  @PageableDefault Pageable pageable,
                                                  @AuthenticationPrincipal User user) {
-        if (lat != null && lng != null)
-            return storeService.getStoreInRangeMain(lat, lng, category, facility, pageable, user == null ? null : user.getUsername());
-        else
-            return storeService.getStoreInRange(latStart, latEnd, lngStart, lngEnd, category, facility, pageable, user == null ? null : user.getUsername());
+        return storeService.getStoreInOnePointRange(lat, lng, category, facility, pageable, user == null ? null : user.getUsername());
+    }
+
+    @ApiOperation(value = "지도에서 조건에 맞는 업장 목록을 반환하는 메소드")
+    @GetMapping("/near-map")
+    public StorePagedResponseDto getStoreInRange(@RequestParam(required = false) BigDecimal latStart,
+                                                 @RequestParam(required = false) BigDecimal latEnd,
+                                                 @RequestParam(required = false) BigDecimal lngStart,
+                                                 @RequestParam(required = false) BigDecimal lngEnd,
+                                                 @RequestParam(required = false) String category,
+                                                 @RequestParam(required = false) List<String> facility,
+                                                 @PageableDefault Pageable pageable,
+                                                 @AuthenticationPrincipal User user) {
+        return storeService.getStoreInTwoPointsRange(latStart, latEnd, lngStart, lngEnd, category, facility, pageable, user == null ? null : user.getUsername());
     }
 
     @GetMapping("/point")
@@ -63,11 +68,11 @@ public class StoreController {
 
     @GetMapping("/bookmark")
     public StorePagedResponseDto getStoreInRangeHighBookmark(@RequestParam(required = false) BigDecimal lat,
-                                                                  @RequestParam(required = false) BigDecimal lng,
-                                                                  @RequestParam(required = false) String category,
-                                                                  @RequestParam(required = false) List<String> facility,
-                                                                  @PageableDefault Pageable pageable,
-                                                                  @AuthenticationPrincipal User user) {
+                                                             @RequestParam(required = false) BigDecimal lng,
+                                                             @RequestParam(required = false) String category,
+                                                             @RequestParam(required = false) List<String> facility,
+                                                             @PageableDefault Pageable pageable,
+                                                             @AuthenticationPrincipal User user) {
         return storeService.getStoreInRangeHighBookmark(lat, lng, category, facility, pageable, user == null ? null : user.getUsername());
     }
 

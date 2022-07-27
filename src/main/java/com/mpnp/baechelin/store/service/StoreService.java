@@ -53,9 +53,17 @@ public class StoreService {
     public StorePagedResponseDto getStoreInRange(BigDecimal latStart, BigDecimal latEnd, BigDecimal lngStart, BigDecimal lngEnd, String category, List<String> facility, Pageable pageable, String socialId) {
 //    public List<StoreCardResponseDto> getStoreInRange(BigDecimal latStart, BigDecimal latEnd, BigDecimal lngStart, BigDecimal lngEnd, String category, List<String> facility, Pageable pageable, String socialId) {
         User targetUser = socialId == null ? null : userRepository.findBySocialId(socialId);
-        Page<Store> betweenLngLat = storeQueryRepository.findBetweenLngLat(latStart, latEnd, lngStart, lngEnd, category, facility, pageable);
+        Page<Store> betweenLngLat = storeQueryRepository.findBetweenOnePointOrder(latStart, latEnd, lngStart, lngEnd, category, facility, pageable);
         // store  가져와서 dto 매핑
         return getStoreCardPagedResponseDto(targetUser, betweenLngLat);
+    }
+
+    public StorePagedResponseDto getStoreInTwoPointsRange(BigDecimal latStart, BigDecimal latEnd, BigDecimal lngStart, BigDecimal lngEnd, String category, List<String> facility, Pageable pageable, String socialId) {
+//    public List<StoreCardResponseDto> getStoreInRange(BigDecimal latStart, BigDecimal latEnd, BigDecimal lngStart, BigDecimal lngEnd, String category, List<String> facility, Pageable pageable, String socialId) {
+        User targetUser = socialId == null ? null : userRepository.findBySocialId(socialId);
+        Page<Store> betweenSquare = storeQueryRepository.findBetweenTwoPoint(latStart, latEnd, lngStart, lngEnd, category, facility, pageable);
+        // store  가져와서 dto 매핑
+        return getStoreCardPagedResponseDto(targetUser, betweenSquare);
     }
 
     /**
@@ -67,7 +75,7 @@ public class StoreService {
      * @param socialId 유저 소셜 로그인 아이디
      * @return 위도, 경도, 카테고리, 배리어 프리, 페이징을 만족하는 배리어 프리 업장 리턴
      */
-    public StorePagedResponseDto getStoreInRangeMain(BigDecimal lat, BigDecimal lng, String category, List<String> facility, Pageable pageable, String socialId) {
+    public StorePagedResponseDto getStoreInOnePointRange(BigDecimal lat, BigDecimal lng, String category, List<String> facility, Pageable pageable, String socialId) {
         BigDecimal[] range = QuerydslLocation.getRange(lat, lng, 10);
         return getStoreInRange(range[0], range[1], range[2], range[3], category, facility, pageable, socialId);
     }
@@ -160,7 +168,8 @@ public class StoreService {
 
     /**
      * 업장 상세 조회
-     * @param storeId 업장 아이디
+     *
+     * @param storeId  업장 아이디
      * @param socialId 유저 social 아이디
      * @return 업장 상세 정보
      */
@@ -196,6 +205,7 @@ public class StoreService {
 
     /**
      * 시/도 (ex. 서울시, 대전광역시)의 시/군/구 리스트 조회
+     *
      * @param sido 시/도
      * @return 시/군/구 리스트
      */
@@ -221,9 +231,10 @@ public class StoreService {
 
     /**
      * 업장 검색
-     * @param sido 시/도명
-     * @param sigungu 시/군/구명
-     * @param keyword 검색어
+     *
+     * @param sido     시/도명
+     * @param sigungu  시/군/구명
+     * @param keyword  검색어
      * @param socialId 업장 pk
      * @param pageable page, size
      * @return
