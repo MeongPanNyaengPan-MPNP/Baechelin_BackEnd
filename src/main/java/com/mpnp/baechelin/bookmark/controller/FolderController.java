@@ -34,10 +34,11 @@ public class FolderController {
 
     /** 폴더 삭제 -> 삭제 시 안에 담긴 모든 북마크가 삭제됨 */
     @DeleteMapping("/folder/{folderId}")
-    public ResponseEntity<?> folderDelete (@PathVariable int folderId) {
+    public ResponseEntity<?> folderDelete (@PathVariable int folderId,
+                                           @AuthenticationPrincipal User user) {
 
+        if(user==null){ throw new IllegalArgumentException("해당하는 회원 정보가 없습니다."); }
         folderService.folderDelete(folderId);
-
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -46,7 +47,9 @@ public class FolderController {
     /** 폴더 명 변경 */
     @PutMapping("/folderUpdate/{folderId}")
     public ResponseEntity<?> folderUpdate (@PathVariable int folderId,
-                              @RequestParam String newFolderName){
+                                           @RequestParam String newFolderName,
+                                           @AuthenticationPrincipal User user){
+        if(user==null){ throw new IllegalArgumentException("해당하는 회원 정보가 없습니다."); }
 
         folderService.folderUpdate(folderId, newFolderName);
 

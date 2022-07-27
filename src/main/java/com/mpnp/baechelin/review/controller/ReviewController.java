@@ -10,6 +10,9 @@ import com.mpnp.baechelin.review.service.ReviewService;
 import com.mpnp.baechelin.store.domain.Store;
 import com.mpnp.baechelin.store.repository.StoreRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -30,7 +33,9 @@ public class ReviewController {
     private final ReviewService reviewService;
 
     @GetMapping("/review/{storeId}")
-    public ResponseEntity<List<ReviewResponseDto>> getStoreReview(@PathVariable int storeId) {
+    public ResponseEntity<List<ReviewResponseDto>> getStoreReview(@PathVariable int storeId
+                                                                  //@PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
         List<ReviewResponseDto> reviewList = reviewService.getReview(storeId);
         return new ResponseEntity<>(reviewList, HttpStatus.OK);
     }

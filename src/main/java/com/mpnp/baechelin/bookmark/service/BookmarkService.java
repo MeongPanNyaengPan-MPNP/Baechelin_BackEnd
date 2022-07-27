@@ -12,6 +12,8 @@ import com.mpnp.baechelin.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class BookmarkService {
@@ -36,5 +38,13 @@ public class BookmarkService {
 
         storeRepository.save(store.updateBookmarkCount(1));
         bookmarkRepository.save(bookmark);
+    }
+
+    public void bookmarkDelete(int bookmarkId, String socialId) {
+
+        User user = userRepository.findBySocialId(socialId); if(user == null) { throw new IllegalArgumentException("해당하는 유저가 없습니다."); }
+        bookmarkRepository.findById(bookmarkId).orElseThrow(()-> new IllegalArgumentException("해당하는 북마크는 이미 삭제 되었습니다"));
+        bookmarkRepository.deleteById(bookmarkId);
+
     }
 }

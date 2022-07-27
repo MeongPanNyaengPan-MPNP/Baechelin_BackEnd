@@ -28,16 +28,16 @@ public class ReviewResponseDto {
     private List<TagResponseDto> tagList;
 
     public ReviewResponseDto(Review review) {
-        this.reviewId = review.getId();
-        this.storeId = review.getStoreId().getId();
-        this.userId = review.getUserId().getId();
-        this.point = review.getPoint();
-        this.content = review.getContent();
-        this.createdAt = review.getCreatedAt();
+        this.reviewId   = review.getId();
+        this.storeId    = review.getStoreId().getId();
+        this.userId     = review.getUserId().getId();
+        this.point      = Math.round(review.getPoint()*10)/10.0; // 반올림
+        this.content    = review.getContent();
+        this.createdAt  = review.getCreatedAt();
         this.modifiedAt = review.getModifiedAt();
-        this.reviewImageUrlList = review.getReviewImageList()
-                .parallelStream().map(ReviewImageResponseDto::new).collect(Collectors.toList());
-        this.tagList = review.getTagList().parallelStream().map(TagResponseDto::new).collect(Collectors.toList());
+
+        this.reviewImageUrlList = review.getReviewImageList().parallelStream().map(ReviewImageResponseDto::new).collect(Collectors.toList());
+        this.tagList            = review.getTagList().parallelStream().map(TagResponseDto::new).collect(Collectors.toList());
     }
     @Builder
     @AllArgsConstructor

@@ -17,6 +17,8 @@ import com.mpnp.baechelin.user.repository.UserRepository;
 import com.mpnp.baechelin.util.AwsS3Manager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -91,6 +93,7 @@ public class ReviewService {
 
 
 
+    @Transactional
     /** 리뷰 수정 */
     public void reviewUpdate(ReviewRequestDto reviewRequestDto, String socialId, int reviewId) throws IOException {
 
@@ -114,8 +117,9 @@ public class ReviewService {
                 awsS3Manager.deleteFile(reviewImage.getReviewImageUrl().substring(reviewImage.getReviewImageUrl().indexOf("com/") + 4));
 
             }
-            reviewImageRepository.deleteByReviewId(review);
+            reviewImageRepository.deleteAllByReviewId(review);
         }
+
 
         // 2.수정할 이미지가 있다면 업로드
         if(newImageFileList != null) {

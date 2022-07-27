@@ -6,6 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ReviewImageRepository extends JpaRepository<ReviewImage, Integer> {
     void deleteAllByReviewId(Review review);
-
     void deleteByReviewId(Review review);
 }
