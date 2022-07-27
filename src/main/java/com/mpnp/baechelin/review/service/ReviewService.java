@@ -2,6 +2,7 @@ package com.mpnp.baechelin.review.service;
 
 import com.mpnp.baechelin.review.domain.Review;
 import com.mpnp.baechelin.review.domain.ReviewImage;
+import com.mpnp.baechelin.review.dto.PageInfoResponseDto;
 import com.mpnp.baechelin.review.dto.ReviewMainResponseDto;
 import com.mpnp.baechelin.review.dto.ReviewRequestDto;
 import com.mpnp.baechelin.review.dto.ReviewResponseDto;
@@ -26,6 +27,7 @@ import javax.transaction.Transactional;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -84,26 +86,38 @@ public class ReviewService {
 
 
 
-    public List<ReviewResponseDto> getReview(long storeId, String socialId) {
+    public PageInfoResponseDto getReview(long storeId, String socialId, Pageable pageable) {
 
         Store store = storeRepository.findById(storeId).orElseThrow(() -> new IllegalArgumentException("해당 가게가 없습니다"));
-        List<Review> reviewList = reviewRepository.findAllByStoreId(store);
+        Page<Review> reviewList = reviewRepository.findAllByStoreId(store, pageable);
         List<ReviewResponseDto> reviewResponseDtoList = new ArrayList<>();
         User myUser = userRepository.findBySocialId(socialId);
+
+
 
         for(Review review: reviewList){
             ReviewResponseDto reviewResponseDto = new ReviewResponseDto(review);
             Optional<User> user = userRepository.findById(reviewResponseDto.getUserId());
-
             reviewResponseDto.userInfo(user.get(), myUser);
             reviewResponseDtoList.add(reviewResponseDto);
         }
 
+        reviewList.isFirst();
 
-        return reviewResponseDtoList;
-//        return reviewRepository.findAllByStoreId(store).stream().map(ReviewResponseDto::new).collect(Collectors.toList());
+        PageInfoResponseDto pageInfoResponseDto = PageInfoResponseDto
+                .builder()
+                .totalElements((int) reviewList.getTotalElements())
+                .totalPages(reviewList.getTotalPages())
+                .number(reviewList.getNumber())
+                .size(reviewList.getSize())
+                .reviewResponseDtoList(reviewResponseDtoList)
+                .hasNextPage(reviewList.isFirst() ? false : true)
+                .hasPreviousPage(reviewList.isLast() ? false : true)
+                .build();
+
+
+        return pageInfoResponseDto;
     }
-
 
 
 

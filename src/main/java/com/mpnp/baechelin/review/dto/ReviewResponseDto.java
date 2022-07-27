@@ -14,6 +14,8 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @Getter @Setter
 public class ReviewResponseDto {
+
+
     private int reviewId; // storeId
     private long storeId;
     private int userId;

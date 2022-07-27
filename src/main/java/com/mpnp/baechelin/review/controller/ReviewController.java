@@ -1,6 +1,7 @@
 package com.mpnp.baechelin.review.controller;
 
 import com.mpnp.baechelin.review.domain.Review;
+import com.mpnp.baechelin.review.dto.PageInfoResponseDto;
 import com.mpnp.baechelin.review.dto.ReviewMainResponseDto;
 import com.mpnp.baechelin.review.dto.ReviewRequestDto;
 import com.mpnp.baechelin.review.dto.ReviewResponseDto;
@@ -10,6 +11,7 @@ import com.mpnp.baechelin.review.service.ReviewService;
 import com.mpnp.baechelin.store.domain.Store;
 import com.mpnp.baechelin.store.repository.StoreRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -33,13 +35,20 @@ public class ReviewController {
     private final ReviewService reviewService;
 
     @GetMapping("/review/{storeId}")
-    public ResponseEntity<List<ReviewResponseDto>> getStoreReview(@PathVariable int storeId,
-                                                                  @AuthenticationPrincipal User user
-                                                                  //@PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable
-    ) {
-        List<ReviewResponseDto> reviewList = reviewService.getReview(storeId, user.getUsername());
-        return new ResponseEntity<>(reviewList, HttpStatus.OK);
+    public ResponseEntity<PageInfoResponseDto> getStoreReview(@PathVariable int storeId,
+                                                              @AuthenticationPrincipal User user,
+                                                              @PageableDefault(page = 0, size = 5, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+
+        PageInfoResponseDto pageInfoResponseDto = reviewService.getReview(storeId, user.getUsername(), pageable);
+        return new ResponseEntity<>(pageInfoResponseDto, HttpStatus.OK);
     }
+
+//    @GetMapping("/review/{storeId}")
+//    public ResponseEntity<List<ReviewResponseDto>> getStoreReview(@PathVariable int storeId,
+//                                                                  @AuthenticationPrincipal User user) {
+//        List<ReviewResponseDto> reviewList = reviewService.getReview(storeId, user.getUsername());
+//        return new ResponseEntity<>(reviewList, HttpStatus.OK);
+//    }
 
     /** 리뷰 작성 */
     @PostMapping("/review")
