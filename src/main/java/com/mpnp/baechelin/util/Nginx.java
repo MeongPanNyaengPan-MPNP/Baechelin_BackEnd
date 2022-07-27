@@ -15,9 +15,9 @@ public class Nginx {
 
     @GetMapping("/health")
     public String healthCheck() {
-        return "Health Check V3";
+        return "Health Check V4";
     }
-    
+
     @GetMapping
     public String main(){
         return "Hello World!";
