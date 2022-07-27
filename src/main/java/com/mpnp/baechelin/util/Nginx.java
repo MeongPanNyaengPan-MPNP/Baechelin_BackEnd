@@ -14,7 +14,12 @@ public class Nginx {
     private final Environment environment;
 
     @GetMapping("/health")
-    public String main() {
-        return "Health Check";
+    public String healthCheck() {
+        return "Health Check V3";
+    }
+    
+    @GetMapping
+    public String main(){
+        return "Hello World!";
     }
 }
