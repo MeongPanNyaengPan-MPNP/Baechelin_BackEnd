@@ -1,6 +1,7 @@
 package com.mpnp.baechelin.user.controller;
 
 import com.mpnp.baechelin.common.SuccessResponse;
+import com.mpnp.baechelin.exception.CustomException;
 import com.mpnp.baechelin.user.dto.UserResponseDto;
 import com.mpnp.baechelin.user.service.UserService;
 import io.swagger.annotations.ApiOperation;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/user")
