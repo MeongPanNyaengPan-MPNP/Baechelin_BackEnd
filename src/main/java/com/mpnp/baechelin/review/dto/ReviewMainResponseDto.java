@@ -33,7 +33,7 @@ public class ReviewMainResponseDto {
         this.userId = user.getId();
         this.storeName = store.getName();
         this.address = store.getAddress();
-        this.userName = user.getEmail();
+        this.userName = user.getName();
         this.content = review.getContent();
         this.point = review.getPoint();
         this.reviewImageUrlList = review.getReviewImageList()
