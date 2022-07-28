@@ -11,9 +11,11 @@ import lombok.*;
 public class UserResponseDto {
     private String name;
     private String email;
+    private String userImage;
 
     public UserResponseDto(User user) {
         this.name = user.getName();
         this.email = user.getEmail();
+        this.userImage = user.getProfileImageUrl();
     }
 }

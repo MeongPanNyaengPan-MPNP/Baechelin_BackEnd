@@ -13,7 +13,8 @@ import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
-@Getter @Setter
+@Getter
+@Setter
 @Builder
 @Slf4j
 public class StoreCardResponseDto {
@@ -29,7 +30,7 @@ public class StoreCardResponseDto {
     private String phoneNumber;
     private String heightDifferent;
     private String approach;
-    private List<StoreImgResponseDto> storeImgList;
+    private List<String> storeImgList;
     private int bookmarkCount;
     private String bookmark;
 
@@ -66,10 +67,11 @@ public class StoreCardResponseDto {
         this.heightDifferent = store.getHeightDifferent();
         this.approach = store.getApproach();
         this.bookmarkCount = store.getBookMarkCount();
-        this.storeImgList = store.getStoreImageList().parallelStream()
-                .map(StoreImgResponseDto::new).collect(Collectors.toList());
-        this.pointAvg = Double.parseDouble(String.format(store.getReviewList().stream()
-                .collect(Collectors.averagingDouble(Review::getPoint)).toString(), 0.1f));
+        this.storeImgList = new ArrayList<>();
+        store.getStoreImageList().parallelStream()
+                .forEachOrdered(s -> storeImgList.add(s.getStoreImageUrl()));
+        double hap = store.getReviewList().stream().map(Review::getPoint).mapToDouble(Double::doubleValue).sum();
+        this.pointAvg = store.getReviewList().size() == 0 ? 0 : Double.parseDouble(String.format("%1.1f", (hap / store.getReviewList().size())));
         this.bookmark = isBookMark;
     }
 }

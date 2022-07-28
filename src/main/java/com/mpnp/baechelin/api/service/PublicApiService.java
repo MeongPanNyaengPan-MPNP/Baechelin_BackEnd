@@ -66,19 +66,17 @@ public class PublicApiService {
      * @param publicApiV1Form API 호출 결과
      */
     private void setInfos(PublicApiV1Form publicApiV1Form) {
-        publicApiV1Form.getTouristFoodInfo().getRow().forEach(row -> {
-                    try {
-                        if (!setRowLngLat(row)) return; // 주소를 가지고 위/경도를 찾는다
-                    } catch (JsonProcessingException e) {
-                        throw new CustomException(ErrorCode.API_LOAD_FAILURE);
-                    }
-                    try {
-                        setRowCategoryAndId(row); // 위/경도/매장명을 가지고 키워드 설정
-                    } catch (JsonProcessingException e) {
-                        throw new CustomException(ErrorCode.API_LOAD_FAILURE);
-                    }
-                }
-        );
+        for (PublicApiV1Form.Row row : publicApiV1Form.getTouristFoodInfo().getRow()) {
+            try {
+                if (!setRowLngLat(row)) return; // 주소를 가지고 위/경도를 찾는다
+            } catch (JsonProcessingException e) {
+                return;
+            }
+            try {
+                setRowCategoryAndId(row); // 위/경도/매장명을 가지고 키워드 설정
+            } catch (JsonProcessingException ignore) {
+            }
+        }
     }
 
 
@@ -112,16 +110,19 @@ public class PublicApiService {
     /**
      * @param rows 검증할 행
      */
-    @Transactional
     public void saveValidStores(List<PublicApiV1Form.Row> rows) {
         List<Store> storeList = rows.stream().filter(PublicApiV1Form.Row::validation)
                 .map(Store::new).collect(Collectors.toList());
         // storeRepository 구현 시 save 호출하기
         for (Store store : storeList) {
             if (!storeRepository.existsById(store.getId())) {
-                storeRepository.saveAndFlush(store);
-                storeImageService.saveImage(store.getId());
+                saveStore(store);
             }
         }
+    }
+    @Transactional
+    public void saveStore(Store store) {
+        storeRepository.save(store);
+        storeImageService.saveImage(store.getId());
     }
 }

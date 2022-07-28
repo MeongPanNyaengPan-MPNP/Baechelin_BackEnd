@@ -36,13 +36,13 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
         this.queryFactory = queryFactory;
     }
 
-    public Page<Store> findBetweenLngLat(BigDecimal latStart,
-                                         BigDecimal latEnd,
-                                         BigDecimal lngStart,
-                                         BigDecimal lngEnd,
-                                         String category,
-                                         List<String> facility,
-                                         Pageable pageable) {
+    public Page<Store> findBetweenOnePointOrder(BigDecimal latStart,
+                                                BigDecimal latEnd,
+                                                BigDecimal lngStart,
+                                                BigDecimal lngEnd,
+                                                String category,
+                                                List<String> facility,
+                                                Pageable pageable) {
         BigDecimal nowLat = (latStart.add(latEnd)).divide(new BigDecimal("2"), 22, RoundingMode.HALF_UP);
         BigDecimal nowLng = (lngStart.add(lngEnd)).divide(new BigDecimal("2"), 22, RoundingMode.HALF_UP);
         BooleanBuilder builder = QuerydslLocation.locAndConditions(latStart, latEnd, lngStart, lngEnd, category, facility);
