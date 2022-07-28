@@ -7,10 +7,17 @@ import lombok.Setter;
 
 import java.util.List;
 
-@Getter @Setter
+@Getter
+@Setter
 @NoArgsConstructor
-@AllArgsConstructor
 public class StorePagedResponseDto {
     private boolean hasNextPage;
+    private long totalCount;
     private List<StoreCardResponseDto> cards;
+
+    public StorePagedResponseDto(boolean hasNextPage, List<StoreCardResponseDto> cards, long totalCount) {
+        this.hasNextPage = hasNextPage;
+        this.cards = cards;
+        this.totalCount = totalCount;
+    }
 }
