@@ -178,15 +178,12 @@ public class StoreService {
 
         List<String> storeImageList = new ArrayList<>();
 
-        for (StoreImage storeImage : store.getStoreImageList()) {
-            storeImageList.add(storeImage.getStoreImageUrl());
-        }
+        store.getStoreImageList()
+                .forEach(storeImage -> storeImageList.add(storeImage.getStoreImageUrl()));
 
-        for (Review review : store.getReviewList()) {
-            for (ReviewImage reviewImage : review.getReviewImageList()) {
-                storeImageList.add(reviewImage.getReviewImageUrl());
-            }
-        }
+        store.getReviewList()
+                .forEach(review -> review.getReviewImageList()
+                        .forEach(reviewImage -> storeImageList.add(reviewImage.getReviewImageUrl())));
 
         if (socialId == null) {
             return new StoreDetailResponseDto(store, "N", storeImageList);

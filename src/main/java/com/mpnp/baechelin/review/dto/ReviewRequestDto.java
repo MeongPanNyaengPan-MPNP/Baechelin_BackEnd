@@ -12,7 +12,7 @@ import java.util.List;
 @Builder
 public class ReviewRequestDto {
     //review 테이블 컬럼
-    private long                 storeId;      //업장 아이디
+    private long                storeId;      //업장 아이디
     private String              content;      //리뷰 코멘트
     private double              point;        //별점
     private List<String>        tagList;      //태그

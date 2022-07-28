@@ -2,6 +2,7 @@ package com.mpnp.baechelin.review.service;
 
 import com.mpnp.baechelin.review.domain.Review;
 import com.mpnp.baechelin.review.domain.ReviewImage;
+import com.mpnp.baechelin.review.dto.PageInfoResponseDto;
 import com.mpnp.baechelin.review.dto.ReviewMainResponseDto;
 import com.mpnp.baechelin.review.dto.ReviewRequestDto;
 import com.mpnp.baechelin.review.dto.ReviewResponseDto;
@@ -17,8 +18,10 @@ import com.mpnp.baechelin.user.repository.UserRepository;
 import com.mpnp.baechelin.util.AwsS3Manager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.annotations.SQLDelete;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,6 +29,7 @@ import javax.transaction.Transactional;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -83,21 +87,46 @@ public class ReviewService {
     }
 
 
+    /** 리뷰 조회 */
 
-    public List<ReviewResponseDto> getReview(long storeId) {
-        Store store = storeRepository.findById(storeId).orElseThrow(() -> new IllegalArgumentException("해당 가게가 없습니다"));
-        return reviewRepository.findAllByStoreId(store)
-                .stream().map(ReviewResponseDto::new).collect(Collectors.toList());
+    public PageInfoResponseDto getReview(long storeId, String socialId, Pageable pageable) {
+
+        User         myUser     = userRepository.findBySocialId(socialId);
+        Store        store      = storeRepository.findById(storeId).orElseThrow(() -> new IllegalArgumentException("해당 가게가 없습니다"));
+        Page<Review> reviewList = reviewRepository.findAllByStoreId(store, pageable);
+
+
+        List<ReviewResponseDto> reviewResponseDtoList = new ArrayList<>();
+        for(Review review: reviewList){
+            ReviewResponseDto reviewResponseDto = new ReviewResponseDto(review);
+            Optional<User> user = userRepository.findById(reviewResponseDto.getUserId());
+            reviewResponseDto.userInfo(user.get(), myUser);
+            reviewResponseDtoList.add(reviewResponseDto);
+        }
+
+
+        PageInfoResponseDto pageInfoResponseDto = PageInfoResponseDto
+                .builder()
+                .totalElements((int) reviewList.getTotalElements())
+                .totalPages(reviewList.getTotalPages())
+                .number(reviewList.getNumber())
+                .size(reviewList.getSize())
+                .reviewResponseDtoList(reviewResponseDtoList)
+                .hasNextPage(reviewList.isFirst() ? false : true)
+                .hasPreviousPage(reviewList.isLast() ? false : true)
+                .build();
+
+
+        return pageInfoResponseDto;
     }
 
 
-
-
     @Transactional
+    @Modifying
     /** 리뷰 수정 */
     public void reviewUpdate(ReviewRequestDto reviewRequestDto, String socialId, int reviewId) throws IOException {
 
-        long       storeId    = reviewRequestDto.getStoreId();
+        long      storeId    = reviewRequestDto.getStoreId();
         User      user       = userRepository.findBySocialId(socialId); if(user == null){ new IllegalArgumentException("해당하는 소셜아이디를 찾을 수 없습니다."); }
         Store     store      = storeRepository.findById(storeId)       .orElseThrow(() -> new IllegalArgumentException("해당하는 업장이 존재하지 않습니다."));
         Review    review     = reviewRepository.findById(reviewId)     .orElseThrow(() -> new IllegalArgumentException("해당하는 리뷰가 없습니다."));
@@ -117,7 +146,7 @@ public class ReviewService {
                 awsS3Manager.deleteFile(reviewImage.getReviewImageUrl().substring(reviewImage.getReviewImageUrl().indexOf("com/") + 4));
 
             }
-            reviewImageRepository.deleteAllByReviewId(review);
+            reviewImageRepository.deleteInBatchByReviewId(review);
         }
 
 
@@ -141,7 +170,7 @@ public class ReviewService {
         // 1. 기존 태그 내용이 있다면 전체 삭제
         if (oldTagList != null){
             System.out.println("oldTagList != null");
-            tagRepository.deleteAByReviewId(review); }
+            tagRepository.deleteAllByReviewId(review); }
         // 2. 태그 내용이 있다면 태그 수정
         if (newTagList != null) {
             for (String newTag : newTagList) {

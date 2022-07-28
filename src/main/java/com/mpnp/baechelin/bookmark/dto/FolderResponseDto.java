@@ -18,7 +18,7 @@ public class FolderResponseDto {
     private int id;
     private String folderName;
 
-    private List<List<String>> bookmarkList;
+    private List<BookmarkInfoDto> bookmarkList;
 
     public FolderResponseDto(Folder folder) {
         this.id = folder.getId();
@@ -28,28 +28,35 @@ public class FolderResponseDto {
     public static FolderResponseDto FolderDtoRes(Folder folder) {
 
         /** 북마크의 정보를 담는 작업 */
-        List<List<String>> bookmarks = new ArrayList<>();
+        List<BookmarkInfoDto> bookmarks = new ArrayList<>();
 
         if(folder.getBookmarkList() != null) {
             for (Bookmark bookmark : folder.getBookmarkList()) {
 
-                String pointAvg     = String.valueOf(bookmark.getStoreId().getPointAvg());  // 업장 별점
-                String name         = bookmark.getStoreId().getName();                      // 업장 이름
-                String address      = bookmark.getStoreId().getAddress();                   // 업장 주소
-                String category     = bookmark.getStoreId().getCategory();                  // 업장 카테고리
-                String PhoneNumber  = bookmark.getStoreId().getPhoneNumber();               // 업장 전화번호
+                double pointAvg     = Math.round(bookmark.getStoreId().getPointAvg()*10)/10.0;  // 업장 별점
+                String name         = bookmark.getStoreId().getName();                          // 업장 이름
+                String address      = bookmark.getStoreId().getAddress();                       // 업장 주소
+                String category     = bookmark.getStoreId().getCategory();                      // 업장 카테고리
+                String PhoneNumber  = bookmark.getStoreId().getPhoneNumber();                   // 업장 전화번호
+                int bookmarkId      = bookmark.getId();
+                int storeId         = (int) bookmark.getStoreId().getId();
 
-                List<String>     tempBookmarkList = new ArrayList<>();                        // 정보를 담는 리스트
-                List<StoreImage> storeImageList   = bookmark.getStoreId().getStoreImageList();// 업장 이미지 리스트
+                List<BookmarkInfoDto> BookmarkInfoDtoList = new ArrayList<>();            // 정보를 담는 리스트
+                List<StoreImage> storeImageList = bookmark.getStoreId().getStoreImageList();// 업장 이미지 리스트
 
-                tempBookmarkList.add(name);
-                tempBookmarkList.add(pointAvg);
-                tempBookmarkList.add(address);
-                tempBookmarkList.add(category);
-                tempBookmarkList.add(PhoneNumber);
-                if(!storeImageList.isEmpty()) { tempBookmarkList.add(storeImageList.get(0).getStoreImageUrl()); }
+                BookmarkInfoDto bookmarkInfoDto = BookmarkInfoDto
+                        .builder()
+                        .bookmarkId(bookmarkId)
+                        .storeId(storeId)
+                        .address(address)
+                        .phoneNumber(PhoneNumber)
+                        .category(category)
+                        .pointAvg(pointAvg)
+                        .name(name)
+                        .storeImageList(!storeImageList.isEmpty() ? storeImageList.get(0).getStoreImageUrl():"")
+                        .build();
 
-                bookmarks.add(tempBookmarkList);
+                bookmarks.add(bookmarkInfoDto);
 
             }
         } else if(folder.getBookmarkList() == null) {

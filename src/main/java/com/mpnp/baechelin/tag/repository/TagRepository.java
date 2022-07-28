@@ -13,5 +13,4 @@ public interface TagRepository extends JpaRepository<Tag, Integer> {
 
     List<Tag> findAllByReviewId(Review review);
 
-    void deleteAByReviewId(Review review);
 }
