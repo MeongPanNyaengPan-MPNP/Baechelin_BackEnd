@@ -28,6 +28,7 @@ import java.io.*;
 
 import java.net.URL;
 import java.nio.file.Files;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -39,19 +40,21 @@ public class StoreImageService {
     private final StoreRepository storeRepository;
     @Value("${user.agent}")
     private String userAgent;
+
     @Transactional
     public void saveImage(Long storeId) {
-        Store store = storeRepository.findById(storeId).orElseThrow(() -> new CustomException(ErrorCode.WRONG_INPUT));
-        String storeImgUrl = saveImageByStoreId(storeId);
-        if (storeImgUrl == null) return;
+        Optional<Store> store = storeRepository.findById(storeId);
+        if (store.isEmpty()) return;
+        Optional<String> storeImgUrl = saveImageByStoreId(storeId);
+        if (storeImgUrl.isEmpty()) return;
         StoreImage img = StoreImage.builder()
-                .store(store)
-                .storeImageUrl(storeImgUrl)
+                .store(store.get())
+                .storeImageUrl(storeImgUrl.get())
                 .build();
-        storeImgRepository.saveAndFlush(img);
+        storeImgRepository.save(img);
     }
 
-    private String saveImageByStoreId(Long storeId) {
+    public Optional<String> saveImageByStoreId(Long storeId) {
         String url = "https://place.map.kakao.com/placePrint.daum?confirmid=" + storeId;
         Connection conn = Jsoup.connect(url);
         Document doc = null;
@@ -64,15 +67,14 @@ public class StoreImageService {
             Document document = response.parse();
             Elements select = document.select("body div div div.popup_body div.wrap_info div img");
             String val = select.select("img").attr("src");
-            if (val.equals("")) return null;
-            return downloadImage("https:" + val);
+            if (val.equals("")) return Optional.empty();
+            return Optional.ofNullable(downloadImage("https:" + val));
         } catch (IOException ignored) {
-            throw new CustomException(ErrorCode.IMAGE_PROCESS_FAIL);
+            return Optional.empty();
         }
     }
 
     private String downloadImage(String imgUrl) throws IOException {
-        log.info("imageurlcheck : {}", imgUrl);
         ClassPathResource resource = new ClassPathResource("");
         String fileName = resource.getPath() + UUID.randomUUID() + ".jpg";
         URL url = new URL(imgUrl);
@@ -96,11 +98,11 @@ public class StoreImageService {
             fileInputStream.close();
             outputStream.close();
         } catch (IOException ex) {
-            throw new CustomException(ErrorCode.IMAGE_PROCESS_FAIL);
+            return null;
         }
 
         MultipartFile multipartFile = new CommonsMultipartFile(fileItem);
-        boolean deleteResult = file.delete();
+        file.delete();
         return awsS3Manager.uploadFile(multipartFile);
     }
 }
