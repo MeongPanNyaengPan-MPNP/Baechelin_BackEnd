@@ -18,8 +18,10 @@ import com.mpnp.baechelin.user.repository.UserRepository;
 import com.mpnp.baechelin.util.AwsS3Manager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.annotations.SQLDelete;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -85,16 +87,16 @@ public class ReviewService {
     }
 
 
+    /** 리뷰 조회 */
 
     public PageInfoResponseDto getReview(long storeId, String socialId, Pageable pageable) {
 
-        Store store = storeRepository.findById(storeId).orElseThrow(() -> new IllegalArgumentException("해당 가게가 없습니다"));
+        User         myUser     = userRepository.findBySocialId(socialId);
+        Store        store      = storeRepository.findById(storeId).orElseThrow(() -> new IllegalArgumentException("해당 가게가 없습니다"));
         Page<Review> reviewList = reviewRepository.findAllByStoreId(store, pageable);
+
+
         List<ReviewResponseDto> reviewResponseDtoList = new ArrayList<>();
-        User myUser = userRepository.findBySocialId(socialId);
-
-
-
         for(Review review: reviewList){
             ReviewResponseDto reviewResponseDto = new ReviewResponseDto(review);
             Optional<User> user = userRepository.findById(reviewResponseDto.getUserId());
@@ -102,7 +104,6 @@ public class ReviewService {
             reviewResponseDtoList.add(reviewResponseDto);
         }
 
-        reviewList.isFirst();
 
         PageInfoResponseDto pageInfoResponseDto = PageInfoResponseDto
                 .builder()
@@ -120,8 +121,8 @@ public class ReviewService {
     }
 
 
-
     @Transactional
+    @Modifying
     /** 리뷰 수정 */
     public void reviewUpdate(ReviewRequestDto reviewRequestDto, String socialId, int reviewId) throws IOException {
 
@@ -145,8 +146,7 @@ public class ReviewService {
                 awsS3Manager.deleteFile(reviewImage.getReviewImageUrl().substring(reviewImage.getReviewImageUrl().indexOf("com/") + 4));
 
             }
-            System.out.println(review.getId());
-            reviewImageRepository.deleteAllByReviewId(review);
+            reviewImageRepository.deleteInBatchByReviewId(review);
         }
 
 
@@ -170,7 +170,7 @@ public class ReviewService {
         // 1. 기존 태그 내용이 있다면 전체 삭제
         if (oldTagList != null){
             System.out.println("oldTagList != null");
-            tagRepository.deleteAByReviewId(review); }
+            tagRepository.deleteAllByReviewId(review); }
         // 2. 태그 내용이 있다면 태그 수정
         if (newTagList != null) {
             for (String newTag : newTagList) {
