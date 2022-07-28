@@ -1,12 +1,15 @@
 package com.mpnp.baechelin.store.domain;
 
+import com.mpnp.baechelin.api.dto.LocationInfoDto;
 import com.mpnp.baechelin.api.model.PublicApiV1Form;
 import com.mpnp.baechelin.api.model.PublicApiV2Form;
 import com.mpnp.baechelin.bookmark.domain.Bookmark;
 import com.mpnp.baechelin.common.DataClarification;
 import com.mpnp.baechelin.review.domain.Review;
-import com.mpnp.baechelin.api.dto.LocationInfoDto;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.*;
