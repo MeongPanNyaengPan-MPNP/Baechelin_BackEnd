@@ -52,7 +52,7 @@ public class StoreController {
                                                  @RequestParam(required = false) List<String> facility,
                                                  @PageableDefault Pageable pageable,
                                                  @AuthenticationPrincipal User user) {
-        return storeService.getStoreInTwoPointsRange(latStart, latEnd, lngStart, lngEnd, category, facility, pageable, user == null ? null : user.getUsername());
+        return storeService.getStoreInRange(latStart, latEnd, lngStart, lngEnd, category, facility, pageable, user == null ? null : user.getUsername());
     }
 
     @GetMapping("/point")

@@ -62,25 +62,6 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
         return new PageImpl<>(storeList, pageable, fetchCount);
     }
 
-    public Page<Store> findBetweenTwoPoint(BigDecimal latStart,
-                                           BigDecimal latEnd,
-                                           BigDecimal lngStart,
-                                           BigDecimal lngEnd,
-                                           String category,
-                                           List<String> facility,
-                                           Pageable pageable) {
-        BooleanBuilder builder = QuerydslLocation.locAndConditions(latStart, latEnd, lngStart, lngEnd, category, facility);
-        List<Store> storeList =
-                queryFactory
-                        .selectFrom(store)
-                        .where(builder)
-                        .limit(pageable.getPageSize())
-                        .offset(pageable.getOffset())
-                        .fetch();
-        int fetchCount = queryFactory.selectFrom(store).where(builder).fetch().size();
-        return new PageImpl<>(storeList, pageable, fetchCount);
-    }
-
     //TODO 별점순 - 쿼리 결과로 산출된 리스트의 평균 구하기, 정렬, 페이징
     public Page<Store> findStoreOrderByPoint(BigDecimal lat,
                                              BigDecimal lng,
