@@ -15,6 +15,7 @@ import com.mpnp.baechelin.store.repository.StoreRepository;
 import com.mpnp.baechelin.user.domain.User;
 import com.mpnp.baechelin.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -58,13 +59,6 @@ public class StoreService {
         return getStoreCardPagedResponseDto(targetUser, betweenLngLat);
     }
 
-    public StorePagedResponseDto getStoreInTwoPointsRange(BigDecimal latStart, BigDecimal latEnd, BigDecimal lngStart, BigDecimal lngEnd, String category, List<String> facility, Pageable pageable, String socialId) {
-//    public List<StoreCardResponseDto> getStoreInRange(BigDecimal latStart, BigDecimal latEnd, BigDecimal lngStart, BigDecimal lngEnd, String category, List<String> facility, Pageable pageable, String socialId) {
-        User targetUser = socialId == null ? null : userRepository.findBySocialId(socialId);
-        Page<Store> betweenSquare = storeQueryRepository.findBetweenTwoPoint(latStart, latEnd, lngStart, lngEnd, category, facility, pageable);
-        // store  가져와서 dto 매핑
-        return getStoreCardPagedResponseDto(targetUser, betweenSquare);
-    }
 
     /**
      * @param lat      위도
@@ -126,17 +120,11 @@ public class StoreService {
      */
     private StorePagedResponseDto getStoreCardPagedResponseDto(User targetUser, Page<Store> resultStoreList) {
         List<StoreCardResponseDto> mappingResult = new ArrayList<>();
-        if (targetUser == null) {
-            for (Store store : resultStoreList) {
-                mappingResult.add(new StoreCardResponseDto(store, "N"));
-            }
-        } else {
-            for (Store store : resultStoreList) {
-                boolean isBookmark = bookmarkRepository.existsByStoreIdAndUserId(store, targetUser);
-                mappingResult.add(new StoreCardResponseDto(store, isBookmark ? "Y" : "N"));
-            }
+        for (Store store : resultStoreList) {
+            boolean isBookmark = bookmarkRepository.existsByStoreIdAndUserId(store, targetUser);
+            mappingResult.add(new StoreCardResponseDto(store, isBookmark ? "Y" : "N"));
         }
-        return new StorePagedResponseDto(resultStoreList.hasNext(), mappingResult);
+        return new StorePagedResponseDto(resultStoreList.hasNext(), mappingResult, resultStoreList.getTotalElements());
     }
 
 
