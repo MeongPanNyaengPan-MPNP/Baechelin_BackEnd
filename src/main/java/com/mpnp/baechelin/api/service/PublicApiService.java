@@ -8,6 +8,7 @@ import com.mpnp.baechelin.exception.ErrorCode;
 import com.mpnp.baechelin.store.domain.Category;
 import com.mpnp.baechelin.store.domain.Store;
 import com.mpnp.baechelin.store.repository.StoreRepository;
+import com.mpnp.baechelin.store.service.StoreImageService;
 import com.mpnp.baechelin.store.service.StoreService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,12 +26,12 @@ import java.util.stream.Collectors;
 
 
 @Service
-@Transactional
 @Slf4j
 @RequiredArgsConstructor
 public class PublicApiService {
     private final StoreRepository storeRepository;
     private final LocationService locationService;
+    private final StoreImageService storeImageService;
     @Value("${public.api.v1.key}")
     private String publicV1Key;
 
@@ -105,34 +106,22 @@ public class PublicApiService {
             return; // 결과가 비어있으면 진행하지 않는다
         row.setStoreId(locationResponse.getStoreId());
         row.setSISULNAME(locationResponse.getStoreName());
-        row.setCategory(categoryFilter(Optional.of(locationResponse.getCategory()).orElse(null)));
+        row.setCategory(locationResponse.getCategory());
     }
 
     /**
      * @param rows 검증할 행
      */
-    private void saveValidStores(List<PublicApiV1Form.Row> rows) {
+    @Transactional
+    public void saveValidStores(List<PublicApiV1Form.Row> rows) {
         List<Store> storeList = rows.stream().filter(PublicApiV1Form.Row::validation)
                 .map(Store::new).collect(Collectors.toList());
         // storeRepository 구현 시 save 호출하기
         for (Store store : storeList) {
             if (!storeRepository.existsById(store.getId())) {
-                storeRepository.save(store);
+                storeRepository.saveAndFlush(store);
+                storeImageService.saveImage(store.getId());
             }
-        }
-    }
-
-    /**
-     * @param category 카테고리가 ,로 구분되어 있는 스트링
-     * @return 맞는 카테고리 반환
-     */
-    private String categoryFilter(String category) {
-        if (category == null) {
-            return Category.ETC.getDesc();
-        } else if (category.contains(">")) {
-            return Category.giveCategory(category.split(" > ")[1]).getDesc();
-        } else {
-            return null;
         }
     }
 }
