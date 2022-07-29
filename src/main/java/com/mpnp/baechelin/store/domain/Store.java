@@ -100,8 +100,8 @@ public class Store {
         this.category = row.getCategory();
     }
 
-    public Store updateBookmarkCount(int upOrDown) {
-        this.bookMarkCount += upOrDown;
+    public Store updateBookmarkCount() {
+        this.bookMarkCount = this.getBookmarkList().size();
         return this;
     }
 
