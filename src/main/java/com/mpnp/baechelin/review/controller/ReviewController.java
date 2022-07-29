@@ -74,6 +74,16 @@ public class ReviewController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @PostMapping("/review/imageUpload")
+    public ResponseEntity<?> imageUpload(@AuthenticationPrincipal User user,
+                                         @RequestParam MultipartFile imageFile){
+
+        if(user==null){ throw new IllegalArgumentException("해당하는 회원 정보가 없습니다."); }
+
+        reviewService.imageUpload(imageFile, user.getUsername());
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     /** 리뷰 삭제 */
     @DeleteMapping("/review/{reviewId}")
     public ResponseEntity<?> reviewDelete(@AuthenticationPrincipal User user,
