@@ -32,10 +32,10 @@ public class BookmarkInfoDto {
         this.bookmarkId     = bookmark.getId();
         this.storeId        = (int) bookmark.getStoreId().getId();
 
-        if(bookmark.getStoreId().getStoreImageList() == null) {
+        if(!bookmark.getStoreId().getStoreImageList().isEmpty()) {
             this.storeImageList = bookmark.getStoreId().getStoreImageList().get(0).getStoreImageUrl();
 
-        } else if(bookmark.getStoreId().getStoreImageList() != null) {
+        } else if(bookmark.getStoreId().getStoreImageList().isEmpty()) {
             this.storeImageList = "";
         }
     }
