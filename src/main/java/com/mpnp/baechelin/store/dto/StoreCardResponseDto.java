@@ -37,22 +37,6 @@ public class StoreCardResponseDto {
     @Builder.Default
     private double pointAvg = 0.0;
 
-    public StoreCardResponseDto(Store store) {
-        this.storeId = store.getId();
-        this.category = store.getCategory();
-        this.name = store.getName();
-        this.latitude = store.getLatitude();
-        this.longitude = store.getLongitude();
-        this.address = store.getAddress();
-        this.elevator = store.getElevator();
-        this.toilet = store.getToilet();
-        this.parking = store.getParking();
-        this.phoneNumber = store.getPhoneNumber();
-        this.heightDifferent = store.getHeightDifferent();
-        this.approach = store.getApproach();
-        this.bookmarkCount = store.getBookMarkCount();
-    }
-
     public StoreCardResponseDto(Store store, String isBookMark) {
         this.storeId = store.getId();
         this.category = store.getCategory();

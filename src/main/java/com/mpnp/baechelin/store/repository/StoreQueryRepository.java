@@ -2,9 +2,12 @@ package com.mpnp.baechelin.store.repository;
 
 import com.mpnp.baechelin.common.QueryDslSearch;
 import com.mpnp.baechelin.common.QuerydslLocation;
+import com.mpnp.baechelin.review.domain.Review;
+import com.mpnp.baechelin.store.domain.QStore;
 import com.mpnp.baechelin.store.domain.Store;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberPath;
@@ -46,20 +49,20 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
         BigDecimal nowLat = (latStart.add(latEnd)).divide(new BigDecimal("2"), 22, RoundingMode.HALF_UP);
         BigDecimal nowLng = (lngStart.add(lngEnd)).divide(new BigDecimal("2"), 22, RoundingMode.HALF_UP);
         BooleanBuilder builder = QuerydslLocation.locAndConditions(latStart, latEnd, lngStart, lngEnd, category, facility);
-        NumberPath<BigDecimal> diff = Expressions.numberPath(BigDecimal.class, "diff");
-        List<Tuple> tupleList =
+        List<Store> storeList =
                 queryFactory
-                        .select(store,
-                                store.latitude.subtract(nowLat).abs().add(store.longitude.subtract(nowLng)).abs().as(diff))
-                        .from(store)
+                        .selectFrom(store)
                         .where(builder)
-                        .orderBy(diff.asc())
+                        .orderBy(orderDistance(nowLat, nowLng))
                         .limit(pageable.getPageSize())
                         .offset(pageable.getOffset())
                         .fetch();
-        List<Store> storeList = tupleList.stream().map(tuple -> tuple.get(store)).collect(Collectors.toList());
         int fetchCount = queryFactory.selectFrom(store).where(builder).fetch().size();
         return new PageImpl<>(storeList, pageable, fetchCount);
+    }
+
+    private OrderSpecifier<?> orderDistance(BigDecimal nowLat, BigDecimal nowLng){
+        return QStore.store.latitude.subtract(nowLat).abs().add(QStore.store.longitude.subtract(nowLng)).abs().asc();
     }
 
     //TODO 별점순 - 쿼리 결과로 산출된 리스트의 평균 구하기, 정렬, 페이징
@@ -70,19 +73,14 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
                                              Pageable pageable) {
 
         BooleanBuilder builder = locTwoPointAndConditions(lat, lng, category, facility);
-        NumberPath<BigDecimal> diff = Expressions.numberPath(BigDecimal.class, "diff");
-        List<Tuple> tupleList = queryFactory
-                .select(store,
-                        store.latitude.subtract(lat).abs().add(store.longitude.subtract(lng)).abs().as(diff))
-                .from(store)
+        List<Store> storeList = queryFactory
+                .selectFrom(store)
                 .where(builder)
                 .orderBy(store.pointAvg.desc())
-                .orderBy(diff.asc())
+                .orderBy(orderDistance(lat,lng))
                 .limit(pageable.getPageSize())
                 .offset(pageable.getOffset())
                 .fetch();
-
-        List<Store> storeList = tupleList.stream().map(tuple -> tuple.get(store)).collect(Collectors.toList());
         int fetchCount = queryFactory.selectFrom(store).where(builder).fetch().size();
         return new PageImpl<>(storeList, pageable, fetchCount);
     }
@@ -95,10 +93,10 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
                                                 Pageable pageable) {
 
         BooleanBuilder builder = locTwoPointAndConditions(lat, lng, category, facility);
-
         List<Store> storeList = queryFactory.selectFrom(store)
                 .where(builder)
                 .orderBy(store.bookMarkCount.desc())
+                .orderBy(orderDistance(lat,lng))
                 .limit(pageable.getPageSize())
                 .offset(pageable.getOffset())
                 .fetch();
