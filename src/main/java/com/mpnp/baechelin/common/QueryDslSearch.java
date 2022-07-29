@@ -13,7 +13,9 @@ public class QueryDslSearch {
         if (StringUtils.isEmpty(sido)) {
             return null;
         } else if (StringUtils.isEmpty(sigungu)) {
-            return null;
+            return Expressions.numberTemplate(
+                    Integer.class,
+                    "function('match', {0}, {1}, {2})", store.address, store.address, sido).gt(0);
         }
         return Expressions.numberTemplate(
                 Integer.class,

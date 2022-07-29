@@ -89,16 +89,16 @@ public class StoreController {
 
     @ApiOperation(value = "시/도 정보를 이용해 DB에 존재하는 시/군/구 정보를 조회하는 메소드")
     @GetMapping("/location/sigungu")
-    public Map<String, List<String>> getSigungu(@RequestParam(required = false) String sido) {
+    public Map<String, List<String>> getSigungu(@RequestParam String sido) {
         return storeService.getSigungu(sido);
     }
 
     @ApiOperation(value = "시/도, 시/군/구, 검색어를 이용해 업장 리스트를 조회하는 메소드")
     @GetMapping("/search")
     public List<StoreCardResponseDto> searchStoresByKeyword(
-            @RequestParam String sido,
-            @RequestParam String sigungu,
-            @RequestParam String keyword,
+            @RequestParam(required = false) String sido,
+            @RequestParam(required = false) String sigungu,
+            @RequestParam(required = false) String keyword,
             @PageableDefault Pageable pageable,
             @AuthenticationPrincipal User user) {
 
