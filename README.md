@@ -257,9 +257,6 @@
 
 | [진유진🔰](https://github.com/Anna-Jin) | [김선현](https://github.com/kokoa322) | [정소이](https://github.com/JSoi) |                                                                                                            
 | :---------------------------------: | :----------------------------------: | :-----------------------------: |
-| <img src="https://user-images.githubusercontent.com/90380269/181727981-603a62e6-bc9d-4b69-ae87-5bf876bbc1c8.png" alt="진유진" width="200px"/> |  <img src="https://user-images.githubusercontent.com/90380269/181737024-7c476a43-c276-4d99-b756-8bfc14d189a1.jpeg" alt="김선현" width="200px"/> | <img src="https://user-images.githubusercontent.com/90380269/181728139-79808224-ba76-4690-8d7a-f69c188bed20.jpeg" alt="정소이" width="200px" /> |
+| <img src="https://user-images.githubusercontent.com/90380269/181727981-603a62e6-bc9d-4b69-ae87-5bf876bbc1c8.png" alt="진유진" width="200px"/> |  <img src="https://user-images.githubusercontent.com/90380269/181737024-7c476a43-c276-4d99-b756-8bfc14d189a1.jpeg" alt="김선현" width="200px"/> | <img src="https://user-images.githubusercontent.com/90380269/181737361-4e7f4996-6426-4a11-9be0-0ad8bd16a182.png" alt="정소이" width="200px" /> |
 | `Spring Security` `JWT` <br> `OAuth2.0` `소셜 로그인` <br> `가게 검색` `가게 상세 조회` <br> `가게 등록` `관리자 페이지` | `Spring Batch` `Scheduler` <br> `리뷰 작성, 삭제, 수정, 조회` <br> `북마크 및 북마크 폴더 생성, 삭제` <br> `최근 등록한 북마크 조회` | `Public API` `Kakao Map API` <br> `WebClient` `데이터수집 및 가공` <br> `가게 위치, 카테고리, 태그별 리스트 조회` <br> `현재 위치 조회` `회원 정보 조회`|
-
-
-
 
