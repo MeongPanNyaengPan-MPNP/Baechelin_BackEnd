@@ -118,13 +118,16 @@
 
 ## Tech Stack
 
-### Framework
-- Spring Boot
+### Language
+
+- JAVA
+
 
 ### Database
 - MySQL
 
 ### Deploy
+
 - Github Actions
 - Code Deploy
 - Nginx
@@ -132,17 +135,18 @@
 - AWS S3
 - AWS RDS
 
-### Library
+### Tech
+
+- Spring Boot
 - Spring Security
 - Spring Batch
+- QueryDSL
 - Spring Data JPA
 - JWT
 - OAuth2.0
 - Jsoup
-- QueryDSL
-- Lombok
 - Swagger
-- WebClient
+- WebClient & RestTemplate
 
 ### Others
 - Public API
@@ -253,7 +257,7 @@
 
 | [진유진🔰](https://github.com/Anna-Jin) | [김선현](https://github.com/kokoa322) | [정소이](https://github.com/JSoi) |                                                                                                            
 | :---------------------------------: | :----------------------------------: | :-----------------------------: |
-| <img src="https://user-images.githubusercontent.com/90380269/181585474-b7ada727-4aaa-4927-a454-930444843181.png" alt="프로필 이미지" width="200px"/> |  <img src="https://user-images.githubusercontent.com/97423609/161720786-2b1c844a-35e8-445c-bc8e-b0f4406eaf82.png" alt="프로필 이미지" width="200px"/> | <img src="https://user-images.githubusercontent.com/97423609/161721877-c186735f-ae53-4f73-a0b4-b2627c4f6643.jpg" alt="프로필 이미지" width="200px" /> |
-| `Spring Security` `JWT` <br> `OAuth2.0` `소셜 로그인` <br> `가게 검색` `가게 상세 조회` <br> `가게 등록` `관리자 페이지` | `Spring Batch` `Scheduler` <br> `리뷰 작성, 삭제, 수정, 조회` <br> `북마크 및 북마크 폴더 생성, 삭제` <br> `최근 등록한 북마크 조회` | `Public API` `Kakao Map API` <br> `WebClient` `데이터수집 및 가공` <br> `가게 위치, 카테고리, 태그 별 리스트 조회` <br> `현재 위치 조회` `회원 정보 조회`|
+| <img src="https://user-images.githubusercontent.com/90380269/181727981-603a62e6-bc9d-4b69-ae87-5bf876bbc1c8.png" alt="진유진" width="200px"/> |  <img src="https://user-images.githubusercontent.com/90380269/181726426-6d8c0b44-1183-4fcc-aec6-fee4cb834160.png" alt="김선현" width="200px"/> | <img src="https://user-images.githubusercontent.com/90380269/181728139-79808224-ba76-4690-8d7a-f69c188bed20.jpeg" alt="정소이" width="200px" /> |
+| `Spring Security` `JWT` <br> `OAuth2.0` `소셜 로그인` <br> `가게 검색` `가게 상세 조회` <br> `가게 등록` `관리자 페이지` | `Spring Batch` `Scheduler` <br> `리뷰 작성, 삭제, 수정, 조회` <br> `북마크 및 북마크 폴더 생성, 삭제` <br> `최근 등록한 북마크 조회` | `Public API` `Kakao Map API` <br> `WebClient` `데이터수집 및 가공` <br> `가게 위치, 카테고리, 태그별 리스트 조회` <br> `현재 위치 조회` `회원 정보 조회`|
 
 
