@@ -124,7 +124,7 @@ public class StoreService {
             boolean isBookmark = bookmarkRepository.existsByStoreIdAndUserId(store, targetUser);
             mappingResult.add(new StoreCardResponseDto(store, isBookmark ? "Y" : "N"));
         }
-        return new StorePagedResponseDto(resultStoreList.hasNext(), mappingResult, resultStoreList.getTotalElements());
+        return new StorePagedResponseDto(resultStoreList, mappingResult);
     }
 
 
