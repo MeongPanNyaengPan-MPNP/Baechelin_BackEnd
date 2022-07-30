@@ -50,8 +50,8 @@ public class StoreDetailResponseDto {
         this.approach = store.getApproach();
         this.bookmarkCount = store.getBookMarkCount();
         this.storeImgList = imageList;
-        this.pointAvg = Double.parseDouble(String.format(store.getReviewList().stream()
-                .collect(Collectors.averagingDouble(Review::getPoint)).toString(), 0.1f));
+//        this.pointAvg = Double.parseDouble(String.format(store.getReviewList().stream().collect(Collectors.averagingDouble(Review::getPoint)).toString(), 0.1f));
+        this.pointAvg = Math.round(store.getPointAvg()*10)/10.0;
         this.bookmark = isBookMark;
     }
 }
