@@ -68,6 +68,7 @@ public class QuerydslLocation {
 
     public static BigDecimal[] getRange(BigDecimal lat, BigDecimal lng, int km) {
         // km->lat,lng로 변환하기
+        if (lat == null || lng == null) return null;
         final BigDecimal latitude = BigDecimal.valueOf(km / 110.569); // 반경
         final BigDecimal longitude = BigDecimal.valueOf(km / 111.322);
         // 남서, 북동으로 받아오기

@@ -39,65 +39,75 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional
 public class ReviewService {
-    private final AwsS3Manager          awsS3Manager;
-    private final TagRepository         tagRepository;
-    private final UserRepository        userRepository;
-    private final StoreRepository       storeRepository;
-    private final ReviewRepository      reviewRepository;
+    private final AwsS3Manager awsS3Manager;
+    private final TagRepository tagRepository;
+    private final UserRepository userRepository;
+    private final StoreRepository storeRepository;
+    private final ReviewRepository reviewRepository;
     private final ReviewImageRepository reviewImageRepository;
     private final ReviewQueryRepository reviewQueryRepository;
 
 
-
-    /** 리뷰 작성 */
+    /**
+     * 리뷰 작성
+     */
     public void review(ReviewRequestDto reviewRequestDto, String socialId) throws IOException {
 
+<<<<<<< HEAD
         long   storeId = reviewRequestDto.getStoreId();
         Store  store   = storeRepository.findById(storeId).orElseThrow(() -> new IllegalArgumentException("해당하는 업장이 존재하지 않습니다."));
         User   user    = userRepository.findBySocialId(socialId);
         Review review  = new Review(reviewRequestDto, store, user);
+=======
+        long storeId = reviewRequestDto.getStoreId();
+        Store store = storeRepository.findById(storeId).orElseThrow(() -> new IllegalArgumentException("해당하는 업장이 존재하지 않습니다."));
+        User user = userRepository.findBySocialId(socialId);
+        Review review = new Review(reviewRequestDto, store, user);
+>>>>>>> 82013a1a146036718ff24eb5102a2a2f0f201a07
 
 
         // todo 태크 매핑
         List<Tag> tagList = new ArrayList<>();
         for (String s : reviewRequestDto.getTagList()) {
-            System.out.println("tag --> "+ s);
+            System.out.println("tag --> " + s);
             tagList.add(new Tag(s, review));
         } // 태그 -> 엔티티 변환
 
 
         List<ReviewImage> reviewImageUrlList = new ArrayList<>();
-        List<MultipartFile>   newReviewImage = reviewRequestDto.getImageFile();
+        List<MultipartFile> newReviewImage = reviewRequestDto.getImageFile();
 
 
         // todo 이미지가 널값이 아니라면 업로드 실행
-        if(newReviewImage != null) {
+        if (newReviewImage != null) {
             for (MultipartFile reviewImageFile : newReviewImage) {
                 String fileDir = awsS3Manager.uploadFile(reviewImageFile);
-                log.info("upload --> "+ fileDir);
+                log.info("upload --> " + fileDir);
                 reviewImageUrlList.add(ReviewImage.builder().reviewId(review).reviewImageUrl(fileDir).build());
             } // 리뷰이미지 -> url -> 엔티티 변환
         }
 
 
-        tagRepository        .saveAll(tagList);
+        tagRepository.saveAll(tagList);
         reviewImageRepository.saveAll(reviewImageUrlList);
-        reviewRepository     .save(review); // 아래의 {store.updatePointAvg()} 보다 리뷰가 먼저 처리되게 해야한다.
+        reviewRepository.save(review); // 아래의 {store.updatePointAvg()} 보다 리뷰가 먼저 처리되게 해야한다.
         storeRepository.save(store.updatePointAvg()); //별점 평균 구하는 코드
     }
 
 
-    /** 리뷰 조회 */
+    /**
+     * 리뷰 조회
+     */
 
     public PageInfoResponseDto getReview(long storeId, String socialId, Pageable pageable) {
 
-        User         myUser     = userRepository.findBySocialId(socialId);
-        Store        store      = storeRepository.findById(storeId).orElseThrow(() -> new IllegalArgumentException("해당 가게가 없습니다"));
+        User myUser = userRepository.findBySocialId(socialId);
+        Store store = storeRepository.findById(storeId).orElseThrow(() -> new IllegalArgumentException("해당 가게가 없습니다"));
         Page<Review> reviewList = reviewRepository.findAllByStoreId(store, pageable);
 
 
         List<ReviewResponseDto> reviewResponseDtoList = new ArrayList<>();
-        for(Review review: reviewList){
+        for (Review review : reviewList) {
             ReviewResponseDto reviewResponseDto = new ReviewResponseDto(review);
             Optional<User> user = userRepository.findById(reviewResponseDto.getUserId());
             reviewResponseDto.userInfo(user.get(), myUser);
@@ -123,7 +133,11 @@ public class ReviewService {
 
     @Transactional
     /** 리뷰 수정 */
+<<<<<<< HEAD
     public void reviewUpdate(ReviewRequestDto reviewRequestDto, String socialId, int reviewId){
+=======
+    public void reviewUpdate(ReviewRequestDto reviewRequestDto, String socialId, int reviewId) {
+>>>>>>> 82013a1a146036718ff24eb5102a2a2f0f201a07
 
 
     }
@@ -201,14 +215,22 @@ public class ReviewService {
 //        reviewImageRepository.deleteAll(reviewImageList);
 //    }
 
+<<<<<<< HEAD
     /** 리뷰 삭제 */
+=======
+    /**
+     * 리뷰 삭제
+     */
+>>>>>>> 82013a1a146036718ff24eb5102a2a2f0f201a07
     public void reviewDelete(String socialId, int reviewId) {
 
-        User              user      = userRepository.findBySocialId(socialId);  // 유저 매핑
-        Optional<Review>  review    = reviewRepository.findById(reviewId);      // 리뷰 매핑
+        User user = userRepository.findBySocialId(socialId);  // 유저 매핑
+        Optional<Review> review = reviewRepository.findById(reviewId);      // 리뷰 매핑
 
 
-        if(user == null){ new IllegalArgumentException("해당하는 소셜아이디를 찾을 수 없습니다."); }      // 유저 유무 확인 예외처리
+        if (user == null) {
+            new IllegalArgumentException("해당하는 소셜아이디를 찾을 수 없습니다.");
+        }      // 유저 유무 확인 예외처리
         review.orElseThrow(() -> new IllegalArgumentException("해당하는 리뷰가 이미 삭제 되었습니다.")); // 리뷰 유무 확인 예외처리
 
 
@@ -217,12 +239,13 @@ public class ReviewService {
 
         // todo 1.리뷰삭제 -> 2.이미지 삭제
         reviewRepository.deleteById(review.get().getId()); // 1
-        if(!review.get().getReviewImageList().isEmpty()) { // 2
+        if (!review.get().getReviewImageList().isEmpty()) { // 2
             for (ReviewImage reviewImage : imageList) {
-                System.out.println("delete -> "+reviewImage.getReviewImageUrl().substring(reviewImage.getReviewImageUrl().indexOf("com/")+4));
-                awsS3Manager.deleteFile(reviewImage.getReviewImageUrl().substring(reviewImage.getReviewImageUrl().indexOf("com/")+4));
+                System.out.println("delete -> " + reviewImage.getReviewImageUrl().substring(reviewImage.getReviewImageUrl().indexOf("com/") + 4));
+                awsS3Manager.deleteFile(reviewImage.getReviewImageUrl().substring(reviewImage.getReviewImageUrl().indexOf("com/") + 4));
             }
         }
+        storeRepository.save(review.get().getStoreId().updatePointAvg()); // 별점 평점 구하는 코드
     }
 
     public List<ReviewMainResponseDto> getRecentReview(BigDecimal lat, BigDecimal lng, int limit) {

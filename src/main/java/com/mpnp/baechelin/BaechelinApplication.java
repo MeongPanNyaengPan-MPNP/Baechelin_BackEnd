@@ -8,6 +8,7 @@ import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfi
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.*;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 
 @EnableJpaAuditing
@@ -15,6 +16,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
         CorsProperties.class,
         AppProperties.class
 })
+@EnableScheduling
 @SpringBootApplication(exclude = {SecurityAutoConfiguration.class})
 @PropertySources({@PropertySource("classpath:application-key.properties")})
 public class BaechelinApplication {

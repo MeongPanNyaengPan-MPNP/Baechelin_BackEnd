@@ -3,6 +3,8 @@ package com.mpnp.baechelin.store.service;
 import com.mpnp.baechelin.bookmark.domain.Bookmark;
 import com.mpnp.baechelin.bookmark.repository.BookmarkRepository;
 import com.mpnp.baechelin.common.QuerydslLocation;
+import com.mpnp.baechelin.exception.CustomException;
+import com.mpnp.baechelin.exception.ErrorCode;
 import com.mpnp.baechelin.review.domain.Review;
 import com.mpnp.baechelin.review.domain.ReviewImage;
 import com.mpnp.baechelin.store.domain.Store;
@@ -18,6 +20,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -31,6 +35,8 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 @RequiredArgsConstructor
+@EnableScheduling
+@Slf4j
 public class StoreService {
 
     private final StoreRepository storeRepository;
@@ -71,6 +77,7 @@ public class StoreService {
      */
     public StorePagedResponseDto getStoreInOnePointRange(BigDecimal lat, BigDecimal lng, String category, List<String> facility, Pageable pageable, String socialId) {
         BigDecimal[] range = QuerydslLocation.getRange(lat, lng, 10);
+        if (range == null) return getStoreInRange(null, null, null, null, category, facility, pageable, socialId);
         return getStoreInRange(range[0], range[1], range[2], range[3], category, facility, pageable, socialId);
     }
 
@@ -245,5 +252,20 @@ public class StoreService {
             }
         }
         return result;
+    }
+
+    @Scheduled(cron = "0 0 0-23 * * *")
+    public void updateSchedule() {
+        List<Store> storeList = storeRepository.findAll();
+        for (Store store : storeList) {
+            if (!store.getReviewList().isEmpty()) {
+                double storeAvg = Double.parseDouble(String.format("%.1f", storeRepository.getAvg(store.getId())));
+                storeRepository.updateAvg(storeAvg, store.getId());
+            }
+            if (!store.getBookmarkList().isEmpty()) {
+                int bookmarkCnt = storeRepository.getBookmarkCnt(store.getId());
+                storeRepository.updateBookmarkCnt(bookmarkCnt, store.getId());
+            }
+        }
     }
 }

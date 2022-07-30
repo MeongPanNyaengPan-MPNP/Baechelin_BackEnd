@@ -8,7 +8,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,10 +21,13 @@ public class ReviewMainResponseDto {
     private long storeId;
     private int userId;
     private String storeName;
-    private String userName;
+    private String name;
     private String content; //리뷰 코멘트
     private String address;
+    private String userImage;
     private double point; //별점
+
+    private LocalDateTime createdAt;
     private List<ReviewImageResponseDto> reviewImageUrlList; //리뷰 이미지 사진
     private List<ReviewResponseDto.TagResponseDto> tagList;
 
@@ -33,7 +36,9 @@ public class ReviewMainResponseDto {
         this.userId = user.getId();
         this.storeName = store.getName();
         this.address = store.getAddress();
-        this.userName = user.getName();
+        this.name = user.getName();
+        this.userImage = user.getProfileImageUrl();
+        this.createdAt = review.getCreatedAt();
         this.content = review.getContent();
         this.point = review.getPoint();
         this.reviewImageUrlList = review.getReviewImageList()
