@@ -34,6 +34,7 @@ public class ReviewController {
 
     private final ReviewService reviewService;
 
+    /** 리뷰 조회 */
     @GetMapping("/review/{storeId}")
     public ResponseEntity<PageInfoResponseDto> getStoreReview(@PathVariable int storeId,
                                                               @AuthenticationPrincipal User user,
