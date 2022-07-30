@@ -163,26 +163,15 @@ public class StoreService {
 
         List<String> storeImageList = new ArrayList<>();
 
-        store.getStoreImageList()
-                .forEach(storeImage -> storeImageList.add(storeImage.getStoreImageUrl()));
-
-        store.getReviewList()
-                .forEach(review -> review.getReviewImageList()
+        store.getStoreImageList().forEach(storeImage -> storeImageList.add(storeImage.getStoreImageUrl()));
+        store.getReviewList().forEach(review -> review.getReviewImageList()
                         .forEach(reviewImage -> storeImageList.add(reviewImage.getReviewImageUrl())));
 
-        if (socialId == null) {
-            return new StoreDetailResponseDto(store, "N", storeImageList);
-        } else {
-            String isBookmark = "N";
-            for (Bookmark bookmark : store.getBookmarkList()) {
-                if (bookmark.getStoreId().getId() == store.getId()
-                        && bookmark.getUserId().getSocialId().equals(socialId)) {
-                    isBookmark = "Y";
-                    break;
-                }
-            }
-            return new StoreDetailResponseDto(store, isBookmark, storeImageList);
-        }
+        User targetUser = socialId == null ? null : userRepository.findBySocialId(socialId);
+
+        boolean isBookmark = bookmarkRepository.existsByStoreIdAndUserId(store, targetUser);
+        return new StoreDetailResponseDto(store, isBookmark ? "Y" : "N", storeImageList);
+
     }
 
     /**
@@ -224,34 +213,19 @@ public class StoreService {
     }
 
     /**
-     * 업장 검색
-     * @param sido 시/도명
-     * @param sigungu 시/군/구명
+     * 엄장 검색
+     * @param sido 시/도 명
+     * @param sigungu 시/군/구 명
      * @param keyword 검색어
-     * @param socialId 업장 pk
-     * @param pageable page, size
-     * @return 검색된 업장 리스트
+     * @param socialId 사용자 소셜 아이디
+     * @param pageable 페이징
+     * @return 페이징이 적용된 검색 결과 리턴
      */
-    public List<StoreCardResponseDto> searchStores(String sido, String sigungu, String keyword, String socialId, Pageable pageable) {
-        List<Store> storeList = storeQueryRepository.searchStores(sido, sigungu, keyword, pageable);
+    public StorePagedResponseDto searchStores(String sido, String sigungu, String keyword, String socialId, Pageable pageable) {
+        Page<Store> searchStores = storeQueryRepository.searchStores(sido, sigungu, keyword, pageable);
 
-        List<StoreCardResponseDto> result = new ArrayList<>();
+        User targetUser = socialId == null ? null : userRepository.findBySocialId(socialId);
 
-        for (Store store : storeList) {
-            if (socialId == null) {
-                result.add(new StoreCardResponseDto(store, "N"));
-            } else {
-                String isBookmark = "N";
-                for (Bookmark bookmark : store.getBookmarkList()) {
-                    if (bookmark.getStoreId().getId() == store.getId()
-                            && bookmark.getUserId().getSocialId().equals(socialId)) {
-                        isBookmark = "Y";
-                        break;
-                    }
-                }
-                result.add(new StoreCardResponseDto(store, isBookmark));
-            }
-        }
-        return result;
+        return getStoreCardPagedResponseDto(targetUser, searchStores);
     }
 }
