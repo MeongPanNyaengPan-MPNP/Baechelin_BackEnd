@@ -149,7 +149,6 @@ public class LocationServiceWC implements LocationService {
      * @return 업장명 대신에 주소를 입력해 해당 건물에 있는 업장을 배리어 프리 시설로 등록한다
      */
 
-    // TODO 페이징 까지 완료하기 - 여러 건이 필요
     @Override
     public List<LocationInfoDto.LocationResponse> convertGeoAndAddressToKeyword(String lat, String lng, String address) {
         List<LocationInfoDto.LocationResponse> resultList = new ArrayList<>();

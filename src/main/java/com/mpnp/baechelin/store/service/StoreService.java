@@ -128,38 +128,12 @@ public class StoreService {
     private StorePagedResponseDto getStoreCardPagedResponseDto(User targetUser, Page<Store> resultStoreList) {
         List<StoreCardResponseDto> mappingResult = new ArrayList<>();
         for (Store store : resultStoreList) {
-            boolean isBookmark = bookmarkRepository.existsByStoreIdAndUserId(store, targetUser);
+            boolean isBookmark = targetUser != null && bookmarkRepository.existsByStoreIdAndUserId(store, targetUser);
             mappingResult.add(new StoreCardResponseDto(store, isBookmark ? "Y" : "N"));
         }
         return new StorePagedResponseDto(resultStoreList, mappingResult);
     }
 
-
-    /**
-     * @param targetUser      현재 접근하고 있는 유저
-     * @param resultStoreList 업장 리스트
-     * @return 접근하고 있는 유저가 보는 업장을 가공(북마크 등)하여 DTO로 리턴
-     */
-    private List<StoreCardResponseDto> getStoreCardResponseDtos(User targetUser, List<Store> resultStoreList) {
-        List<StoreCardResponseDto> storeCardResponseList = new ArrayList<>();
-        if (targetUser == null) {
-            return resultStoreList.stream()
-                    .map(store -> new StoreCardResponseDto(store, "N"))
-                    .collect(Collectors.toList());
-        } else {
-            for (Store store : resultStoreList) {
-                String isBookmark = "N";
-                for (Bookmark bookmark : store.getBookmarkList()) {
-                    if (bookmark.getStoreId().getId() == store.getId()
-                            && bookmark.getUserId().getSocialId().equals(targetUser.getSocialId())) {
-                        isBookmark = "Y";
-                    }
-                    storeCardResponseList.add(new StoreCardResponseDto(store, isBookmark));
-                }
-            }
-        }
-        return storeCardResponseList;
-    }
 
     /**
      * 업장 상세 조회

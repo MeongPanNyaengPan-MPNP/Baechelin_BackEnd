@@ -54,8 +54,7 @@ public class StoreCardResponseDto {
         this.storeImgList = new ArrayList<>();
         store.getStoreImageList().parallelStream()
                 .forEachOrdered(s -> storeImgList.add(s.getStoreImageUrl()));
-        double hap = store.getReviewList().stream().map(Review::getPoint).mapToDouble(Double::doubleValue).sum();
-        this.pointAvg = store.getReviewList().size() == 0 ? 0 : Double.parseDouble(String.format("%1.1f", (hap / store.getReviewList().size())));
+        this.pointAvg = store.getPointAvg();
         this.bookmark = isBookMark;
     }
 }
