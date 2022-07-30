@@ -113,18 +113,30 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
         return new PageImpl<>(storeList, pageable, fetchCount);
     }
 
-    //TODO 북마크순
     public Page<Store> findStoreOrderByBookmark(BigDecimal lat,
                                                 BigDecimal lng,
                                                 String category,
                                                 List<String> facility,
                                                 Pageable pageable) {
-
         BooleanBuilder builder = locTwoPointAndConditions(lat, lng, category, facility);
+        if (lat == null || lng == null) return findStoreOrderByBookmarkNullCase(builder, pageable);
         List<Store> storeList = queryFactory.selectFrom(store)
                 .where(builder)
                 .orderBy(store.bookMarkCount.desc())
                 .orderBy(orderDistance(lat, lng))
+                .limit(pageable.getPageSize())
+                .offset(pageable.getOffset())
+                .fetch();
+        int fetchCount = queryFactory.selectFrom(store).where(builder).fetch().size();
+        return new PageImpl<>(storeList, pageable, fetchCount);
+    }
+
+    public Page<Store> findStoreOrderByBookmarkNullCase(BooleanBuilder builder,
+                                                        Pageable pageable) {
+
+        List<Store> storeList = queryFactory.selectFrom(store)
+                .where(builder)
+                .orderBy(store.bookMarkCount.desc())
                 .limit(pageable.getPageSize())
                 .offset(pageable.getOffset())
                 .fetch();
