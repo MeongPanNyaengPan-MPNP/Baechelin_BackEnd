@@ -46,9 +46,11 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
                                                 String category,
                                                 List<String> facility,
                                                 Pageable pageable) {
+        BooleanBuilder builder = QuerydslLocation.locAndConditions(latStart, latEnd, lngStart, lngEnd, category, facility);
+        if (latStart == null || lngStart == null || lngEnd == null || latEnd == null)
+            return findBetweenOnePointOrderNullCase(builder, pageable);
         BigDecimal nowLat = (latStart.add(latEnd)).divide(new BigDecimal("2"), 22, RoundingMode.HALF_UP);
         BigDecimal nowLng = (lngStart.add(lngEnd)).divide(new BigDecimal("2"), 22, RoundingMode.HALF_UP);
-        BooleanBuilder builder = QuerydslLocation.locAndConditions(latStart, latEnd, lngStart, lngEnd, category, facility);
         List<Store> storeList =
                 queryFactory
                         .selectFrom(store)
@@ -61,7 +63,20 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
         return new PageImpl<>(storeList, pageable, fetchCount);
     }
 
-    private OrderSpecifier<?> orderDistance(BigDecimal nowLat, BigDecimal nowLng){
+    private Page<Store> findBetweenOnePointOrderNullCase(BooleanBuilder builder,
+                                                         Pageable pageable) {
+        List<Store> storeList =
+                queryFactory
+                        .selectFrom(store)
+                        .where(builder)
+                        .limit(pageable.getPageSize())
+                        .offset(pageable.getOffset())
+                        .fetch();
+        int fetchCount = queryFactory.selectFrom(store).where(builder).fetch().size();
+        return new PageImpl<>(storeList, pageable, fetchCount);
+    }
+
+    private OrderSpecifier<?> orderDistance(BigDecimal nowLat, BigDecimal nowLng) {
         return QStore.store.latitude.subtract(nowLat).abs().add(QStore.store.longitude.subtract(nowLng)).abs().asc();
     }
 
@@ -77,7 +92,7 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
                 .selectFrom(store)
                 .where(builder)
                 .orderBy(store.pointAvg.desc())
-                .orderBy(orderDistance(lat,lng))
+                .orderBy(orderDistance(lat, lng))
                 .limit(pageable.getPageSize())
                 .offset(pageable.getOffset())
                 .fetch();
@@ -96,7 +111,7 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
         List<Store> storeList = queryFactory.selectFrom(store)
                 .where(builder)
                 .orderBy(store.bookMarkCount.desc())
-                .orderBy(orderDistance(lat,lng))
+                .orderBy(orderDistance(lat, lng))
                 .limit(pageable.getPageSize())
                 .offset(pageable.getOffset())
                 .fetch();
