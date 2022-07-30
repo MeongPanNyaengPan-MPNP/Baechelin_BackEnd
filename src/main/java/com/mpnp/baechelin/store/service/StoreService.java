@@ -18,10 +18,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -191,22 +188,35 @@ public class StoreService {
     /**
      * 시/도 (ex. 서울시, 대전광역시)의 시/군/구 리스트 조회
      * @param sido 시/도
-     * @return 시/군/구 리스트
+     * @return json 형태의 시/군/구 리스트
      */
     public Map<String, List<String>> getSigungu(String sido) {
-        List<Store> storeList = storeRepository.findAll();
+        // FullText Search
+        List<Store> foundAddress = storeQueryRepository.getSigungu(sido);
 
+        // 결과를 json 형태로 리턴
         Map<String, List<String>> result = new HashMap<>();
-        List<String> sigungu = new ArrayList<>();
+        // 중복 제거를 위해 Set 생성
+        Set<String> sigunguSet = new HashSet<>();
 
-        for (Store store : storeList) {
-            String addressSido = store.getAddress().split(" ")[0];
-            String addressSigungu = store.getAddress().split(" ")[1];
+        for (Store store : foundAddress) {
+            String[] address = store.getAddress().split(" "); // [0] : 시/도, [1] : 시/군/구, [2] : 구
 
-            if (addressSido.equals(sido)) {
-                sigungu.add(addressSigungu);
+            // 인자값인 sido와 주소의 첫번째 "시"가 같을 때
+            if (address[0].contains(sido)) {
+                // [경기도 성남시 분당구]처럼 도 - 시 - 구 로 나눠지는 경우 시 + 구로 반환
+                if (address[2].charAt(address[2].length() - 1) == '구') {
+                    sigunguSet.add(address[1] + " " + address[2]);
+                } else {
+                    sigunguSet.add(address[1]);
+                }
             }
         }
+
+        // 정렬을 위해 Set -> List로 변환
+        List<String> sigungu = new ArrayList<>(sigunguSet);
+        // List 정렬
+        Collections.sort(sigungu);
 
         result.put("sigungu", sigungu);
 
@@ -220,7 +230,7 @@ public class StoreService {
      * @param keyword 검색어
      * @param socialId 업장 pk
      * @param pageable page, size
-     * @return
+     * @return 검색된 업장 리스트
      */
     public List<StoreCardResponseDto> searchStores(String sido, String sigungu, String keyword, String socialId, Pageable pageable) {
         List<Store> storeList = storeQueryRepository.searchStores(sido, sigungu, keyword, pageable);
