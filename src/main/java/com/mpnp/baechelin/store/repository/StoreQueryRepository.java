@@ -1,18 +1,26 @@
 package com.mpnp.baechelin.store.repository;
 
+import com.mpnp.baechelin.bookmark.domain.Bookmark;
+import com.mpnp.baechelin.bookmark.domain.QBookmark;
 import com.mpnp.baechelin.common.QueryDslSearch;
 import com.mpnp.baechelin.common.QuerydslLocation;
 import com.mpnp.baechelin.review.domain.Review;
 import com.mpnp.baechelin.store.domain.QStore;
 import com.mpnp.baechelin.store.domain.Store;
+import com.mpnp.baechelin.store.dto.StoreCardResponseDto;
+import com.mpnp.baechelin.user.domain.QUser;
+import com.mpnp.baechelin.user.domain.User;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.QueryFactory;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberPath;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.criterion.Projection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +31,7 @@ import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.mpnp.baechelin.common.QuerydslLocation.locTwoPointAndConditions;
@@ -149,5 +158,4 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
                 .offset(pageable.getOffset())
                 .fetch();
     }
-
 }

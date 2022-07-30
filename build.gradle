@@ -72,6 +72,9 @@ dependencies {
 	//file upload
 	implementation 'commons-fileupload:commons-fileupload:1.4'
 	compile 'commons-io:commons-io:2.11.0'
+	//scheduler dependency
+	implementation 'net.javacrumbs.shedlock:shedlock-spring:4.36.0'
+	implementation 'net.javacrumbs.shedlock:shedlock-provider-jdbc-template:4.36.0'
 
 }
 tasks.named('test') {

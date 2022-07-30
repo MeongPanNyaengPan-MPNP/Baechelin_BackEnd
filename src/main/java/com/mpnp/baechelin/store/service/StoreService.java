@@ -18,6 +18,8 @@ import com.mpnp.baechelin.user.domain.User;
 import com.mpnp.baechelin.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.javacrumbs.shedlock.spring.annotation.EnableSchedulerLock;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -36,6 +38,7 @@ import java.util.stream.Collectors;
 @Transactional
 @RequiredArgsConstructor
 @EnableScheduling
+@EnableSchedulerLock(defaultLockAtMostFor = "PT10S")
 @Slf4j
 public class StoreService {
 
@@ -229,6 +232,8 @@ public class StoreService {
     }
 
     @Scheduled(cron = "0 0 0-23 * * *")
+    @SchedulerLock(name = "updateScheduler",
+    lockAtLeastFor = "PT30M",  lockAtMostFor = "PT59M")
     public void updateSchedule() {
         List<Store> storeList = storeRepository.findAll();
         for (Store store : storeList) {
