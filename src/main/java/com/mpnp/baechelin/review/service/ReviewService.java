@@ -116,7 +116,7 @@ public class ReviewService {
                 .size(reviewList.getSize())
                 .reviewResponseDtoList(reviewResponseDtoList)
                 .hasNextPage(reviewList.isFirst() ? false : true)
-                .hasPreviousPage(reviewList.isLast() ? false : true)
+                .hasPreviousPage(!reviewList.isLast() ? false : true)
                 .build();
 
 
