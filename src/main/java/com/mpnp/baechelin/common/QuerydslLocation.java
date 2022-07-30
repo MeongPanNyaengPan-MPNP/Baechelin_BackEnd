@@ -1,5 +1,7 @@
 package com.mpnp.baechelin.common;
 
+import com.mpnp.baechelin.exception.CustomException;
+import com.mpnp.baechelin.exception.ErrorCode;
 import com.mpnp.baechelin.store.domain.Category;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -38,7 +40,7 @@ public class QuerydslLocation {
             return store.approach;
         if (dbFacility.equals("toilet"))
             return store.toilet;
-        throw new IllegalArgumentException("배리어 프리 태그를 확인해주세요");
+        throw new CustomException(ErrorCode.INVALID_BARRIER_TAG);
     }
 
     public static BooleanBuilder locAndConditions(BigDecimal latStart, BigDecimal latEnd, BigDecimal lngStart, BigDecimal lngEnd, String category, List<String> facility) {
