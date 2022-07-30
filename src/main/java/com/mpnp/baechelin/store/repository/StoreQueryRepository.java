@@ -144,6 +144,7 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
         return new PageImpl<>(storeList, pageable, fetchCount);
     }
 
+    // 시/도 정보로 시/군/구 정보를 조회
     public List<Store> getSigungu(String sido) {
         BooleanExpression matchAddress = QueryDslSearch.matchAddressWithSido(sido);
 
@@ -155,17 +156,20 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
 
 
     // 주소로 검색, 검색어로 검색
-    public List<Store> searchStores(String sido, String sigungu, String keyword, Pageable pageable) {
+    public Page<Store> searchStores(String sido, String sigungu, String keyword, Pageable pageable) {
         BooleanExpression matchAddress = QueryDslSearch.matchAddressWithSidoAndSigungu(sido, sigungu);
         BooleanExpression matchKeyword = QueryDslSearch.matchKeyword(keyword);
 
-        return queryFactory
+        List<Store> storeList = queryFactory
                 .selectFrom(store)
-                .where(matchAddress,
-                        matchKeyword)
+                .where(matchAddress, matchKeyword)
                 .limit(pageable.getPageSize())
                 .offset(pageable.getOffset())
                 .fetch();
+        int fetchSize = queryFactory.selectFrom(store)
+                .where(matchAddress, matchKeyword)
+                .fetch().size();
+        return new PageImpl<>(storeList, pageable, fetchSize);
     }
 
 }
