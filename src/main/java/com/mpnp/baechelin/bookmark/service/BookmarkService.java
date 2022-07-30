@@ -17,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -43,19 +44,19 @@ public class BookmarkService {
                 .storeId(store)
                 .userId(user)
                 .build();
-
-        storeRepository.save(store.updateBookmarkCount(1));
+        storeRepository.save(store.updateBookmarkCount());
         bookmarkRepository.save(bookmark);
     }
 
     public void bookmarkDelete(int bookmarkId, String socialId) {
-
         User user = userRepository.findBySocialId(socialId); if(user == null) { throw new IllegalArgumentException("해당하는 유저가 없습니다."); }
-        bookmarkRepository.findById(bookmarkId).orElseThrow(()-> new IllegalArgumentException("해당하는 북마크는 이미 삭제 되었습니다"));
+        Bookmark bookmark = bookmarkRepository.findById(bookmarkId).orElseThrow(() -> new IllegalArgumentException("해당하는 북마크는 이미 삭제 되었습니다"));
+        storeRepository.save(bookmark.getStoreId().updateBookmarkCount());
         bookmarkRepository.deleteById(bookmarkId);
 
     }
 
+    @Transactional
     public List<BookmarkInfoDto> bookmarkTop(String socialId, Pageable pageable) {
 
         User user = userRepository.findBySocialId(socialId);
@@ -64,27 +65,9 @@ public class BookmarkService {
 
         List<BookmarkInfoDto> bookmarkList = new ArrayList<>();
         for(Bookmark bookmark: bookmarkPage){
-            Optional<Store> store = storeRepository.findById(bookmark.getStoreId().getId());
-            List<StoreImage> storeImageList = storeImgRepository.findAllByStoreId(store.get().getId());
-
-            BookmarkInfoDto bookmarkInfoDto = BookmarkInfoDto
-                    .builder()
-                    .bookmarkId(bookmark.getId())
-                    .name(store.get().getName())
-                    .phoneNumber(store.get().getPhoneNumber())
-                    .category(store.get().getCategory())
-                    .address(store.get().getAddress())
-                    .pointAvg(Math.round(store.get().getPointAvg()*10)/10.0)
-                    .storeId((int) store.get().getId())
-                    .storeImageList(!storeImageList.isEmpty() ? storeImageList.get(0).getStoreImageUrl():"")
-                    .build();
-
-//            BookmarkInfoDto bookmarkInfoDto = new BookmarkInfoDto(bookmark);
+            BookmarkInfoDto bookmarkInfoDto = new BookmarkInfoDto(bookmark);
             bookmarkList.add(bookmarkInfoDto);
         }
-
-
-
         return bookmarkList;
     }
 }
