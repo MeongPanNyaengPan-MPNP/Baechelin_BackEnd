@@ -1,5 +1,6 @@
 
-![임시 커버](https://user-images.githubusercontent.com/90380269/181488434-e1e7c2df-dcee-4f1e-83d0-12041663da59.png)
+![배너](https://user-images.githubusercontent.com/90380269/181918617-1668bd04-8beb-4f60-91a0-d5e5c3d2dbb8.png)
+
 
 # Bae-Chelin (배슐랭)
 
