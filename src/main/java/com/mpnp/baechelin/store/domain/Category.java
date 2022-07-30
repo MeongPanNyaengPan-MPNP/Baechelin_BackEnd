@@ -3,6 +3,7 @@ package com.mpnp.baechelin.store.domain;
 import lombok.Getter;
 
 import java.util.Arrays;
+
 @Getter
 public enum Category {
     KOREAN("한식"), WESTERN("양식"), JAPANESE("일식"), ASIAN("아시아음식"), CHINESE("중식"),
@@ -11,12 +12,12 @@ public enum Category {
     ETC("기타");
     private final String desc;
 
-    public static Category giveCategory(String input){
+    public static Category giveCategory(String input) {
         return Arrays.stream(Category.values())
                 .filter(cate -> cate.desc.equals(input)).findAny().orElse(Category.ETC);
     }
 
-    public static String giveCategoryDesc(String key){
+    public static String giveCategoryDesc(String key) {
         return Arrays.stream(Category.values())
                 .filter(cate -> cate.toString().equals(key)).findAny().orElse(Category.ETC).getDesc();
     }

@@ -77,6 +77,7 @@ public class StoreService {
      */
     public StorePagedResponseDto getStoreInOnePointRange(BigDecimal lat, BigDecimal lng, String category, List<String> facility, Pageable pageable, String socialId) {
         BigDecimal[] range = QuerydslLocation.getRange(lat, lng, 10);
+        if (range == null) return getStoreInRange(null, null, null, null, category, facility, pageable, socialId);
         return getStoreInRange(range[0], range[1], range[2], range[3], category, facility, pageable, socialId);
     }
 
@@ -263,7 +264,7 @@ public class StoreService {
             }
             if (!store.getBookmarkList().isEmpty()) {
                 int bookmarkCnt = storeRepository.getBookmarkCnt(store.getId());
-                storeRepository.updateBookmarkCnt(bookmarkCnt,store.getId());
+                storeRepository.updateBookmarkCnt(bookmarkCnt, store.getId());
             }
         }
     }
