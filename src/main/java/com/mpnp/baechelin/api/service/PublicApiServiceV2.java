@@ -211,18 +211,28 @@ public class PublicApiServiceV2 {
         return null;
     }
 
-    public void start() throws IOException, InterruptedException {
+    public void start() {
         List<String[]> list = new ArrayList<>();
         BufferedReader br = null;
-        File file = ResourceUtils.getFile("classpath:static/sigungu.csv");
-        br = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
+        File file = null;
+        try {
+            file = ResourceUtils.getFile("classpath:static/sigungu.csv");
+            br = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
+        } catch (FileNotFoundException e) {
+            return;
+        }
         String line = null;
-        while ((line = br.readLine()) != null) {
+        while (true) {
+            try {
+                if (!((line = br.readLine()) != null)) break;
+            } catch (IOException e) {
+                return;
+            }
             String[] lineContents = line.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)", -1);
             list.add(lineContents);
         }
         for (String[] strings : list) {
-            System.out.println("String 프린트중 : " + Arrays.toString(strings));
+            log.info("{}, {} 처리중...", strings[0], strings[1]);
             processApi(strings[0], strings[1], 1);
         }
     }
