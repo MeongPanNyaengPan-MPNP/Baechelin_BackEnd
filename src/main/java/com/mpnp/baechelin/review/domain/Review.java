@@ -59,10 +59,6 @@ public class Review extends TimeStamped {
     public void setImage(List<ReviewImage> reviewImageList){
         this.reviewImageList = reviewImageList;
     }
-    public void addSingleTag(Tag tag){
-        tag.setReview(this);
-        this.tagList.add(tag);
-    }
 
     public void update(ReviewRequestDto reviewRequestDto){
         this.point   = reviewRequestDto.getPoint();

@@ -70,10 +70,8 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
                         .selectFrom(store)
                         .where(builder)
                         .limit(pageable.getPageSize())
-                        .offset(pageable.getOffset())
                         .fetch();
-        int fetchCount = queryFactory.selectFrom(store).where(builder).fetch().size();
-        return new PageImpl<>(storeList, pageable, fetchCount);
+        return new PageImpl<>(storeList, pageable, storeList.size());
     }
 
     private OrderSpecifier<?> orderDistance(BigDecimal nowLat, BigDecimal nowLng) {
@@ -107,10 +105,8 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
                 .where(builder)
                 .orderBy(store.pointAvg.desc())
                 .limit(pageable.getPageSize())
-                .offset(pageable.getOffset())
                 .fetch();
-        int fetchCount = queryFactory.selectFrom(store).where(builder).fetch().size();
-        return new PageImpl<>(storeList, pageable, fetchCount);
+        return new PageImpl<>(storeList, pageable, storeList.size());
     }
 
     public Page<Store> findStoreOrderByBookmark(BigDecimal lat,
@@ -122,8 +118,6 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
         if (lat == null || lng == null) return findStoreOrderByBookmarkNullCase(builder, pageable);
         List<Store> storeList = queryFactory.selectFrom(store)
                 .where(builder)
-                .orderBy(store.bookMarkCount.desc())
-                .orderBy(orderDistance(lat, lng))
                 .limit(pageable.getPageSize())
                 .offset(pageable.getOffset())
                 .fetch();
@@ -138,10 +132,8 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
                 .where(builder)
                 .orderBy(store.bookMarkCount.desc())
                 .limit(pageable.getPageSize())
-                .offset(pageable.getOffset())
                 .fetch();
-        int fetchCount = queryFactory.selectFrom(store).where(builder).fetch().size();
-        return new PageImpl<>(storeList, pageable, fetchCount);
+        return new PageImpl<>(storeList, pageable, storeList.size());
     }
 
     // 주소로 검색, 검색어로 검색

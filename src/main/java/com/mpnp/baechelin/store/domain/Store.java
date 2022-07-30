@@ -105,7 +105,6 @@ public class Store {
         return this;
     }
 
-    // TODO 리뷰가 삭제될 때도 고려하기 - 삭제 후 적용되어야 함
     public Store updatePointAvg() {
         this.reviewCount = reviewList.size();
         double totalPoint = 0.0;
