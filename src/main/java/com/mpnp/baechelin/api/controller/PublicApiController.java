@@ -25,13 +25,10 @@ public class PublicApiController {
     @ApiOperation(value="공공 API V1을 통해 DB에 정보를 저장/업데이트하는 함수")
     @PostMapping("/api")
     public SuccessResponse getPublicApi(@Valid @RequestBody PublicApiRequestDto publicApiRequestDto) {
-        long start = currentTimeMillis();
         publicApiService.processApiV1(publicApiRequestDto);
-//        ResponseEntity<PublicApiResponseDto> result = ResponseEntity.ok(publicApiService.processApiToDBWithWebclientMono(publicApiRequestDto));
-        log.info("Elapsed Time : {}", currentTimeMillis() - start);
         return new SuccessResponse("공공 API V1 적용 완료");
     }
-    //TODO 정리하기
+
     @ApiOperation(value="공공 API V2을 통해 DB에 정보를 저장/업데이트하는 함수")
     @GetMapping("/new-api")
     public SuccessResponse getPublicApiV2(@RequestParam String siDoNm,
@@ -40,8 +37,8 @@ public class PublicApiController {
         return new SuccessResponse("공공 API V2 적용 완료");
     }
 
-    @GetMapping("test")
-    public void go() throws IOException, InterruptedException {
+    @GetMapping("/api-read")
+    public void go(@RequestParam String serviceKey){
         publicApiServiceV2.start();
     }
 }
