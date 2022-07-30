@@ -80,7 +80,6 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
         return QStore.store.latitude.subtract(nowLat).abs().add(QStore.store.longitude.subtract(nowLng)).abs().asc();
     }
 
-    //TODO 별점순 - 쿼리 결과로 산출된 리스트의 평균 구하기, 정렬, 페이징
     public Page<Store> findStoreOrderByPoint(BigDecimal lat,
                                              BigDecimal lng,
                                              String category,
@@ -88,11 +87,25 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
                                              Pageable pageable) {
 
         BooleanBuilder builder = locTwoPointAndConditions(lat, lng, category, facility);
+        if (lat == null || lng == null) return findStoreOrderByPointNullCase(builder, pageable);
         List<Store> storeList = queryFactory
                 .selectFrom(store)
                 .where(builder)
                 .orderBy(store.pointAvg.desc())
                 .orderBy(orderDistance(lat, lng))
+                .limit(pageable.getPageSize())
+                .offset(pageable.getOffset())
+                .fetch();
+        int fetchCount = queryFactory.selectFrom(store).where(builder).fetch().size();
+        return new PageImpl<>(storeList, pageable, fetchCount);
+    }
+
+    private Page<Store> findStoreOrderByPointNullCase(BooleanBuilder builder,
+                                                      Pageable pageable) {
+        List<Store> storeList = queryFactory
+                .selectFrom(store)
+                .where(builder)
+                .orderBy(store.pointAvg.desc())
                 .limit(pageable.getPageSize())
                 .offset(pageable.getOffset())
                 .fetch();
