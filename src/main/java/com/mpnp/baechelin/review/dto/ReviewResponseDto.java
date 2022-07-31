@@ -24,7 +24,7 @@ public class ReviewResponseDto {
 
     private String name;
 
-    private String profile_image_url;
+    private String useImage;
 
     private String myReview;
 
@@ -51,9 +51,9 @@ public class ReviewResponseDto {
     }
 
     public void userInfo(User user, User myUser){
-        this.email             = user.getEmail();
-        this.name              = user.getName();
-        this.profile_image_url = user.getProfileImageUrl();
+        this.email    = user.getEmail();
+        this.name     = user.getName();
+        this.useImage = user.getProfileImageUrl();
 
         if(this.userId == myUser.getId()){
             this.myReview = "Y";

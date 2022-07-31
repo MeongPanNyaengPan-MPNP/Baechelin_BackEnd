@@ -1,14 +1,8 @@
 package com.mpnp.baechelin.store.service;
 
-import com.mpnp.baechelin.bookmark.domain.Bookmark;
 import com.mpnp.baechelin.bookmark.repository.BookmarkRepository;
 import com.mpnp.baechelin.common.QuerydslLocation;
-import com.mpnp.baechelin.exception.CustomException;
-import com.mpnp.baechelin.exception.ErrorCode;
-import com.mpnp.baechelin.review.domain.Review;
-import com.mpnp.baechelin.review.domain.ReviewImage;
 import com.mpnp.baechelin.store.domain.Store;
-import com.mpnp.baechelin.store.domain.StoreImage;
 import com.mpnp.baechelin.store.dto.StoreCardResponseDto;
 import com.mpnp.baechelin.store.dto.StoreDetailResponseDto;
 import com.mpnp.baechelin.store.dto.StorePagedResponseDto;
@@ -28,11 +22,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.*;
 
 @Service
 @Transactional
@@ -140,7 +130,6 @@ public class StoreService {
 
     /**
      * 업장 상세 조회
-     *
      * @param storeId  업장 아이디
      * @param socialId 유저 social 아이디
      * @return 업장 상세 정보
@@ -150,48 +139,50 @@ public class StoreService {
 
         List<String> storeImageList = new ArrayList<>();
 
-        store.getStoreImageList()
-                .forEach(storeImage -> storeImageList.add(storeImage.getStoreImageUrl()));
-
-        store.getReviewList()
-                .forEach(review -> review.getReviewImageList()
+        store.getStoreImageList().forEach(storeImage -> storeImageList.add(storeImage.getStoreImageUrl()));
+        store.getReviewList().forEach(review -> review.getReviewImageList()
                         .forEach(reviewImage -> storeImageList.add(reviewImage.getReviewImageUrl())));
 
-        if (socialId == null) {
-            return new StoreDetailResponseDto(store, "N", storeImageList);
-        } else {
-            String isBookmark = "N";
-            for (Bookmark bookmark : store.getBookmarkList()) {
-                if (bookmark.getStoreId().getId() == store.getId()
-                        && bookmark.getUserId().getSocialId().equals(socialId)) {
-                    isBookmark = "Y";
-                    break;
-                }
-            }
-            return new StoreDetailResponseDto(store, isBookmark, storeImageList);
-        }
+        User targetUser = socialId == null ? null : userRepository.findBySocialId(socialId);
+
+        boolean isBookmark = bookmarkRepository.existsByStoreIdAndUserId(store, targetUser);
+        return new StoreDetailResponseDto(store, isBookmark ? "Y" : "N", storeImageList);
+
     }
 
     /**
      * 시/도 (ex. 서울시, 대전광역시)의 시/군/구 리스트 조회
      *
      * @param sido 시/도
-     * @return 시/군/구 리스트
+     * @return json 형태의 시/군/구 리스트
      */
     public Map<String, List<String>> getSigungu(String sido) {
-        List<Store> storeList = storeRepository.findAll();
+        // FullText Search
+        List<Store> foundAddress = storeQueryRepository.getSigungu(sido);
 
+        // 결과를 json 형태로 리턴
         Map<String, List<String>> result = new HashMap<>();
-        List<String> sigungu = new ArrayList<>();
+        // 중복 제거를 위해 Set 생성
+        Set<String> sigunguSet = new HashSet<>();
 
-        for (Store store : storeList) {
-            String addressSido = store.getAddress().split(" ")[0];
-            String addressSigungu = store.getAddress().split(" ")[1];
+        for (Store store : foundAddress) {
+            String[] address = store.getAddress().split(" "); // [0] : 시/도, [1] : 시/군/구, [2] : 구
 
-            if (addressSido.equals(sido)) {
-                sigungu.add(addressSigungu);
+            // 인자값인 sido와 주소의 첫번째 "시"가 같을 때
+            if (address[0].contains(sido)) {
+                // [경기도 성남시 분당구]처럼 도 - 시 - 구 로 나눠지는 경우 시 + 구로 반환
+                if (address[2].charAt(address[2].length() - 1) == '구') {
+                    sigunguSet.add(address[1] + " " + address[2]);
+                } else {
+                    sigunguSet.add(address[1]);
+                }
             }
         }
+
+        // 정렬을 위해 Set -> List로 변환
+        List<String> sigungu = new ArrayList<>(sigunguSet);
+        // List 정렬
+        Collections.sort(sigungu);
 
         result.put("sigungu", sigungu);
 
@@ -200,35 +191,21 @@ public class StoreService {
 
     /**
      * 업장 검색
-     *
-     * @param sido     시/도명
-     * @param sigungu  시/군/구명
-     * @param keyword  검색어
-     * @param socialId 업장 pk
-     * @param pageable page, size
-     * @return
+     * @param sido 시/도명
+     * @param sigungu 시/군/구명
+     * @param keyword 검색어
+     * @param category 카테고리
+     * @param facility 배리어 프리 시설
+     * @param socialId 사용자 소셜 아이디
+     * @param pageable 페이징
+     * @return 페이징이 적용된 검색 결과 리턴
      */
-    public List<StoreCardResponseDto> searchStores(String sido, String sigungu, String keyword, String socialId, Pageable pageable) {
-        List<Store> storeList = storeQueryRepository.searchStores(sido, sigungu, keyword, pageable);
+    public StorePagedResponseDto searchStores(String sido, String sigungu, String keyword, String category, List<String> facility, String socialId, Pageable pageable) {
+        Page<Store> searchStores = storeQueryRepository.searchStores(sido, sigungu, keyword, category, facility, pageable);
 
-        List<StoreCardResponseDto> result = new ArrayList<>();
+        User targetUser = socialId == null ? null : userRepository.findBySocialId(socialId);
 
-        for (Store store : storeList) {
-            if (socialId == null) {
-                result.add(new StoreCardResponseDto(store, "N"));
-            } else {
-                String isBookmark = "N";
-                for (Bookmark bookmark : store.getBookmarkList()) {
-                    if (bookmark.getStoreId().getId() == store.getId()
-                            && bookmark.getUserId().getSocialId().equals(socialId)) {
-                        isBookmark = "Y";
-                        break;
-                    }
-                }
-                result.add(new StoreCardResponseDto(store, isBookmark));
-            }
-        }
-        return result;
+        return getStoreCardPagedResponseDto(targetUser, searchStores);
     }
 
     @Scheduled(cron = "0 0 0-23 * * *") // 1시간에 한 번

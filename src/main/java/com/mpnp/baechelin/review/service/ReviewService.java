@@ -53,10 +53,10 @@ public class ReviewService {
      */
     public void review(ReviewRequestDto reviewRequestDto, String socialId) throws IOException {
 
-        long storeId = reviewRequestDto.getStoreId();
-        Store store = storeRepository.findById(storeId).orElseThrow(() -> new IllegalArgumentException("해당하는 업장이 존재하지 않습니다."));
-        User user = userRepository.findBySocialId(socialId);
-        Review review = new Review(reviewRequestDto, store, user);
+        long   storeId = reviewRequestDto.getStoreId();
+        Store  store   = storeRepository.findById(storeId).orElseThrow(() -> new IllegalArgumentException("해당하는 업장이 존재하지 않습니다."));
+        User   user    = userRepository.findBySocialId(socialId);
+        Review review  = new Review(reviewRequestDto, store, user);
 
 
         // todo 태크 매핑
@@ -116,7 +116,7 @@ public class ReviewService {
                 .size(reviewList.getSize())
                 .reviewResponseDtoList(reviewResponseDtoList)
                 .hasNextPage(reviewList.isFirst() ? false : true)
-                .hasPreviousPage(reviewList.isLast() ? false : true)
+                .hasPreviousPage(!reviewList.isLast() ? false : true)
                 .build();
 
 
@@ -126,6 +126,7 @@ public class ReviewService {
 
     @Transactional
     /** 리뷰 수정 */
+
     public void reviewUpdate(ReviewRequestDto reviewRequestDto, String socialId, int reviewId) {
 
 
@@ -203,6 +204,7 @@ public class ReviewService {
 //        System.out.println("=========delete========");
 //        reviewImageRepository.deleteAll(reviewImageList);
 //    }
+
 
     /**
      * 리뷰 삭제
