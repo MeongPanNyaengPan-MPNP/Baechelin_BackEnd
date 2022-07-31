@@ -7,7 +7,6 @@ import com.mpnp.baechelin.bookmark.dto.BookmarkRequestDto;
 import com.mpnp.baechelin.bookmark.repository.BookmarkRepository;
 import com.mpnp.baechelin.bookmark.repository.FolderRepository;
 import com.mpnp.baechelin.store.domain.Store;
-import com.mpnp.baechelin.store.domain.StoreImage;
 import com.mpnp.baechelin.store.repository.StoreImgRepository;
 import com.mpnp.baechelin.store.repository.StoreRepository;
 import com.mpnp.baechelin.user.domain.User;
@@ -20,7 +19,6 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -47,8 +45,10 @@ public class BookmarkService {
                 .userId(user)
                 .build();
 
-        storeRepository.save(store.updateBookmarkCount());
-        bookmarkRepository.save(bookmark);
+        if (!bookmarkRepository.existsByStoreIdAndUserId(store, user)) {
+            bookmarkRepository.save(bookmark);
+            storeRepository.save(store.updateBookmarkCount());
+        }
     }
 
     public void bookmarkDelete(int bookmarkId, String socialId) {
