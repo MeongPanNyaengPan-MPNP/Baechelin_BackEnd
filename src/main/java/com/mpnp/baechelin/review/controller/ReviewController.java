@@ -88,7 +88,7 @@ public class ReviewController {
     /** 리뷰 삭제 */
     @DeleteMapping("/review/{reviewId}")
     public ResponseEntity<?> reviewDelete(@AuthenticationPrincipal User user,
-                                          @PathVariable int reviewId) throws IOException {
+                                          @PathVariable int reviewId) {
 
         if(user==null){ throw new IllegalArgumentException("해당하는 회원 정보가 없습니다."); }
         reviewService.reviewDelete(user.getUsername(), reviewId);
