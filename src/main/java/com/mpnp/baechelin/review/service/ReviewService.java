@@ -209,7 +209,6 @@ public class ReviewService {
     /**
      * 리뷰 삭제
      */
-    @Transactional
     public void reviewDelete(String socialId, int reviewId) {
 
         User   user   = userRepository  .findBySocialId(socialId); if (user == null) { new IllegalArgumentException("해당하는 소셜아이디를 찾을 수 없습니다."); }   // 유저 유무 확인 예외처리
@@ -217,6 +216,7 @@ public class ReviewService {
 
         Optional<Store> store = storeRepository.findById(Long.valueOf(review.getStoreId().getId()));
         if(!store.isPresent()){ throw new IllegalArgumentException("해당하는 업장이 없습니다.");}
+
 
 
         List<ReviewImage> imageList =  review.getReviewImageList();
@@ -230,6 +230,8 @@ public class ReviewService {
                 awsS3Manager.deleteFile(reviewImage.getReviewImageUrl().substring(reviewImage.getReviewImageUrl().indexOf("com/") + 4));
             }
         }
+
+
 
         storeRepository.save(store.get().updatePointAvg()); // 별점 평점 구하는 코드
     }
