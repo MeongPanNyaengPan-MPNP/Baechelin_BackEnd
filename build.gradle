@@ -72,15 +72,11 @@ dependencies {
 	//file upload
 	implementation 'commons-fileupload:commons-fileupload:1.4'
 	compile 'commons-io:commons-io:2.11.0'
-<<<<<<< HEAD
 	//scheduler dependency
 	implementation 'net.javacrumbs.shedlock:shedlock-spring:4.36.0'
 	implementation 'net.javacrumbs.shedlock:shedlock-provider-jdbc-template:4.36.0'
-
-=======
 	//redis
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
->>>>>>> a69a532b32938cf24a1493ed1f1cc223598d4e19
 }
 tasks.named('test') {
 	useJUnitPlatform()
