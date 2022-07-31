@@ -214,15 +214,14 @@ public class ReviewService {
         User user = userRepository.findBySocialId(socialId);  // 유저 매핑
         Optional<Review> review = reviewRepository.findById(reviewId);      // 리뷰 매핑
 
-
         if (user == null) {
-            new IllegalArgumentException("해당하는 소셜아이디를 찾을 수 없습니다.");
+           throw new IllegalArgumentException("해당하는 소셜아이디를 찾을 수 없습니다.");
         }      // 유저 유무 확인 예외처리
+
         review.orElseThrow(() -> new IllegalArgumentException("해당하는 리뷰가 이미 삭제 되었습니다.")); // 리뷰 유무 확인 예외처리
 
-
         List<ReviewImage> imageList = review.get().getReviewImageList();
-
+        Store store = review.get().getStoreId();
 
         // todo 1.리뷰삭제 -> 2.이미지 삭제
         reviewRepository.deleteById(review.get().getId()); // 1
@@ -232,7 +231,8 @@ public class ReviewService {
                 awsS3Manager.deleteFile(reviewImage.getReviewImageUrl().substring(reviewImage.getReviewImageUrl().indexOf("com/") + 4));
             }
         }
-        storeRepository.save(review.get().getStoreId().updatePointAvg()); // 별점 평점 구하는 코드
+        store.removeReview(review.get());
+        storeRepository.save(store.updatePointAvg()); // 별점 평점 구하는 코드
     }
 
     public List<ReviewMainResponseDto> getRecentReview(BigDecimal lat, BigDecimal lng, int limit) {

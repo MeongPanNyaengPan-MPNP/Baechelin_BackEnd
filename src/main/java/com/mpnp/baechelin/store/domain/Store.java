@@ -104,6 +104,9 @@ public class Store {
         this.bookMarkCount = this.getBookmarkList().size();
         return this;
     }
+    public void removeReview(Review review){
+        this.reviewList.remove(review);
+    }
 
     public Store updatePointAvg() {
         this.reviewCount = reviewList.size();
