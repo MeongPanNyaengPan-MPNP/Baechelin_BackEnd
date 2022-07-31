@@ -11,6 +11,9 @@ import org.springframework.context.annotation.*;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+import javax.annotation.PostConstruct;
+import java.util.TimeZone;
+
 
 @EnableJpaAuditing
 @EnableConfigurationProperties({
@@ -24,5 +27,10 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class BaechelinApplication {
     public static void main(String[] args) {
         SpringApplication.run(BaechelinApplication.class, args);
+    }
+    @PostConstruct
+    public void started() {
+        // timezone UTC 셋팅
+        TimeZone.setDefault(TimeZone.getTimeZone("Asia/Seoul"));
     }
 }

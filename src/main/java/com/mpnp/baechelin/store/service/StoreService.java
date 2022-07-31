@@ -231,10 +231,10 @@ public class StoreService {
         return result;
     }
 
-    @Scheduled(cron = "0 0 0-23 * * *")
-    @SchedulerLock(name = "updateScheduler",
-    lockAtLeastFor = "PT30M",  lockAtMostFor = "PT59M")
+    @Scheduled(cron = "0 0 0-23 * * *") // 1시간에 한 번
+    @SchedulerLock(name = "updateScheduler", lockAtLeastFor = "PT58M", lockAtMostFor = "PT30M")
     public void updateSchedule() {
+        log.info("AVG, BOOKMARK COUNT SCHEDULING");
         List<Store> storeList = storeRepository.findAll();
         for (Store store : storeList) {
             if (!store.getReviewList().isEmpty()) {

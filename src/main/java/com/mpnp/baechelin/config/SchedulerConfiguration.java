@@ -7,6 +7,7 @@ import net.javacrumbs.shedlock.core.LockProvider;
 import net.javacrumbs.shedlock.provider.jdbctemplate.JdbcTemplateLockProvider;
 
 import javax.sql.DataSource;
+import java.util.TimeZone;
 
 
 @Configuration
@@ -16,7 +17,7 @@ public class SchedulerConfiguration {
         return new JdbcTemplateLockProvider(
                 JdbcTemplateLockProvider.Configuration.builder()
                         .withJdbcTemplate(new JdbcTemplate(dataSource))
-                        .usingDbTime()
+                        .withTimeZone(TimeZone.getTimeZone("Asia/Seoul"))
                         .build()
         );
     }
