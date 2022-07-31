@@ -33,29 +33,7 @@ public class FolderResponseDto {
         if(folder.getBookmarkList() != null) {
             for (Bookmark bookmark : folder.getBookmarkList()) {
 
-                double pointAvg     = Math.round(bookmark.getStoreId().getPointAvg()*10)/10.0;  // 업장 별점
-                String name         = bookmark.getStoreId().getName();                          // 업장 이름
-                String address      = bookmark.getStoreId().getAddress();                       // 업장 주소
-                String category     = bookmark.getStoreId().getCategory();                      // 업장 카테고리
-                String PhoneNumber  = bookmark.getStoreId().getPhoneNumber();                   // 업장 전화번호
-                int bookmarkId      = bookmark.getId();
-                int storeId         = (int) bookmark.getStoreId().getId();
-
-                List<BookmarkInfoDto> BookmarkInfoDtoList = new ArrayList<>();            // 정보를 담는 리스트
-                List<StoreImage> storeImageList = bookmark.getStoreId().getStoreImageList();// 업장 이미지 리스트
-
-                BookmarkInfoDto bookmarkInfoDto = BookmarkInfoDto
-                        .builder()
-                        .bookmarkId(bookmarkId)
-                        .storeId(storeId)
-                        .address(address)
-                        .phoneNumber(PhoneNumber)
-                        .category(category)
-                        .pointAvg(pointAvg)
-                        .name(name)
-                        .storeImageList(!storeImageList.isEmpty() ? storeImageList.get(0).getStoreImageUrl():"")
-                        .build();
-
+                BookmarkInfoDto bookmarkInfoDto = new BookmarkInfoDto(bookmark);
                 bookmarks.add(bookmarkInfoDto);
 
             }
