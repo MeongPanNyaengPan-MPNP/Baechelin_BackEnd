@@ -17,10 +17,12 @@ public class StorePagedResponseDto {
     private long totalCount;
     private long leftElement;
     private int page;
+    private int totalPage;
     private List<StoreCardResponseDto> cards;
 
     public StorePagedResponseDto(Page<Store> resultStoreList, List<StoreCardResponseDto> cards) {
         this.hasNextPage = resultStoreList.hasNext();
+        this.totalPage = resultStoreList.getTotalPages();
         this.cards = cards;
         this.totalCount = resultStoreList.getTotalElements();
         this.page = resultStoreList.getNumber();

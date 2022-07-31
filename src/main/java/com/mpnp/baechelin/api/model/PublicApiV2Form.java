@@ -44,15 +44,4 @@ public class PublicApiV2Form {
         }
     }
 
-    public List<Store> ApiFormToStore(PublicApiV2Form publicApiV2Form) {
-        List<Store> mappingResult = new ArrayList<>();
-        for (ServList serv : publicApiV2Form.getServList()) {
-            mappingResult.add(Store.builder()
-                    .address(serv.getLcMnad())
-                    .latitude(new BigDecimal(serv.faclLat))
-                    .longitude(new BigDecimal(serv.faclLng))
-                    .build());
-        }
-        return mappingResult;
-    }
 }

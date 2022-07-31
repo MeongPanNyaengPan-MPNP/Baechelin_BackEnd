@@ -113,14 +113,13 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
         return new PageImpl<>(storeList, pageable, fetchCount);
     }
 
-    //TODO 북마크순
     public Page<Store> findStoreOrderByBookmark(BigDecimal lat,
                                                 BigDecimal lng,
                                                 String category,
                                                 List<String> facility,
                                                 Pageable pageable) {
-
         BooleanBuilder builder = locTwoPointAndConditions(lat, lng, category, facility);
+        if (lat == null || lng == null) return findStoreOrderByBookmarkNullCase(builder, pageable);
         List<Store> storeList = queryFactory.selectFrom(store)
                 .where(builder)
                 .orderBy(store.bookMarkCount.desc())
@@ -132,9 +131,32 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
         return new PageImpl<>(storeList, pageable, fetchCount);
     }
 
+    public Page<Store> findStoreOrderByBookmarkNullCase(BooleanBuilder builder,
+                                                        Pageable pageable) {
+
+        List<Store> storeList = queryFactory.selectFrom(store)
+                .where(builder)
+                .orderBy(store.bookMarkCount.desc())
+                .limit(pageable.getPageSize())
+                .offset(pageable.getOffset())
+                .fetch();
+        int fetchCount = queryFactory.selectFrom(store).where(builder).fetch().size();
+        return new PageImpl<>(storeList, pageable, fetchCount);
+    }
+
+    public List<Store> getSigungu(String sido) {
+        BooleanExpression matchAddress = QueryDslSearch.matchAddressWithSido(sido);
+
+        return queryFactory
+                .selectFrom(store)
+                .where(matchAddress)
+                .fetch();
+    }
+
+
     // 주소로 검색, 검색어로 검색
     public List<Store> searchStores(String sido, String sigungu, String keyword, Pageable pageable) {
-        BooleanExpression matchAddress = QueryDslSearch.matchAddress(sido, sigungu);
+        BooleanExpression matchAddress = QueryDslSearch.matchAddressWithSidoAndSigungu(sido, sigungu);
         BooleanExpression matchKeyword = QueryDslSearch.matchKeyword(keyword);
 
         return queryFactory
