@@ -13,6 +13,7 @@ import com.mpnp.baechelin.user.domain.User;
 import com.mpnp.baechelin.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -155,7 +156,6 @@ public class StoreService {
 
     /**
      * 업장 상세 조회
-     *
      * @param storeId  업장 아이디
      * @param socialId 유저 social 아이디
      * @return 업장 상세 정보
@@ -216,7 +216,7 @@ public class StoreService {
     }
 
     /**
-     * 엄장 검색
+     * 업장 검색
      * @param sido 시/도명
      * @param sigungu 시/군/구명
      * @param keyword 검색어
@@ -224,8 +224,8 @@ public class StoreService {
      * @param pageable 페이징
      * @return 페이징이 적용된 검색 결과 리턴
      */
-    public StorePagedResponseDto searchStores(String sido, String sigungu, String keyword, String socialId, Pageable pageable) {
-        Page<Store> searchStores = storeQueryRepository.searchStores(sido, sigungu, keyword, pageable);
+    public StorePagedResponseDto searchStores(String sido, String sigungu, String keyword, String category, List<String> facility, String socialId, Pageable pageable) {
+        Page<Store> searchStores = storeQueryRepository.searchStores(sido, sigungu, keyword, category, facility, pageable);
 
         User targetUser = socialId == null ? null : userRepository.findBySocialId(socialId);
 
