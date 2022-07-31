@@ -50,13 +50,14 @@ public class BookmarkService {
             storeRepository.save(store.updateBookmarkCount());
         }
     }
-
+    @Transactional
     public void bookmarkDelete(int bookmarkId, String socialId) {
         User user = userRepository.findBySocialId(socialId); if(user == null) { throw new IllegalArgumentException("해당하는 유저가 없습니다."); }
         Bookmark bookmark = bookmarkRepository.findById(bookmarkId).orElseThrow(() -> new IllegalArgumentException("해당하는 북마크는 이미 삭제 되었습니다"));
-        storeRepository.save(bookmark.getStoreId().updateBookmarkCount());
+        Store store = bookmark.getStoreId();
+        store.removeBookmark(bookmark);
         bookmarkRepository.deleteById(bookmarkId);
-
+        storeRepository.save(store.updateBookmarkCount());
     }
 
     @Transactional
