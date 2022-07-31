@@ -104,9 +104,11 @@ public class StoreController {
             @RequestParam(required = false) String sido,
             @RequestParam(required = false) String sigungu,
             @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) List<String> facility,
             @PageableDefault Pageable pageable,
             @AuthenticationPrincipal User user) {
 
-        return storeService.searchStores(sido, sigungu, keyword, user == null ? null : user.getUsername(), pageable);
+        return storeService.searchStores(sido, sigungu, keyword, category, facility, user == null ? null : user.getUsername(), pageable);
     }
 }
