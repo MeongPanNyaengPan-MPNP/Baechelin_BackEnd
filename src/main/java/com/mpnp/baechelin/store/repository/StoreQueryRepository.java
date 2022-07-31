@@ -2,15 +2,11 @@ package com.mpnp.baechelin.store.repository;
 
 import com.mpnp.baechelin.common.QueryDslSearch;
 import com.mpnp.baechelin.common.QuerydslLocation;
-import com.mpnp.baechelin.review.domain.Review;
 import com.mpnp.baechelin.store.domain.QStore;
 import com.mpnp.baechelin.store.domain.Store;
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.Tuple;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.core.types.dsl.NumberPath;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -23,8 +19,8 @@ import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
-import java.util.stream.Collectors;
 
+import static com.mpnp.baechelin.common.QueryDslSearch.getSearchBooleanBuilder;
 import static com.mpnp.baechelin.common.QuerydslLocation.locTwoPointAndConditions;
 import static com.mpnp.baechelin.store.domain.QStore.store;
 
@@ -156,18 +152,17 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
 
 
     // 주소로 검색, 검색어로 검색
-    public Page<Store> searchStores(String sido, String sigungu, String keyword, Pageable pageable) {
-        BooleanExpression matchAddress = QueryDslSearch.matchAddressWithSidoAndSigungu(sido, sigungu);
-        BooleanExpression matchKeyword = QueryDslSearch.matchKeyword(keyword);
+    public Page<Store> searchStores(String sido, String sigungu, String keyword, String category, List<String> facility, Pageable pageable) {
+        BooleanBuilder builder = getSearchBooleanBuilder(sido, sigungu, keyword, category, facility);
 
         List<Store> storeList = queryFactory
                 .selectFrom(store)
-                .where(matchAddress, matchKeyword)
+                .where(builder)
                 .limit(pageable.getPageSize())
                 .offset(pageable.getOffset())
                 .fetch();
         int fetchSize = queryFactory.selectFrom(store)
-                .where(matchAddress, matchKeyword)
+                .where(builder)
                 .fetch().size();
         return new PageImpl<>(storeList, pageable, fetchSize);
     }
