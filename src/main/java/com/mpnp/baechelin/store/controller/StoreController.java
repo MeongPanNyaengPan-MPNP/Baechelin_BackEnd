@@ -4,20 +4,23 @@ import com.mpnp.baechelin.exception.CustomException;
 import com.mpnp.baechelin.exception.ErrorCode;
 import com.mpnp.baechelin.login.jwt.AuthToken;
 import com.mpnp.baechelin.login.jwt.AuthTokenProvider;
-import com.mpnp.baechelin.store.dto.StoreCardResponseDto;
 import com.mpnp.baechelin.store.dto.StoreDetailResponseDto;
 import com.mpnp.baechelin.store.dto.StorePagedResponseDto;
 import com.mpnp.baechelin.store.service.StoreService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +29,7 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/store")
+@Validated
 public class StoreController {
 
     private final StoreService storeService;
@@ -103,11 +107,15 @@ public class StoreController {
     public StorePagedResponseDto searchStoresByKeyword(
             @RequestParam(required = false) String sido,
             @RequestParam(required = false) String sigungu,
-            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) @Size(min = 2, message = "검색어는 두글자 이상 입력해주세요.") String keyword,
             @RequestParam(required = false) String category,
             @RequestParam(required = false) List<String> facility,
             @PageableDefault Pageable pageable,
             @AuthenticationPrincipal User user) {
+
+        if (StringUtils.isEmpty(sido) && StringUtils.isEmpty(sigungu) && StringUtils.isEmpty(keyword) && StringUtils.isEmpty(category) && ObjectUtils.isEmpty(facility)) {
+            throw new CustomException(ErrorCode.KEYWORD_ARE_NEEDED);
+        }
 
         return storeService.searchStores(sido, sigungu, keyword, category, facility, user == null ? null : user.getUsername(), pageable);
     }

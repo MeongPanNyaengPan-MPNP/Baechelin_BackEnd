@@ -23,6 +23,7 @@ public enum ErrorCode {
     API_NO_RESULT(500, "E-ANR500", "API 결과가 존재하지 않습니다."),
     NULL_POINTER_EXCEPTION(500, "E-NPE500", "빈 값이 들어올 수 없습니다."),
     IMAGE_PROCESS_FAIL(500,"E-IPF500","이미지 오류 발생"),
+    KEYWORD_ARE_NEEDED(500, "E-KAE500", "검색어를 입력해주세요."),
     INVALID_BARRIER_TAG(500, "E-IBT500","배리어 프리 태그를 확인해주세요");
 
     private final int status;
