@@ -63,9 +63,7 @@ public class QueryDslSearch {
         // 검색어 fulltext search
         builder.and(matchKeyword(keyword));
 
-        // 카테고리, 시설
-        builder.and(getBooleanBuilder(category, facility, builder));
-
-        return builder;
+        // 카테고리, 시설까지 builder에 넣은 후 리턴
+        return getBooleanBuilder(category, facility, builder);
     }
 }
