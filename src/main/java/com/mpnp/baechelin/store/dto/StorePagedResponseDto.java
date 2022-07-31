@@ -22,7 +22,7 @@ public class StorePagedResponseDto {
 
     public StorePagedResponseDto(Page<Store> resultStoreList, List<StoreCardResponseDto> cards) {
         this.hasNextPage = resultStoreList.hasNext();
-        this.totalPage = resultStoreList.getTotalPages();
+        this.totalPage = resultStoreList.getTotalPages() - 1;
         this.cards = cards;
         this.totalCount = resultStoreList.getTotalElements();
         this.page = resultStoreList.getNumber();

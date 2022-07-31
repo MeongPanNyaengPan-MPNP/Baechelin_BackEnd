@@ -96,7 +96,6 @@ public class ReviewController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    // TODO - 최근 등록한 리뷰 보여주기 - 로그인 불필요
     // 반경 넓히기
     @GetMapping("/recent-review")
     public List<ReviewMainResponseDto> recentReview(@RequestParam(required = false) BigDecimal lat,

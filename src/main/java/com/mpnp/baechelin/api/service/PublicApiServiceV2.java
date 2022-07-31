@@ -104,8 +104,6 @@ public class PublicApiServiceV2 {
     private void mapApiToStoreWithPaging(PublicApiV2Form.ServList servList) {
         // 태그 String을 분리 & 매핑해 리스트에 저장
         List<String> barrierTagList = tagStrToList(servList.getWfcltId());
-
-        // TODO 태그가 비어있다면 어떻게 해야 할 지 ? -> 저장 혹은 버리기 (현재 버리기로 구현)
         if (barrierTagList.isEmpty()) return;
 
         /*
@@ -224,7 +222,7 @@ public class PublicApiServiceV2 {
         String line = null;
         while (true) {
             try {
-                if (!((line = br.readLine()) != null)) break;
+                if ((line = br.readLine()) == null) break;
             } catch (IOException e) {
                 return;
             }

@@ -100,13 +100,15 @@ public class StoreController {
 
     @ApiOperation(value = "시/도, 시/군/구, 검색어를 이용해 업장 리스트를 조회하는 메소드")
     @GetMapping("/search")
-    public List<StoreCardResponseDto> searchStoresByKeyword(
+    public StorePagedResponseDto searchStoresByKeyword(
             @RequestParam(required = false) String sido,
             @RequestParam(required = false) String sigungu,
             @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) List<String> facility,
             @PageableDefault Pageable pageable,
             @AuthenticationPrincipal User user) {
 
-        return storeService.searchStores(sido, sigungu, keyword, user == null ? null : user.getUsername(), pageable);
+        return storeService.searchStores(sido, sigungu, keyword, category, facility, user == null ? null : user.getUsername(), pageable);
     }
 }

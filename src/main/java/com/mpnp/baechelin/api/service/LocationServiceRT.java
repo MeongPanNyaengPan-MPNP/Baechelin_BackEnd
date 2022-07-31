@@ -17,6 +17,8 @@ import javax.transaction.Transactional;
 import java.net.URI;
 import java.util.*;
 
+import static com.mpnp.baechelin.common.DataClarification.categoryFilter;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -35,21 +37,8 @@ public class LocationServiceRT implements LocationService {
      */
     public LocationPartDto.LatLong convertAddressToGeo(String address) {
         // status, latitude, longitude 를 키로 가지는 HashMap 생성
-        LocationPartDto.LatLong locLl = LocationPartDto.LatLong.builder().build();
         LocationKeywordSearchForm locationKeywordSearchForm = getLatLngByAddress(address);
-        if (locationKeywordSearchForm == null) { // 비어 있을 때 status-false 저장
-            return locLl;
-        }
-        LocationKeywordSearchForm.Documents latLngDoc
-                = Arrays.stream(locationKeywordSearchForm.getDocuments()).findAny().orElse(null);
-        if (latLngDoc != null) {
-            locLl = LocationPartDto.LatLong.builder()
-                    .latitude(latLngDoc.getY())
-                    .longitude(latLngDoc.getX())
-                    .status(true)
-                    .build();
-        }
-        return locLl;
+        return LocationPartDto.LatLong.convertPart(locationKeywordSearchForm);
     }
 
     /**
@@ -136,21 +125,7 @@ public class LocationServiceRT implements LocationService {
     public LocationInfoDto.LocationResponse convertGeoAndStoreNameToKeyword(String lat, String lng, String storeName) {
         LocationKeywordSearchForm locationKeywordSearchForm = getCategoryByLatLngKeyword(lat, lng, storeName);
         // 위도, 경도, 업장명을 가지고 업장 정보를 찾는다
-        if (locationKeywordSearchForm == null) {
-            return null;
-        }
-        LocationKeywordSearchForm.Documents latLngDoc
-                = Arrays.stream(locationKeywordSearchForm.getDocuments()).findFirst().orElse(null);
-        if (latLngDoc == null) {
-            return null;
-        }
-        return LocationInfoDto.LocationResponse.builder()
-                .storeId(Long.parseLong(latLngDoc.getId()))
-                .latitude(latLngDoc.getY())
-                .longitude(latLngDoc.getX())
-                .category(categoryFilter(latLngDoc.getCategory_name()))
-                .storeName(latLngDoc.getPlace_name())
-                .phoneNumber(latLngDoc.getPhone()).build();
+        return LocationInfoDto.LocationResponse.KeywordToRes(locationKeywordSearchForm);
     }
 
     /**
@@ -160,7 +135,6 @@ public class LocationServiceRT implements LocationService {
      * @return 업장명 대신에 주소를 입력해 해당 건물에 있는 업장을 배리어 프리 시설로 등록한다
      */
 
-    // TODO 페이징 까지 완료하기 - 여러 건이 필요
     @Override
     public List<LocationInfoDto.LocationResponse> convertGeoAndAddressToKeyword(String lat, String lng, String address) {
         List<LocationInfoDto.LocationResponse> resultList = new ArrayList<>();
@@ -205,21 +179,6 @@ public class LocationServiceRT implements LocationService {
         } while (locationKeywordSearchForm.getMeta().is_end()); // 마지막 페이지까지 검사
     }
 
-
-    /**
-     * @param category 변환할 카테고리
-     * @return 카테고리의 중분류를 추출해 반환
-     */
-    private String categoryFilter(String category) {
-        if (category == null) {
-            return Category.ETC.getDesc();
-        } else if (category.contains(">")) {
-            return Category.giveCategory(category.split(" > ")[1]).getDesc();
-        } else {
-            return null;
-        }
-    }
-
     /**
      * @param lat 위도
      * @param lng 경도
@@ -243,26 +202,6 @@ public class LocationServiceRT implements LocationService {
                 uri, HttpMethod.GET, new HttpEntity<>(headers), LocationAddressSearchForm.class
         );
         LocationAddressSearchForm locationKeywordSearchForm = resultRe.getBody();
-        return formToDto(locationKeywordSearchForm);
-    }
-
-    /**
-     * @param resultRe API에서 받아온 결과 Form
-     * @return  DTO로 매핑한 결과
-     */
-    private LocationPartDto.Address formToDto(LocationAddressSearchForm resultRe) {
-        LocationPartDto.Address addressInfoDto = LocationPartDto.Address.builder().build();
-        if (resultRe == null)
-            return addressInfoDto;
-
-        LocationAddressSearchForm.TotalAddress address = Arrays.stream(resultRe.getDocuments()).findFirst().orElse(null);
-        if (address == null) {
-            return addressInfoDto;
-        } else {
-            return LocationPartDto.Address.builder()
-                    .address(address.getAddress().getAddress_name())
-                    .status(true)
-                    .build();
-        }
+        return LocationPartDto.Address.formToDto(locationKeywordSearchForm);
     }
 }

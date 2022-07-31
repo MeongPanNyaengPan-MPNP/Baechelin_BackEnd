@@ -218,9 +218,7 @@ public class ReviewService {
         if(!store.isPresent()){ throw new IllegalArgumentException("해당하는 업장이 없습니다.");}
 
 
-
         List<ReviewImage> imageList =  review.getReviewImageList();
-
 
         // todo 1.리뷰삭제 -> 2.이미지 삭제
         reviewRepository.deleteById(review.getId()); // 1
@@ -231,8 +229,7 @@ public class ReviewService {
             }
         }
 
-
-
+        store.get().removeReview(review);
         storeRepository.save(store.get().updatePointAvg()); // 별점 평점 구하는 코드
     }
 
