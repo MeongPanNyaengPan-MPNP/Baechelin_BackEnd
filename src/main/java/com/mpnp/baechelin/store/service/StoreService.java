@@ -220,6 +220,8 @@ public class StoreService {
      * @param sido 시/도명
      * @param sigungu 시/군/구명
      * @param keyword 검색어
+     * @param category 카테고리
+     * @param facility 배리어 프리 시설
      * @param socialId 사용자 소셜 아이디
      * @param pageable 페이징
      * @return 페이징이 적용된 검색 결과 리턴
