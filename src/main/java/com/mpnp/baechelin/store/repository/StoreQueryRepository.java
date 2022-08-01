@@ -29,6 +29,8 @@ import java.util.stream.Collectors;
 import static com.mpnp.baechelin.common.QueryDslSearch.getSearchBooleanBuilder;
 import static com.mpnp.baechelin.common.QuerydslLocation.locTwoPointAndConditions;
 import static com.mpnp.baechelin.store.domain.QStore.store;
+import static com.querydsl.core.types.dsl.Expressions.constant;
+import static com.querydsl.core.types.dsl.MathExpressions.*;
 
 @Repository
 @Transactional
@@ -57,14 +59,11 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
         List<Tuple> tupleList =
                 queryFactory
                         .select(store,
-//                                ((store.latitude.subtract(nowLat)).abs().add(store.longitude.subtract(nowLng)).abs()).as(diff),
-                                MathExpressions.acos(MathExpressions.cos(MathExpressions.radians(Expressions.constant(nowLat)))).multiply(6371)
-                                        .multiply(MathExpressions.cos(MathExpressions.radians(store.latitude)))
-                                        .multiply(MathExpressions.cos(MathExpressions.radians(store.longitude)
-                                                .subtract(MathExpressions.radians(Expressions.constant(nowLng)))))
-                                        .add(MathExpressions.sin(MathExpressions.radians(Expressions.constant(nowLat)))
-                                                .multiply(MathExpressions.sin(MathExpressions.radians(store.latitude)))).doubleValue().as(path)
-                                )
+                                acos(sin(radians(Expressions.constant(nowLat)))
+                                        .multiply(sin(radians(store.latitude)))
+                                        .add(cos(radians(Expressions.constant(nowLat))).multiply(cos(radians(store.latitude)))
+                                                .multiply(cos(radians(Expressions.constant(nowLng)).subtract(radians(store.longitude)))))).multiply(6371).as(path)
+                        )
                         .from(store)
                         .where(builder)
                         .orderBy(path.desc())
@@ -97,13 +96,10 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
         List<Tuple> tupleList =
                 queryFactory
                         .select(store,
-//                                ((store.latitude.subtract(nowLat)).abs().add(store.longitude.subtract(nowLng)).abs()).as(diff),
-                                MathExpressions.acos(MathExpressions.cos(MathExpressions.radians(Expressions.constant(lat)))).multiply(6371)
-                                        .multiply(MathExpressions.cos(MathExpressions.radians(store.latitude)))
-                                        .multiply(MathExpressions.cos(MathExpressions.radians(store.longitude)
-                                                .subtract(MathExpressions.radians(Expressions.constant(lng)))))
-                                        .add(MathExpressions.sin(MathExpressions.radians(Expressions.constant(lat)))
-                                                .multiply(MathExpressions.sin(MathExpressions.radians(store.latitude)))).doubleValue().as(path)
+                                acos(sin(radians(Expressions.constant(lat)))
+                                        .multiply(sin(radians(store.latitude)))
+                                        .add(cos(radians(Expressions.constant(lat))).multiply(cos(radians(store.latitude)))
+                                                .multiply(cos(radians(Expressions.constant(lng)).subtract(radians(store.longitude)))))).multiply(6371).as(path)
                         )
                         .from(store)
                         .where(builder)
