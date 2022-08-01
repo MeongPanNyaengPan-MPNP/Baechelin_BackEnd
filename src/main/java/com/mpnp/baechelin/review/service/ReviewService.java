@@ -123,6 +123,36 @@ public class ReviewService {
         return pageInfoResponseDto;
     }
 
+    public PageInfoResponseDto getReview(long storeId, Pageable pageable) {
+
+        Store store = storeRepository.findById(storeId).orElseThrow(() -> new IllegalArgumentException("해당 가게가 없습니다"));
+        Page<Review> reviewList = reviewRepository.findAllByStoreId(store, pageable);
+
+
+        List<ReviewResponseDto> reviewResponseDtoList = new ArrayList<>();
+        for (Review review : reviewList) {
+            ReviewResponseDto reviewResponseDto = new ReviewResponseDto(review);
+            Optional<User> user = userRepository.findById(reviewResponseDto.getUserId());
+            reviewResponseDto.userInfo(user.get());
+            reviewResponseDtoList.add(reviewResponseDto);
+        }
+
+
+        PageInfoResponseDto pageInfoResponseDto = PageInfoResponseDto
+                .builder()
+                .totalElements((int) reviewList.getTotalElements())
+                .totalPages(reviewList.getTotalPages())
+                .number(reviewList.getNumber())
+                .size(reviewList.getSize())
+                .reviewResponseDtoList(reviewResponseDtoList)
+                .hasNextPage(reviewList.isFirst() ? false : true)
+                .hasPreviousPage(!reviewList.isLast() ? false : true)
+                .build();
+
+
+        return pageInfoResponseDto;
+    }
+
 
     @Transactional
     /** 리뷰 수정 */

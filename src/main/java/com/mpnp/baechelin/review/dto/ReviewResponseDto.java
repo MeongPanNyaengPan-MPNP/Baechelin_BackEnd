@@ -60,8 +60,13 @@ public class ReviewResponseDto {
         } else if (this.userId != myUser.getId()){
             this.myReview = "N";
         }
+    }
 
-
+    public void userInfo(User user){
+        this.email    = user.getEmail();
+        this.name     = user.getName();
+        this.userImage = user.getProfileImageUrl();
+        this.myReview = "N";
     }
     @Builder
     @AllArgsConstructor
