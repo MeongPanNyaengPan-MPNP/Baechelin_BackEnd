@@ -64,8 +64,13 @@ public class ReviewResponseDto {
         } else {
             this.myReview = "N";
         }
+    }
 
-
+    public void userInfo(User user){
+        this.email    = user.getEmail();
+        this.name     = user.getName();
+        this.userImage = user.getProfileImageUrl();
+        this.myReview = "N";
     }
     @Builder
     @AllArgsConstructor
