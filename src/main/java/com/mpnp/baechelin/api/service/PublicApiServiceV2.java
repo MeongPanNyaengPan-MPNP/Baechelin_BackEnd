@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-@RequiredArgsConstructor
 /**
  * 공공 API V2 서비스 - V1과의 분리를 위해
  */
@@ -34,6 +33,13 @@ public class PublicApiServiceV2 {
     private final StoreRepository storeRepository;
     private final LocationService locationService;
     private final StoreImageService storeImageService;
+
+    public PublicApiServiceV2(StoreRepository storeRepository, LocationServiceRT locationService, StoreImageService storeImageService) {
+        this.storeRepository = storeRepository;
+        this.locationService = locationService;
+        this.storeImageService = storeImageService;
+    }
+
     @Value("${public.api.v2.key}")
     private String publicV2Key;
     @Value("${public.api.v2.key2}")

@@ -3,6 +3,8 @@ package com.mpnp.baechelin.api.controller;
 import com.mpnp.baechelin.api.service.LocationService;
 import com.mpnp.baechelin.api.dto.LocationInfoDto;
 import com.mpnp.baechelin.api.dto.LocationPartDto;
+import com.mpnp.baechelin.api.service.LocationServiceRT;
+import com.mpnp.baechelin.api.service.LocationServiceWC;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +20,7 @@ import java.util.List;
 @Slf4j
 @ApiOperation(value = "카카오톡 API를 통해 정보를 얻는 컨트롤러")
 public class LocationController {
-    private final LocationService locationService;
+    private final LocationServiceRT locationService;
 
     @ApiOperation(value = "위도, 경도를 주소로 바꾸는 함수")
     @GetMapping("/convert/geo")
