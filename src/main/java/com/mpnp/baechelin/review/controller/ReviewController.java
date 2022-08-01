@@ -40,7 +40,7 @@ public class ReviewController {
                                                               @AuthenticationPrincipal User user,
                                                               @PageableDefault(page = 0, size = 5, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        PageInfoResponseDto pageInfoResponseDto = reviewService.getReview(storeId, user.getUsername(), pageable);
+        PageInfoResponseDto pageInfoResponseDto = reviewService.getReview(storeId, user == null ? null : user.getUsername(), pageable);
         return new ResponseEntity<>(pageInfoResponseDto, HttpStatus.OK);
     }
 
