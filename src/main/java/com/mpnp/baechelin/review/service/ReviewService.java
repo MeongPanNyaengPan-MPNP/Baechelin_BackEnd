@@ -53,10 +53,10 @@ public class ReviewService {
      */
     public void review(ReviewRequestDto reviewRequestDto, String socialId) throws IOException {
 
-        long   storeId = reviewRequestDto.getStoreId();
-        Store  store   = storeRepository.findById(storeId).orElseThrow(() -> new IllegalArgumentException("해당하는 업장이 존재하지 않습니다."));
-        User   user    = userRepository.findBySocialId(socialId);
-        Review review  = new Review(reviewRequestDto, store, user);
+        long storeId = reviewRequestDto.getStoreId();
+        Store store = storeRepository.findById(storeId).orElseThrow(() -> new IllegalArgumentException("해당하는 업장이 존재하지 않습니다."));
+        User user = userRepository.findBySocialId(socialId);
+        Review review = new Review(reviewRequestDto, store, user);
 
 
         // todo 태크 매핑
@@ -72,7 +72,7 @@ public class ReviewService {
 
 
         // todo 이미지가 널값이 아니라면 업로드 실행
-        if (newReviewImage != null) {
+        if (newReviewImage != null && !newReviewImage.isEmpty()) {
             for (MultipartFile reviewImageFile : newReviewImage) {
                 String fileDir = awsS3Manager.uploadFile(reviewImageFile);
                 log.info("upload --> " + fileDir);
@@ -213,9 +213,8 @@ public class ReviewService {
 
         User   user   = userRepository  .findBySocialId(socialId); if (user == null) { new IllegalArgumentException("해당하는 소셜아이디를 찾을 수 없습니다."); }   // 유저 유무 확인 예외처리
         Review review = reviewRepository.findById(reviewId).orElseThrow(() -> new IllegalArgumentException("해당하는 리뷰가 이미 삭제 되었습니다."));                       // 리뷰 유무 확인 예외처리;
-
         Optional<Store> store = storeRepository.findById(Long.valueOf(review.getStoreId().getId()));
-        if(!store.isPresent()){ throw new IllegalArgumentException("해당하는 업장이 없습니다.");}
+        if(store.isEmpty()){ throw new IllegalArgumentException("해당하는 업장이 없습니다.");}
 
 
         List<ReviewImage> imageList =  review.getReviewImageList();
@@ -224,6 +223,7 @@ public class ReviewService {
         reviewRepository.deleteById(review.getId()); // 1
         if (!review.getReviewImageList().isEmpty()) { // 2
             for (ReviewImage reviewImage : imageList) {
+                if (reviewImage.getReviewImageUrl() == null || reviewImage.getReviewImageUrl().equals("")) continue;
                 System.out.println("delete -> " + reviewImage.getReviewImageUrl().substring(reviewImage.getReviewImageUrl().indexOf("com/") + 4));
                 awsS3Manager.deleteFile(reviewImage.getReviewImageUrl().substring(reviewImage.getReviewImageUrl().indexOf("com/") + 4));
             }

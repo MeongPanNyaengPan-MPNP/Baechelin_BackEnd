@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -23,7 +22,6 @@ public class BookmarkController {
 
     /** 북마크 생성 폴더 담기 */
     @PostMapping("/bookmark")
-
     public ResponseEntity<?> bookmark(@RequestBody BookmarkRequestDto bookmarkRequestDto,
                                       @AuthenticationPrincipal User user){
 

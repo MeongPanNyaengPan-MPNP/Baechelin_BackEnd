@@ -27,11 +27,17 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-@RequiredArgsConstructor
 public class PublicApiService {
     private final StoreRepository storeRepository;
     private final LocationService locationService;
     private final StoreImageService storeImageService;
+
+    public PublicApiService(StoreRepository storeRepository, LocationServiceRT locationService, StoreImageService storeImageService) {
+        this.storeRepository = storeRepository;
+        this.locationService = locationService;
+        this.storeImageService = storeImageService;
+    }
+
     @Value("${public.api.v1.key}")
     private String publicV1Key;
 
