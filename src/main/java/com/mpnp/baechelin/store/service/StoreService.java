@@ -78,7 +78,7 @@ public class StoreService {
      * @return 위도, 경도, 카테고리, 배리어 프리, 페이징을 만족하는 배리어 프리 업장 리턴
      */
     public StorePagedResponseDto getStoreInOnePointRange(BigDecimal lat, BigDecimal lng, String category, List<String> facility, Pageable pageable, String socialId) {
-        BigDecimal[] range = QuerydslLocation.getRange(lat, lng, 3);
+        BigDecimal[] range = QuerydslLocation.getRange(lat, lng, 2);
         if (range == null)
             return getStoreInOnePointRange(null, null, null, null,lat,lng, category, facility, pageable, socialId);
         return getStoreInOnePointRange(range[0], range[1], range[2], range[3],lat,lng, category, facility, pageable, socialId);
