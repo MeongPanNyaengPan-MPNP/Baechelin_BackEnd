@@ -244,6 +244,8 @@
 
 [가게 검색 기능](https://planet-punishment-427.notion.site/6db6471276004027be4a0784de4964ed)
 
+[공공 API의 정보 가공](https://planet-punishment-427.notion.site/API-8adec124d1fd4a11b1a06d3e4039871d)
+
 
 <br>
 
