@@ -44,6 +44,8 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                 Authentication authentication = tokenProvider.getAuthentication(token);
                 // SecurityContextHolder 에 인증 객체를 넣는다.
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+            } else {
+                throw new CustomException(ErrorCode.ACCESS_TOKEN_NOT_EXIST);
             }
         // 에러가 발생했을 때, request에 attribute를 세팅하고 RestAuthenticationEntryPoint로 request를 넘겨준다.
         } catch (SignatureException e) {
@@ -61,6 +63,9 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
         } catch (IllegalArgumentException e) {
             log.info(e.toString().split(":")[1].trim());
             request.setAttribute("exception", ErrorCode.INVALID_ACCESS_TOKEN.getCode());
+        } catch (CustomException e) {
+            log.info("Access Token이 존재하지 않습니다.");
+            request.setAttribute("exception", ErrorCode.ACCESS_TOKEN_NOT_EXIST.getCode());
         }
 
         filterChain.doFilter(request, response);
