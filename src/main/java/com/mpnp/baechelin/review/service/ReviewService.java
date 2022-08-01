@@ -123,6 +123,36 @@ public class ReviewService {
         return pageInfoResponseDto;
     }
 
+    public PageInfoResponseDto getReview(long storeId, Pageable pageable) {
+
+        Store store = storeRepository.findById(storeId).orElseThrow(() -> new IllegalArgumentException("해당 가게가 없습니다"));
+        Page<Review> reviewList = reviewRepository.findAllByStoreId(store, pageable);
+
+
+        List<ReviewResponseDto> reviewResponseDtoList = new ArrayList<>();
+        for (Review review : reviewList) {
+            ReviewResponseDto reviewResponseDto = new ReviewResponseDto(review);
+            Optional<User> user = userRepository.findById(reviewResponseDto.getUserId());
+            reviewResponseDto.userInfo(user.get());
+            reviewResponseDtoList.add(reviewResponseDto);
+        }
+
+
+        PageInfoResponseDto pageInfoResponseDto = PageInfoResponseDto
+                .builder()
+                .totalElements((int) reviewList.getTotalElements())
+                .totalPages(reviewList.getTotalPages())
+                .number(reviewList.getNumber())
+                .size(reviewList.getSize())
+                .reviewResponseDtoList(reviewResponseDtoList)
+                .hasNextPage(reviewList.isFirst() ? false : true)
+                .hasPreviousPage(!reviewList.isLast() ? false : true)
+                .build();
+
+
+        return pageInfoResponseDto;
+    }
+
 
     @Transactional
     /** 리뷰 수정 */
@@ -211,30 +241,30 @@ public class ReviewService {
      */
     public void reviewDelete(String socialId, int reviewId) {
 
-        User user = userRepository.findBySocialId(socialId);  // 유저 매핑
-        Optional<Review> review = reviewRepository.findById(reviewId);      // 리뷰 매핑
+        User   user   = userRepository  .findBySocialId(socialId); if (user == null) { new IllegalArgumentException("해당하는 소셜아이디를 찾을 수 없습니다."); }   // 유저 유무 확인 예외처리
+        Review review = reviewRepository.findById(reviewId).orElseThrow(() -> new IllegalArgumentException("해당하는 리뷰가 이미 삭제 되었습니다."));                       // 리뷰 유무 확인 예외처리;
+        Optional<Store> store = storeRepository.findById(Long.valueOf(review.getStoreId().getId()));
+        if(store.isEmpty()){ throw new IllegalArgumentException("해당하는 업장이 없습니다.");}
 
-        if (user == null) {
-            throw new IllegalArgumentException("해당하는 소셜아이디를 찾을 수 없습니다.");
-        }      // 유저 유무 확인 예외처리
 
-        review.orElseThrow(() -> new IllegalArgumentException("해당하는 리뷰가 이미 삭제 되었습니다.")); // 리뷰 유무 확인 예외처리
-
-        List<ReviewImage> imageList = review.get().getReviewImageList();
-        Store store = review.get().getStoreId();
+        List<ReviewImage> imageList =  review.getReviewImageList();
 
         // todo 1.리뷰삭제 -> 2.이미지 삭제
-        reviewRepository.deleteById(review.get().getId()); // 1
-        if (!review.get().getReviewImageList().isEmpty()) { // 2
+        reviewRepository.deleteById(review.getId()); // 1
+        if (!review.getReviewImageList().isEmpty()) { // 2
             for (ReviewImage reviewImage : imageList) {
                 if (reviewImage.getReviewImageUrl() == null || reviewImage.getReviewImageUrl().equals("")) continue;
                 System.out.println("delete -> " + reviewImage.getReviewImageUrl().substring(reviewImage.getReviewImageUrl().indexOf("com/") + 4));
                 awsS3Manager.deleteFile(reviewImage.getReviewImageUrl().substring(reviewImage.getReviewImageUrl().indexOf("com/") + 4));
             }
         }
-        store.removeReview(review.get());
-        storeRepository.save(store.updatePointAvg()); // 별점 평점 구하는 코드
+
+        store.get().removeReview(review);
+        storeRepository.save(store.get().updatePointAvg()); // 별점 평점 구하는 코드
     }
+
+
+
 
     public List<ReviewMainResponseDto> getRecentReview(BigDecimal lat, BigDecimal lng, int limit) {
         return reviewQueryRepository

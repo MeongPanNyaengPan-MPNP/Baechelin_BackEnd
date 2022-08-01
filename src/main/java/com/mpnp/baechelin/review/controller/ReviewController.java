@@ -40,8 +40,16 @@ public class ReviewController {
                                                               @AuthenticationPrincipal User user,
                                                               @PageableDefault(page = 0, size = 5, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        PageInfoResponseDto pageInfoResponseDto = reviewService.getReview(storeId, user.getUsername(), pageable);
-        return new ResponseEntity<>(pageInfoResponseDto, HttpStatus.OK);
+        if (user != null) {
+            PageInfoResponseDto pageInfoResponseDto = reviewService.getReview(storeId, user.getUsername(), pageable);
+            return new ResponseEntity<>(pageInfoResponseDto, HttpStatus.OK);
+        }
+
+        if (user == null) {
+            PageInfoResponseDto pageInfoResponseDto = reviewService.getReview(storeId, pageable);
+            return new ResponseEntity<>(pageInfoResponseDto, HttpStatus.OK);
+        }
+        return null;
     }
 
 //    @GetMapping("/review/{storeId}")
@@ -88,7 +96,7 @@ public class ReviewController {
     /** 리뷰 삭제 */
     @DeleteMapping("/review/{reviewId}")
     public ResponseEntity<?> reviewDelete(@AuthenticationPrincipal User user,
-                                          @PathVariable int reviewId) throws IOException {
+                                          @PathVariable int reviewId) {
 
         if(user==null){ throw new IllegalArgumentException("해당하는 회원 정보가 없습니다."); }
         reviewService.reviewDelete(user.getUsername(), reviewId);

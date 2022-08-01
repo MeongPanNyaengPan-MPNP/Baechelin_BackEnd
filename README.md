@@ -240,9 +240,14 @@
 
 [WebClient & RestTemplate](https://planet-punishment-427.notion.site/WebClient-RestTemplate-1412e5edae0d4dac9a89cde89658812c)
 
+[공공 API의 정보 가공](https://planet-punishment-427.notion.site/API-8adec124d1fd4a11b1a06d3e4039871d)
+
+[무중단 배포에서의 스케쥴링락](https://planet-punishment-427.notion.site/672bab5cbbe84871b701268e43dcd543)
+
 [Refresh Token 적용](https://planet-punishment-427.notion.site/Refresh-Token-fee659681d4a4c2483a495a3ad567173)
 
 [가게 검색 기능](https://planet-punishment-427.notion.site/6db6471276004027be4a0784de4964ed)
+
 
 
 <br>

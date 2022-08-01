@@ -43,6 +43,10 @@ public class TokenService {
     public AuthResponse refreshToken(HttpServletRequest request, HttpServletResponse response) {
         AuthToken authToken = tokenProvider.convertAccessToken(request);
 
+        if (authToken == null) {
+            throw new CustomException(ErrorCode.ACCESS_TOKEN_NOT_EXIST);
+        }
+
         Claims claims = authToken.getExpiredTokenClaims();
 
         // 유효한 access token 인지, 만료된 token 인지 확인
