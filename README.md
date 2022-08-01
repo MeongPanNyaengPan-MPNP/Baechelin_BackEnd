@@ -248,6 +248,7 @@
 
 [가게 검색 기능](https://planet-punishment-427.notion.site/6db6471276004027be4a0784de4964ed)
 
+[Batch Reader Api 요청 속도](https://planet-punishment-427.notion.site/Batch-Reader-Api-188339e4d37a4186befd2980012a2512)
 
 
 <br>

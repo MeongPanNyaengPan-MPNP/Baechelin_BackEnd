@@ -1,21 +1,17 @@
 package com.mpnp.baechelin.store.repository;
 
-import com.mpnp.baechelin.bookmark.domain.Bookmark;
-import com.mpnp.baechelin.bookmark.domain.QBookmark;
 import com.mpnp.baechelin.common.QueryDslSearch;
 import com.mpnp.baechelin.common.QuerydslLocation;
 import com.mpnp.baechelin.store.domain.QStore;
 import com.mpnp.baechelin.store.domain.Store;
-import com.mpnp.baechelin.store.dto.StoreCardResponseDto;
-import com.mpnp.baechelin.user.domain.QUser;
-import com.mpnp.baechelin.user.domain.User;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.Tuple;
+import com.querydsl.core.types.Constant;
 import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.Projections;
-import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.Path;
+import com.querydsl.core.types.dsl.*;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.criterion.Projection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -24,8 +20,11 @@ import org.springframework.stereotype.Repository;
 
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.mpnp.baechelin.common.QueryDslSearch.getSearchBooleanBuilder;
 import static com.mpnp.baechelin.common.QuerydslLocation.locTwoPointAndConditions;
@@ -42,7 +41,7 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
         this.queryFactory = queryFactory;
     }
 
-    public Page<Store> findBetweenOnePointOrder(BigDecimal latStart,
+    public Page<Store> findBetweenTwoPointOrder(BigDecimal latStart,
                                                 BigDecimal latEnd,
                                                 BigDecimal lngStart,
                                                 BigDecimal lngEnd,
@@ -54,14 +53,66 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
             return findBetweenOnePointOrderNullCase(builder, pageable);
         BigDecimal nowLat = (latStart.add(latEnd)).divide(new BigDecimal("2"), 22, RoundingMode.HALF_UP);
         BigDecimal nowLng = (lngStart.add(lngEnd)).divide(new BigDecimal("2"), 22, RoundingMode.HALF_UP);
-        List<Store> storeList =
+        NumberPath<Double> path = Expressions.numberPath(Double.class, "realdist");
+        List<Tuple> tupleList =
                 queryFactory
-                        .selectFrom(store)
+                        .select(store,
+//                                ((store.latitude.subtract(nowLat)).abs().add(store.longitude.subtract(nowLng)).abs()).as(diff),
+                                MathExpressions.acos(MathExpressions.cos(MathExpressions.radians(Expressions.constant(nowLat)))).multiply(6371)
+                                        .multiply(MathExpressions.cos(MathExpressions.radians(store.latitude)))
+                                        .multiply(MathExpressions.cos(MathExpressions.radians(store.longitude)
+                                                .subtract(MathExpressions.radians(Expressions.constant(nowLng)))))
+                                        .add(MathExpressions.sin(MathExpressions.radians(Expressions.constant(nowLat)))
+                                                .multiply(MathExpressions.sin(MathExpressions.radians(store.latitude)))).doubleValue().as(path)
+                                )
+                        .from(store)
                         .where(builder)
-                        .orderBy(orderDistance(nowLat, nowLng))
+                        .orderBy(path.desc())
                         .limit(pageable.getPageSize())
                         .offset(pageable.getOffset())
                         .fetch();
+        List<Store> storeList = tupleList.stream().map(tuple -> tuple.get(store)).collect(Collectors.toList());
+        int fetchCount = queryFactory.selectFrom(store).where(builder).fetch().size();
+        return new PageImpl<>(storeList, pageable, fetchCount);
+    }
+
+
+    public Page<Store> findBetweenOnePointOrder(BigDecimal latStart,
+                                                BigDecimal latEnd,
+                                                BigDecimal lngStart,
+                                                BigDecimal lngEnd,
+                                                BigDecimal lat,
+                                                BigDecimal lng,
+                                                String category,
+                                                List<String> facility,
+                                                Pageable pageable) {
+        BooleanBuilder builder = QuerydslLocation.locAndConditions(latStart, latEnd, lngStart, lngEnd, category, facility);
+        if (latStart == null || lngStart == null || lngEnd == null || latEnd == null)
+            return findBetweenOnePointOrderNullCase(builder, pageable);
+        BigDecimal latH = new BigDecimal("110.852");
+        BigDecimal lngH = new BigDecimal("78.847");
+        NumberPath<Double> path = Expressions.numberPath(Double.class, "realdist");
+
+        NumberPath<BigDecimal> diff = Expressions.numberPath(BigDecimal.class, "diff");
+        List<Tuple> tupleList =
+                queryFactory
+                        .select(store,
+//                                ((store.latitude.subtract(nowLat)).abs().add(store.longitude.subtract(nowLng)).abs()).as(diff),
+                                MathExpressions.acos(MathExpressions.cos(MathExpressions.radians(Expressions.constant(lat)))).multiply(6371)
+                                        .multiply(MathExpressions.cos(MathExpressions.radians(store.latitude)))
+                                        .multiply(MathExpressions.cos(MathExpressions.radians(store.longitude)
+                                                .subtract(MathExpressions.radians(Expressions.constant(lng)))))
+                                        .add(MathExpressions.sin(MathExpressions.radians(Expressions.constant(lat)))
+                                                .multiply(MathExpressions.sin(MathExpressions.radians(store.latitude)))).doubleValue().as(path)
+                        )
+                        .from(store)
+                        .where(builder)
+//                        .orderBy(diff.asc())
+                        .orderBy(path.asc())
+                        .limit(pageable.getPageSize())
+                        .offset(pageable.getOffset())
+                        .fetch();
+        List<Store> storeList = tupleList.stream().map(tuple -> tuple.get(store)).collect(Collectors.toList());
         int fetchCount = queryFactory.selectFrom(store).where(builder).fetch().size();
         return new PageImpl<>(storeList, pageable, fetchCount);
     }
@@ -77,10 +128,6 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
         return new PageImpl<>(storeList, pageable, storeList.size());
     }
 
-    private OrderSpecifier<?> orderDistance(BigDecimal nowLat, BigDecimal nowLng) {
-        return QStore.store.latitude.subtract(nowLat).abs().add(QStore.store.longitude.subtract(nowLng)).abs().asc();
-    }
-
     public Page<Store> findStoreOrderByPoint(BigDecimal lat,
                                              BigDecimal lng,
                                              String category,
@@ -93,7 +140,6 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
                 .selectFrom(store)
                 .where(builder)
                 .orderBy(store.pointAvg.desc())
-                .orderBy(orderDistance(lat, lng))
                 .limit(pageable.getPageSize())
                 .offset(pageable.getOffset())
                 .fetch();

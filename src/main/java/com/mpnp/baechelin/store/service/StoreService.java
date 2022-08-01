@@ -50,10 +50,19 @@ public class StoreService {
      * @param socialId 유저 소셜 로그인 아이디
      * @return 조건을 만족하는 업장의 DTO
      */
-    public StorePagedResponseDto getStoreInRange(BigDecimal latStart, BigDecimal latEnd, BigDecimal lngStart, BigDecimal lngEnd, String category, List<String> facility, Pageable pageable, String socialId) {
+    public StorePagedResponseDto getStoreInTwoPointRange(BigDecimal latStart, BigDecimal latEnd, BigDecimal lngStart, BigDecimal lngEnd, String category, List<String> facility, Pageable pageable, String socialId) {
 //    public List<StoreCardResponseDto> getStoreInRange(BigDecimal latStart, BigDecimal latEnd, BigDecimal lngStart, BigDecimal lngEnd, String category, List<String> facility, Pageable pageable, String socialId) {
         User targetUser = socialId == null ? null : userRepository.findBySocialId(socialId);
-        Page<Store> betweenLngLat = storeQueryRepository.findBetweenOnePointOrder(latStart, latEnd, lngStart, lngEnd, category, facility, pageable);
+        Page<Store> betweenLngLat = storeQueryRepository.findBetweenTwoPointOrder(latStart, latEnd, lngStart, lngEnd, category, facility, pageable);
+        // store  가져와서 dto 매핑
+        return getStoreCardPagedResponseDto(targetUser, betweenLngLat);
+    }
+
+    public StorePagedResponseDto getStoreInOnePointRange(BigDecimal latStart, BigDecimal latEnd, BigDecimal lngStart, BigDecimal lngEnd, BigDecimal lat, BigDecimal lng,
+                                                         String category, List<String> facility, Pageable pageable, String socialId) {
+//    public List<StoreCardResponseDto> getStoreInRange(BigDecimal latStart, BigDecimal latEnd, BigDecimal lngStart, BigDecimal lngEnd, String category, List<String> facility, Pageable pageable, String socialId) {
+        User targetUser = socialId == null ? null : userRepository.findBySocialId(socialId);
+        Page<Store> betweenLngLat = storeQueryRepository.findBetweenOnePointOrder(latStart, latEnd, lngStart, lngEnd, lat, lng, category, facility, pageable);
         // store  가져와서 dto 매핑
         return getStoreCardPagedResponseDto(targetUser, betweenLngLat);
     }
@@ -69,9 +78,10 @@ public class StoreService {
      * @return 위도, 경도, 카테고리, 배리어 프리, 페이징을 만족하는 배리어 프리 업장 리턴
      */
     public StorePagedResponseDto getStoreInOnePointRange(BigDecimal lat, BigDecimal lng, String category, List<String> facility, Pageable pageable, String socialId) {
-        BigDecimal[] range = QuerydslLocation.getRange(lat, lng, 10);
-        if (range == null) return getStoreInRange(null, null, null, null, category, facility, pageable, socialId);
-        return getStoreInRange(range[0], range[1], range[2], range[3], category, facility, pageable, socialId);
+        BigDecimal[] range = QuerydslLocation.getRange(lat, lng, 3);
+        if (range == null)
+            return getStoreInOnePointRange(null, null, null, null,lat,lng, category, facility, pageable, socialId);
+        return getStoreInOnePointRange(range[0], range[1], range[2], range[3],lat,lng, category, facility, pageable, socialId);
     }
 
     public StorePagedResponseDto getStoreInRangeMap(BigDecimal lat, BigDecimal lng, String category, List<String> facility, Pageable pageable, String socialId) {
@@ -130,6 +140,7 @@ public class StoreService {
 
     /**
      * 업장 상세 조회
+     *
      * @param storeId  업장 아이디
      * @param socialId 유저 social 아이디
      * @return 업장 상세 정보
@@ -141,7 +152,7 @@ public class StoreService {
 
         store.getStoreImageList().forEach(storeImage -> storeImageList.add(storeImage.getStoreImageUrl()));
         store.getReviewList().forEach(review -> review.getReviewImageList()
-                        .forEach(reviewImage -> storeImageList.add(reviewImage.getReviewImageUrl())));
+                .forEach(reviewImage -> storeImageList.add(reviewImage.getReviewImageUrl())));
 
         User targetUser = socialId == null ? null : userRepository.findBySocialId(socialId);
 
@@ -191,9 +202,10 @@ public class StoreService {
 
     /**
      * 업장 검색
-     * @param sido 시/도명
-     * @param sigungu 시/군/구명
-     * @param keyword 검색어
+     *
+     * @param sido     시/도명
+     * @param sigungu  시/군/구명
+     * @param keyword  검색어
      * @param category 카테고리
      * @param facility 배리어 프리 시설
      * @param socialId 사용자 소셜 아이디
