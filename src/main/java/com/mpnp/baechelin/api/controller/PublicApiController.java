@@ -25,7 +25,7 @@ public class PublicApiController {
     @ApiOperation(value="공공 API V1을 통해 DB에 정보를 저장/업데이트하는 함수")
     @PostMapping("/api")
     public SuccessResponse getPublicApi(@Valid @RequestBody PublicApiRequestDto publicApiRequestDto) {
-        publicApiService.processApiV1(publicApiRequestDto);
+//        publicApiService.processApiV1(publicApiRequestDto);
         return new SuccessResponse("공공 API V1 적용 완료");
     }
 
@@ -33,12 +33,12 @@ public class PublicApiController {
     @GetMapping("/new-api")
     public SuccessResponse getPublicApiV2(@RequestParam String siDoNm,
                                           @RequestParam String cggNm){
-        publicApiServiceV2.processApi(siDoNm, cggNm, 1);
+//        publicApiServiceV2.processApi(siDoNm, cggNm, 1);
         return new SuccessResponse("공공 API V2 적용 완료");
     }
 
     @GetMapping("/api-read")
     public void go(@RequestParam String serviceKey){
-        publicApiServiceV2.start();
+//        publicApiServiceV2.start();
     }
 }
