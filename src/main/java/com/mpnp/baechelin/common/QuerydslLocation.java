@@ -52,7 +52,7 @@ public class QuerydslLocation {
     public static BooleanBuilder locTwoPointAndConditions(BigDecimal latitude, BigDecimal longitude, String category, List<String> facility) {
         BooleanBuilder builder = new BooleanBuilder();
         if (latitude != null && longitude != null) {
-            BigDecimal[] location = getRange(latitude, longitude, 10);
+            BigDecimal[] location = getRange(latitude, longitude, 3);
             builder = locationBuilder(location[0], location[1], location[2], location[3]);
         }
         return getBooleanBuilder(category, facility, builder);
