@@ -104,8 +104,13 @@ public class Store {
         this.bookMarkCount = this.getBookmarkList().size();
         return this;
     }
-    public void removeReview(Review review){
+
+    public void removeReview(Review review) {
         this.reviewList.remove(review);
+    }
+
+    public void removeBookmark(Bookmark bookmark) {
+        this.bookmarkList.remove(bookmark);
     }
 
     public Store updatePointAvg() {
@@ -114,7 +119,7 @@ public class Store {
         for (Review review : reviewList) {
             totalPoint += review.getPoint();
         }
-        this.pointAvg = Double.parseDouble(String.format("%.1f", totalPoint / reviewList.size()));
+        this.pointAvg = reviewCount == 0 ? 0 : Double.parseDouble(String.format("%.1f", totalPoint / reviewList.size()));
         return this;
     }
 

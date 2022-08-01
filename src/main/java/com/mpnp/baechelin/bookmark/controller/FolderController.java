@@ -61,7 +61,6 @@ public class FolderController {
     /** 폴더 리스트 */
     @GetMapping("/folderList")
     public List<FolderResponseDto> folderList (@AuthenticationPrincipal User user){
-
         return folderService.folderList(user.getUsername());
     }
 }

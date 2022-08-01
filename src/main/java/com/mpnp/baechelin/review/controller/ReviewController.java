@@ -40,8 +40,16 @@ public class ReviewController {
                                                               @AuthenticationPrincipal User user,
                                                               @PageableDefault(page = 0, size = 5, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        PageInfoResponseDto pageInfoResponseDto = reviewService.getReview(storeId, user.getUsername(), pageable);
-        return new ResponseEntity<>(pageInfoResponseDto, HttpStatus.OK);
+        if (user != null) {
+            PageInfoResponseDto pageInfoResponseDto = reviewService.getReview(storeId, user.getUsername(), pageable);
+            return new ResponseEntity<>(pageInfoResponseDto, HttpStatus.OK);
+        }
+
+        if (user == null) {
+            PageInfoResponseDto pageInfoResponseDto = reviewService.getReview(storeId, pageable);
+            return new ResponseEntity<>(pageInfoResponseDto, HttpStatus.OK);
+        }
+        return null;
     }
 
 //    @GetMapping("/review/{storeId}")

@@ -37,6 +37,10 @@ public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
         else if(exception.equals(ErrorCode.EXPIRED_ACCESS_TOKEN.getCode())) {
             setResponse(response, ErrorCode.EXPIRED_ACCESS_TOKEN);
         }
+        // 토큰이 존재하지 않을 경우
+        else if (exception.equals(ErrorCode.ACCESS_TOKEN_NOT_EXIST.getCode())) {
+            setResponse(response, ErrorCode.ACCESS_TOKEN_NOT_EXIST);
+        }
         else {
             setResponse(response, ErrorCode.INVALID_ACCESS_TOKEN);
         }
