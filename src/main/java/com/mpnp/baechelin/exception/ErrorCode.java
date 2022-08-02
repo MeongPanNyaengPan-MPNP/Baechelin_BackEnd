@@ -24,7 +24,14 @@ public enum ErrorCode {
     NULL_POINTER_EXCEPTION(500, "E-NPE500", "빈 값이 들어올 수 없습니다."),
     IMAGE_PROCESS_FAIL(500,"E-IPF500","이미지 오류 발생"),
     KEYWORD_ARE_NEEDED(500, "E-KAE500", "검색어를 입력해주세요."),
-    INVALID_BARRIER_TAG(500, "E-IBT500","배리어 프리 태그를 확인해주세요");
+    INVALID_BARRIER_TAG(500, "E-IBT500","배리어 프리 태그를 확인해주세요."),
+    NO_STORE_FOUND(500, "E-NSF", "가게가 존재하지 않습니다."),
+    NO_FOLDER_FOUND(500, "E-NFF", "폴더가 존재하지 않습니다."),
+    NO_BOOKMARK_FOUND(500, "E-NBF", "북마크가 존재하지 않습니다."),
+    NO_USER_FOUND(500, "E-NUF", "유저가 존재하지 않습니다."),
+    NO_REVIEW_FOUND(500, "E-NRF", "리뷰가 존재하지 않습니다."),
+
+    ;
 
     private final int status;
     private final String code;
