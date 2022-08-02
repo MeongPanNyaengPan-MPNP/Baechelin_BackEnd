@@ -27,5 +27,6 @@ public class StorePagedResponseDto {
         this.totalCount = resultStoreList.getTotalElements();
         this.page = resultStoreList.getNumber();
         this.leftElement = totalCount - (long) page * resultStoreList.getSize() - resultStoreList.getNumberOfElements();
+        this.leftElement = this.leftElement < 0 ? 0 : this.leftElement;
     }
 }
