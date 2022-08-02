@@ -71,13 +71,15 @@ public class BatchConfiguration {
 
     private static final int CHUNKSIZE = 100; //쓰기 단위인 청크사이즈
 
+    private static int STORE_SIZE = 0; //쓰기 단위인 청크사이즈
+
 
 
     @Bean
     public Job JpaPageJob2_batchBuild1() throws JsonProcessingException{
         return jobBuilderFactory.get("JpaPageJob2_batchBuild_save")
-                .start(JpaPageJob1_step1()) // store_api_update API 응답데이터 받기
-                .next(jpaPageJob1_step2())  // 추가된 업장이 있으면 store 테이블에 INSERT
+//                .start(JpaPageJob1_step1()) // store_api_update API 응답데이터 받기
+                .start(jpaPageJob1_step2())  // 추가된 업장이 있으면 store 테이블에 INSERT
 //                .next(JpaPageJob2_step2())  // 사라진 업장이 있으면 store 테이블에 DELETE
                 .next(JpaPageJob1_step4()) // 수정된 업장이 있다면 store 테이블에 UPDATE
                 .build();
@@ -86,107 +88,101 @@ public class BatchConfiguration {
 
 
 
-    @Bean
-    public Step JpaPageJob1_step1() throws JsonProcessingException{
-
-        return stepBuilderFactory.get("JpaPageJob2_step1")
-                //청크사이즈 설정
-                .<StoreApiUpdate, StoreApiUpdate>chunk(CHUNKSIZE)
-                .reader(jpaPageJob1_ItemReader())
-                .processor(jpaPageJob1_Processor())
-                .writer(jpaPageJob1_dbItemWriter())
-                .build();
-
-    }
-
-    @Bean
-    public ListItemReader<StoreApiUpdate> jpaPageJob1_ItemReader() throws JsonProcessingException{
-
-        List<StoreApiUpdate> storeApiUpdateList = new ArrayList<>();
-
-        List<List<String>> csvList = readCSVFile("src/main/resources/static/sigungu.csv");
-        List<List<List<String>>> csvListList = Lists.partition(csvList, csvList.size()/30);
-
-
-        List<ApiUpdateThread> apiUpdateThreadList = new ArrayList<>();
-        int index = 1;
-        for(List<List<String>> csvListAvg: csvListList){
-            ApiUpdateThread apiUpdateThread = new ApiUpdateThread(csvListAvg, storeApiUpdateList, 1, publicV2Key2, kokoaApiKey, index);
-            apiUpdateThread.start();
-            apiUpdateThreadList.add(apiUpdateThread);
-            index ++;
-        }
-
-        try {
-            for (ApiUpdateThread apiUpdateThread: apiUpdateThreadList){
-                apiUpdateThread.join();
-
-            }
-        } catch(Exception e){
-            e.printStackTrace();
-        }
-
-        log.info("store SIZE --> "+ storeApiUpdateList.size());
-
-        HttpHeaders  headers = new HttpHeaders();
-        RestTemplate rest    = new RestTemplate();
-        String body          = "";
-
-        HttpEntity<String>      requestEntity  = new HttpEntity<String>(body, headers);
-        ResponseEntity<String>  responseEntity = rest.exchange("http://openapi.seoul.go.kr:8088/5274616b45736f7933376e6c525658/json/touristFoodInfo/1/1000/", HttpMethod.GET, requestEntity, String.class);
-        HttpStatus              httpStatus     = responseEntity.getStatusCode();
-        String                  response       = responseEntity.getBody();
-
-
-        JsonDTO jsonDTO = new Gson().fromJson(response, JsonDTO.class);  //conversion using Gson Library.
-        setInfos(jsonDTO);
-
-        storeApiUpdateList.addAll(saveValidStores(jsonDTO.getTouristFoodInfo().getRow()));
-
-
-        log.info("store SIZE --> "+ storeApiUpdateList.size());
-
-        return new ListItemReader<>(storeApiUpdateList);
-
-
-    }
-
-    private ItemProcessor<StoreApiUpdate, StoreApiUpdate> jpaPageJob1_Processor() {
-        return storeApiUpdate -> {
-
-            log.info(storeApiUpdate.toString());
-
-            log.info("********** This is unPaidMemberProcessor");
-            return storeApiUpdate;
-
-        };
-    }
-    @Bean
-    public ItemWriter<StoreApiUpdate> jpaPageJob1_dbItemWriter(){
-
-
-        log.info("********** This is unPaidStoreWriter");
-
-        return list -> {
-            for(StoreApiUpdate storeApiUpdate: list){
-                if(!storeApiUpdateRepository.existsById(storeApiUpdate.getId())){
-                    storeImageService.saveImage(storeApiUpdate.getId());
-                }
-            }
-            storeApiUpdateRepository.saveAll(list);
-        };
-
-    }
-
-
-
-
+//    @Bean
+//    public Step JpaPageJob1_step1() throws JsonProcessingException{
+//
+//        return stepBuilderFactory.get("JpaPageJob2_step1")
+//                //청크사이즈 설정
+//                .<StoreApiUpdate, StoreApiUpdate>chunk(CHUNKSIZE)
+//                .reader(jpaPageJob1_ItemReader())
+//                .processor(jpaPageJob1_Processor())
+//                .writer(jpaPageJob1_dbItemWriter())
+//                .build();
+//
+//    }
+//
+//        @Bean
+//        public ListItemReader<StoreApiUpdate> jpaPageJob1_ItemReader() throws JsonProcessingException{
+//
+//            List<StoreApiUpdate> storeApiUpdateList = new ArrayList<>();
+//
+//            List<List<String>> csvList = readCSVFile("src/main/resources/static/sigungu.csv");
+//            List<List<List<String>>> csvListList = Lists.partition(csvList, csvList.size()/30);
+//
+//
+//            List<ApiUpdateThread> apiUpdateThreadList = new ArrayList<>();
+//            int index = 1;
+//            for(List<List<String>> csvListAvg: csvListList){
+//                ApiUpdateThread apiUpdateThread = new ApiUpdateThread(csvListAvg, storeApiUpdateList, 1, publicV2Key2, kokoaApiKey, index);
+//                apiUpdateThread.start();
+//                apiUpdateThreadList.add(apiUpdateThread);
+//                index ++;
+//            }
+//
+//            try {
+//                for (ApiUpdateThread apiUpdateThread: apiUpdateThreadList){
+//                    apiUpdateThread.join();
+//
+//                }
+//            } catch(Exception e){
+//                e.printStackTrace();
+//            }
+//
+//            log.info("store SIZE --> "+ storeApiUpdateList.size());
+//
+//            HttpHeaders  headers = new HttpHeaders();
+//            RestTemplate rest    = new RestTemplate();
+//            String body          = "";
+//
+//            HttpEntity<String>      requestEntity  = new HttpEntity<String>(body, headers);
+//            ResponseEntity<String>  responseEntity = rest.exchange("http://openapi.seoul.go.kr:8088/5274616b45736f7933376e6c525658/json/touristFoodInfo/1/1000/", HttpMethod.GET, requestEntity, String.class);
+//            HttpStatus              httpStatus     = responseEntity.getStatusCode();
+//            String                  response       = responseEntity.getBody();
+//
+//
+//            JsonDTO jsonDTO = new Gson().fromJson(response, JsonDTO.class);  //conversion using Gson Library.
+//            setInfos(jsonDTO);
+//
+//            storeApiUpdateList.addAll(saveValidStores(jsonDTO.getTouristFoodInfo().getRow()));
+//
+//
+//            log.info("store SIZE --> "+ storeApiUpdateList.size());
+//
+//            STORE_SIZE = storeApiUpdateList.size();
+//            return new ListItemReader<>(storeApiUpdateList);
+//
+//
+//        }
+//
+//        private ItemProcessor<StoreApiUpdate, StoreApiUpdate> jpaPageJob1_Processor() {
+//            return storeApiUpdate -> {
+//
+//                log.info("********** This is jpaPageJob1_Processor");
+//                return storeApiUpdate;
+//
+//            };
+//        }
+//        @Bean
+//        public ItemWriter<StoreApiUpdate> jpaPageJob1_dbItemWriter(){
+//
+//            log.info("********** This is jpaPageJob1_dbItemWriter");
+//
+//            return list -> {
+//                for(StoreApiUpdate storeApiUpdate: list){
+//                    if(!storeApiUpdateRepository.existsById(storeApiUpdate.getId())){
+//                        storeImageService.saveImage(storeApiUpdate.getId());
+//                    }
+//                }
+//                storeApiUpdateRepository.saveAll(list);
+//            };
+//
+//        }
 
 
 
     @Bean
     public Step jpaPageJob1_step2() throws JsonProcessingException {
-        return stepBuilderFactory.get("JpaPageJob2_step2")
+        return stepBuilderFactory.get("jpaPageJob1_step2")
                 //청크사이즈 설정
                 .<StoreApiUpdate, Store>chunk(CHUNKSIZE)
                 .reader(jpaPageJob1_step2_ItemReader())
@@ -196,93 +192,89 @@ public class BatchConfiguration {
 
     }
 
-    @Bean
-    public JpaPagingItemReader<StoreApiUpdate> jpaPageJob1_step2_ItemReader() throws JsonProcessingException {
+        @Bean
+        public JpaPagingItemReader<StoreApiUpdate> jpaPageJob1_step2_ItemReader() throws JsonProcessingException {
 
-        log.info("********** This is unPaidStoreReader");
-        return new JpaPagingItemReaderBuilder<StoreApiUpdate>()
-                .name("jpaPageJob3_dbItemReader")
-                .entityManagerFactory(entityManagerFactory)
-                .pageSize(CHUNKSIZE)
-                .queryString("select a from Store_api_update a left join Store b on a.id = b.id where b.id is null order by a.id asc")
-                .build();
-    }
-
-
-    private ItemProcessor<StoreApiUpdate, Store> jpaPageJob1_step2_Processor() {
-        log.info("********** This is unPaidStoreProcessor");
-        return storeApiUpdate -> {
-            return new Store(storeApiUpdate);
-        };
-
-    }
+            log.info("********** This is jpaPageJob1_step2_ItemReader");
+            return new JpaPagingItemReaderBuilder<StoreApiUpdate>()
+                    .name("jpaPageJob3_dbItemReader")
+                    .entityManagerFactory(entityManagerFactory)
+                    .pageSize(CHUNKSIZE)
+                    .queryString("select a from Store_api_update a left join Store b on a.id = b.id where b.id is null order by a.id asc")
+                    .build();
+        }
 
 
-    private ItemWriter<Store> jpaPageJob1_step2_dbItemWriter() {
-        log.info("********** This is jpaPageJob3_dbItemWriter");
-        JpaItemWriter<Store> jpaItemWriter = new JpaItemWriter<>();
-        jpaItemWriter.setEntityManagerFactory(entityManagerFactory);
-        return jpaItemWriter;
-    }
+        private ItemProcessor<StoreApiUpdate, Store> jpaPageJob1_step2_Processor() {
+            log.info("********** This is jpaPageJob1_step2_Processor");
+            return storeApiUpdate -> {
+                return new Store(storeApiUpdate);
+            };
+
+        }
 
 
+        private ItemWriter<Store> jpaPageJob1_step2_dbItemWriter() {
+            log.info("********** This is jpaPageJob1_step2_dbItemWriter");
+            JpaItemWriter<Store> jpaItemWriter = new JpaItemWriter<>();
+            jpaItemWriter.setEntityManagerFactory(entityManagerFactory);
+            return jpaItemWriter;
+        }
 
 
 
-
-
-    @Bean
-    public Step JpaPageJob4_step1() throws JsonProcessingException {
-        return stepBuilderFactory.get("JpaPageJob4_step2")
-                //청크사이즈 설정
-                .<Store, Store>chunk(CHUNKSIZE)
-                .reader(jpaPageJob4_ItemReader())
-                .processor(jpaPageJob4_Processor())
-                .writer(jpaPageJob4_dbItemWriter())
-                .build();
-
-    }
-
-    @Bean
-    public JpaPagingItemReader<Store> jpaPageJob4_ItemReader() throws JsonProcessingException {
-
-        log.info("********** This is unPaidStoreReader");
-        return new JpaPagingItemReaderBuilder<Store>()
-                .name("jpaPageJob3_dbItemReader")
-                .entityManagerFactory(entityManagerFactory)
-                .pageSize(CHUNKSIZE)
-                .queryString("select a from Store a left join Store_api_update b on a.id = b.id where b.id is null order by a.id ASC")
-                .build();
-    }
+//    @Bean
+//    public Step JpaPageJob4_step1() throws JsonProcessingException {
+//        return stepBuilderFactory.get("JpaPageJob4_step2")
+//                //청크사이즈 설정
+//                .<Store, Store>chunk(CHUNKSIZE)
+//                .reader(jpaPageJob4_ItemReader())
+//                .processor(jpaPageJob4_Processor())
+//                .writer(jpaPageJob4_dbItemWriter())
+//                .build();
+//
+//    }
+//
+//    @Bean
+//    public JpaPagingItemReader<Store> jpaPageJob4_ItemReader() throws JsonProcessingException {
+//
+//        log.info("********** This is unPaidStoreReader");
+//        return new JpaPagingItemReaderBuilder<Store>()
+//                .name("jpaPageJob3_dbItemReader")
+//                .entityManagerFactory(entityManagerFactory)
+//                .pageSize(CHUNKSIZE)
+//                .queryString("select a from Store a left join Store_api_update b on a.id = b.id where b.id is null order by a.id ASC")
+//                .build();
+//    }
 
 
 
 
-    private ItemProcessor<Store, Store> jpaPageJob4_Processor() {
-        log.info("********** This is unPaidStoreProcessor");
-        return new ItemProcessor<Store, Store>() {  //
-
-            @Override
-            public Store process(Store store) throws Exception {
-                log.info("********** This is unPaidMemberProcessor");
-                return store;  // 2
-
-            }
-        };
-
-    }
-
-
-    private ItemWriter<Store> jpaPageJob4_dbItemWriter() {
-        log.info("********** This is jpaPageJob3_dbItemWriter");
-
-        return ((List<? extends Store> storeList) -> storeRepository.deleteAll(storeList));
-    }
+//    private ItemProcessor<Store, Store> jpaPageJob4_Processor() {
+//        log.info("********** This is unPaidStoreProcessor");
+//        return new ItemProcessor<Store, Store>() {  //
+//
+//            @Override
+//            public Store process(Store store) throws Exception {
+//                log.info("********** This is unPaidMemberProcessor");
+//                return store;  // 2
+//
+//            }
+//        };
+//
+//    }
+//
+//
+//    private ItemWriter<Store> jpaPageJob4_dbItemWriter() {
+//        log.info("********** This is jpaPageJob3_dbItemWriter");
+//
+//        return ((List<? extends Store> storeList) -> storeRepository.deleteAll(storeList));
+//    }
 
 
     @Bean
     public Step JpaPageJob1_step4() throws JsonProcessingException {
-        return stepBuilderFactory.get("JpaPageJob5_step1")
+        return stepBuilderFactory.get("JpaPageJob1_step4")
                 //청크사이즈 설정
                 .<StoreApiUpdate, Store>chunk(CHUNKSIZE)
                 .reader(JpaPageJob1_step4_ItemReader())
@@ -293,128 +285,58 @@ public class BatchConfiguration {
 
 
 
-    @Bean
-    public JpaPagingItemReader<StoreApiUpdate> JpaPageJob1_step4_ItemReader() throws JsonProcessingException {
+        @Bean
+        public JpaPagingItemReader<StoreApiUpdate> JpaPageJob1_step4_ItemReader() throws JsonProcessingException {
 
-        log.info("********** This is unPaidStoreReader");
-        System.out.println("=============READER=============");
-        return new JpaPagingItemReaderBuilder<StoreApiUpdate>()
-                .name("jpaPageJob5_dbItemReader")
-                .entityManagerFactory(entityManagerFactory)
-                .pageSize(CHUNKSIZE)
-                .queryString("select a from Store_api_update a join Store b on a.id = b.id where a.id = b.id \n" +
-                        "and a.approach != b.approach \n" +
-                        "or a.address != b.address \n" +
-                        "or a.elevator != b.elevator  \n" +
-                        "or a.latitude != b.latitude \n" +
-                        "or a.longitude != b.longitude \n" +
-                        "or a.name != b.name \n" +
-                        "or a.parking != b.parking \n" +
-                        "or a.phoneNumber != b.phoneNumber\n" +
-                        "or a.heightDifferent != b.heightDifferent \n" +
-                        "or a.toilet != b.toilet order by a.id asc")
-                .build();
-    }
-
-
-    private ItemProcessor<StoreApiUpdate, Store> JpaPageJob1_step4_Processor() {
-        log.info("********** This is unPaidStoreProcessor");
-        System.out.println("=============PROCESSOR=============");
-        return storeApiUpdate -> {
-            System.out.println("============="+storeApiUpdate.getId()+"=============");
-
-            Optional<Store> store = storeRepository.findById(storeApiUpdate.getId());
-            store.get().apiUpdate(storeApiUpdate);
-
-            return store.get();
-        };
-    }
+            log.info("********** This is JpaPageJob1_step4_ItemReader");
+            return new JpaPagingItemReaderBuilder<StoreApiUpdate>()
+                    .name("jpaPageJob5_dbItemReader")
+                    .entityManagerFactory(entityManagerFactory)
+                    .pageSize(CHUNKSIZE)
+                    .queryString("select a from Store_api_update a join Store b on a.id = b.id where a.id = b.id \n" +
+                            "and a.approach != b.approach \n" +
+                            "or a.address != b.address \n" +
+                            "or a.elevator != b.elevator  \n" +
+                            "or a.latitude != b.latitude \n" +
+                            "or a.longitude != b.longitude \n" +
+                            "or a.name != b.name \n" +
+                            "or a.parking != b.parking \n" +
+                            "or a.phoneNumber != b.phoneNumber\n" +
+                            "or a.heightDifferent != b.heightDifferent \n" +
+                            "or a.toilet != b.toilet order by a.id asc")
+                    .build();
+        }
 
 
-    private ItemWriter<Store> JpaPageJob1_step4_dbItemWriter() {
-        log.info("********** This is jpaPageJob3_dbItemWriter");
-        System.out.println("=============WRITER=============");
+        private ItemProcessor<StoreApiUpdate, Store> JpaPageJob1_step4_Processor() {
+            log.info("********** This is JpaPageJob1_step4_Processor");
+            return storeApiUpdate -> {
 
-//        return ((List<? extends Store> storeList) -> storeRepository.saveAll(storeList));
-        JpaItemWriter<Store> jpaItemWriter = new JpaItemWriter<>();
-        jpaItemWriter.setEntityManagerFactory(entityManagerFactory);
-        return jpaItemWriter;
+                Optional<Store> store = storeRepository.findById(storeApiUpdate.getId());
+                store.get().apiUpdate(storeApiUpdate);
 
-    }
-
-
-//
-//    private JsonDTO setInfos(JsonDTO jsonDTO) {
-//        jsonDTO.getTouristFoodInfo().getRow().forEach(row -> {
-//                    try {
-//                        if (!setRowLngLat(row)) {
-//                            System.out.println("!setRowLngLat(row) --> return");
-//                            return;
-//                        }
-//                    } catch (JsonProcessingException e) {
-//                        throw new RuntimeException(e);
-//                    }
-//                    try {
-//                        setRowCategoryAndId(row);
-//                    } catch (JsonProcessingException e) {
-//                        throw new RuntimeException(e);
-//                    }
-//                }
-//        );
-//        return jsonDTO;
-//    }
-//
-//
+                return store.get();
+            };
+        }
 
 
-//
-//
-//    private boolean storeValidation(StoreDTO row) {
-//        return row.getLatitude() != null && row.getLongitude() != null && row.getCategory() != null && row.getStoreId() != null;
-//    }
-//
-//
-//    private void setRowCategoryAndId(StoreDTO row) throws JsonProcessingException {
-//        LocationKeywordSearchForm categorySearchForm = locationService.giveCategoryByLatLngKeywordRest(String.valueOf(row.getLatitude()), String.valueOf(row.getLongitude()), row.getSISULNAME());
-////        LocationKeywordSearchForm categorySearchForm = locationService.giveCategoryByLatLngKeyword(row.getLatitude(), row.getLongitude(), row.getSISULNAME());
-//        LocationKeywordSearchForm.Documents categoryDoc = Arrays.stream(categorySearchForm.getDocuments()).findFirst().orElse(null);
-//        if (categoryDoc == null || !Arrays.asList("FD6", "CE7").contains(categoryDoc.getCategory_group_code()))
-//            return;
-//        row.setStoreId(Integer.parseInt(categoryDoc.getId()));
-//        row.setSISULNAME(categoryDoc.getPlace_name());
-//        row.setCategory(categoryFilter(Optional.of(categoryDoc.getCategory_name()).orElse(null)));
-//    }
-//
-//
-//    private boolean setRowLngLat(StoreDTO row) throws JsonProcessingException {
-//
-//        LocationKeywordSearchForm latLngSearchForm = locationService.giveLatLngByAddressRest(row.getADDR());
-//        if (latLngSearchForm == null) return false;
-//        LocationKeywordSearchForm.Documents latLngDoc = Arrays.stream(latLngSearchForm.getDocuments()).findFirst().orElse(null);
-//        if (latLngDoc == null) return false;
-//
-//        row.setLatitude(Decimal.valueOf(latLngDoc.getY()));
-//        row.setLongitude(Decimal.valueOf(latLngDoc.getX()));
-//
-//        // 카테고리 ENUM으로 전환하기
-//        row.setCategory(categoryFilter(Optional.of(latLngDoc.getCategory_name()).orElse("기타")));
-//
-//
-//        return true;
-//    }
-//
+        private ItemWriter<Store> JpaPageJob1_step4_dbItemWriter() {
+            log.info("********** This is JpaPageJob1_step4_dbItemWriter"+ "  STORE_SIZE -->"+ STORE_SIZE);
+
+            return list -> {
+                for(Store store: list){
+                    System.out.println(store.getId());
+                }
+            };
+
+    //        return ((List<? extends Store> storeList) -> storeRepository.saveAll(storeList));
+//            JpaItemWriter<Store> jpaItemWriter = new JpaItemWriter<>();
+//            jpaItemWriter.setEntityManagerFactory(entityManagerFactory);
+//            return jpaItemWriter;
+
+        }
 
 
-//
-//    private String categoryFilter(String category) {
-//        if (category == null) {
-//            return Category.ETC.getDesc();
-//        } else if (category.contains(">")) {
-//            return Category.giveCategory(category.split(" > ")[1]).getDesc();
-//        } else {
-//            return null;
-//        }
-//    }
 
 
     @Value("${kakao.api.key}")
@@ -435,123 +357,6 @@ public class BatchConfiguration {
         headers.setAccept(List.of(MediaType.APPLICATION_XML));
         return headers;
     }
-
-    /**
-     * @param siDoNm 데이터를 가져올 시(지역)
-     * @param cggNm  데이터를 가져올 구(지역)
-     * @param pageNo 데이터 가져올 페이지
-     */
-//    public List<List<Store>> processApi(String siDoNm, String cggNm, int pageNo) {
-//        // 헤더 세팅
-//        HttpHeaders headers = setHttpHeaders();
-//        log.info("{}, {}, print", siDoNm, cggNm);
-//        // URI 생성
-//        String publicV2Uri = "http://apis.data.go.kr/B554287/DisabledPersonConvenientFacility/getDisConvFaclList";
-//        URI uri = UriComponentsBuilder
-//                .fromUriString(publicV2Uri)
-//                .queryParam("serviceKey", publicV2Key3)
-//                .queryParam("numOfRows", "1000")
-//                .queryParam("pageNo", String.valueOf(pageNo))
-//                .queryParam("siDoNm", siDoNm)
-//                .queryParam("cggNm", cggNm)
-//                .queryParam("faclTyCd", "UC0B01")
-//                .encode()
-//                .build()
-//                .toUri();
-//
-//        RestTemplate restTemplate = new RestTemplate();
-//        log.warn(uri.toString());
-//        ResponseEntity<PublicApiV2Form> resultRe = restTemplate.exchange(
-//                uri, HttpMethod.GET, new HttpEntity<>(headers), PublicApiV2Form.class
-//        );
-//        PublicApiV2Form result = resultRe.getBody();
-//        if (result == null) // 결과가 없으면 false 리턴
-//            return null;
-//        return processForm(result);
-//        // totalSize, 현 페이지를 통해 다음 페이지가 있는지 확인하고 T/F 리턴
-//    }
-
-    /**
-     * @param formResult 공공 API 결과에서 각각의 Row
-     */
-//    public List<List<Store>> processForm(PublicApiV2Form formResult) {
-//        if (formResult == null || formResult.getServList() == null) return null;
-//        // servList + Barrier Free Tag  + category
-//
-//        List<List<Store>> storeListList = new ArrayList<>();
-//
-//        for (PublicApiV2Form.ServList servList : formResult.getServList()) {
-//            // servList 요소 - 각각의 배리어 프리 업장 하나하나를 검증
-//            if (!servList.validateServList()) continue;
-//
-//            List<Store> storeList = mapApiToStoreWithPaging(servList);
-//
-//            if (storeList == null) continue;
-//
-//            storeListList.add(storeList);
-//        }
-//        // 검증 완료된 store들을 저장
-//        return storeListList;
-//    }
-
-    /**
-     * @param servList V2의 결과 Row
-     */
-//    private List<Store> mapApiToStoreWithPaging(PublicApiV2Form.ServList servList) {
-//        // 태그 String을 분리 & 매핑해 리스트에 저장
-//        List<String> barrierTagList = tagStrToList(servList.getWfcltId());
-//
-//        // TODO 태그가 비어있다면 어떻게 해야 할 지 ? -> 저장 혹은 버리기 (현재 버리기로 구현)
-//        if (barrierTagList.isEmpty()) return null;
-//
-//        /*
-//         * 주소 + 위/경도를 사용해 해당 건물의 배리어 프리 매장들을
-//         * 등록하도록 변경             */
-////        if (searchWithStoreName(servList, barrierTagList)) return;
-//        // 검색 결과가 없을 경우
-//        return searchWithAddress(servList, barrierTagList);
-//    }
-
-    /**
-     * @param servList       대상 Row
-     * @param barrierTagList 배리어 태그 리스트
-     * @return 검색 결과 존재 여부
-     */
-//    @Transactional
-//    boolean searchWithStoreName(PublicApiV2Form.ServList servList, List<String> barrierTagList) {
-//        LocationInfoDto.LocationResponse resultDto =
-//                locationService.convertGeoAndStoreNameToKeyword(servList.getFaclLat(), servList.getFaclLng(), servList.getFaclNm());
-//        if (resultDto == null)
-//            return false;
-//        Store nStore = new Store(resultDto, servList, barrierTagList);
-//        if (!storeRepository.existsById(nStore.getId())) {
-//            storeRepository.saveAndFlush(nStore);
-//            storeImageService.saveImage(nStore.getId());
-//        }
-//        return true;
-//    }
-
-    /**
-     * @param servList       대상 Row
-     * @param barrierTagList 배리어 태그 리스트
-     */
-//    @Transactional
-//    public List<Store> searchWithAddress(PublicApiV2Form.ServList servList, List<String> barrierTagList) {
-//        List<LocationInfoDto.LocationResponse> locationResponseMapList = locationService
-//                .convertGeoAndAddressToKeyword(servList.getFaclLat(), servList.getFaclLng(), DataClarification.clarifyString(servList.getLcMnad()));
-//        List<Store> storeList =  new ArrayList<>();
-//        for (LocationInfoDto.LocationResponse locationResponse : locationResponseMapList) {
-//            Store nStore = new Store(locationResponse, servList, barrierTagList);
-//
-//            storeList.add(nStore);
-////            // ID 값으로 store 중복 검사해 중복되지 않을 시에만 리스트에 저장
-////            if (!storeRepository.existsById(nStore.getId())) {
-////                storeRepository.saveAndFlush(nStore);
-////                storeImageService.saveImage(nStore.getId());
-////            }
-//        }
-//        return storeList;
-//    }
 
     /**
      * @param sisulNum 시설 고유 번호
