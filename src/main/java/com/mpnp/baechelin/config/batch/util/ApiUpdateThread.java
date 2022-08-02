@@ -119,7 +119,9 @@ public class ApiUpdateThread extends Thread {
             for(List<Store> storeList: storeListList){
                 for(Store store: storeList){
                     StoreApiUpdate storeApiUpdate = new StoreApiUpdate(store);
-                    storeApiUpdateList.add(storeApiUpdate);
+                    synchronized (this) {
+                        storeApiUpdateList.add(storeApiUpdate);
+                    }
                 }
             }
 
