@@ -1,22 +1,20 @@
 package com.mpnp.baechelin.store.dto;
 
-import com.mpnp.baechelin.review.domain.Review;
 import com.mpnp.baechelin.store.domain.Store;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class StoreDetailResponseDto {
+public class StoreDetailResponseDto implements Serializable {
     private long storeId;
     private String category;
     private String name;
@@ -34,7 +32,7 @@ public class StoreDetailResponseDto {
     private String bookmark;
     @Builder.Default
     private double pointAvg = 0.0;
-
+    @Builder
     public StoreDetailResponseDto(Store store, String isBookMark, List<String> imageList) {
         this.storeId = store.getId();
         this.category = store.getCategory();

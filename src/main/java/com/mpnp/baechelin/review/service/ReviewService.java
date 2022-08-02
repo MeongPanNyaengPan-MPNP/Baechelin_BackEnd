@@ -21,6 +21,7 @@ import com.mpnp.baechelin.util.AwsS3Manager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.SQLDelete;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
@@ -60,7 +61,6 @@ public class ReviewService {
         User user = userRepository.findBySocialId(socialId);
         Review review = new Review(reviewRequestDto, store, user);
 
-
         // todo 태크 매핑
         List<Tag> tagList = new ArrayList<>();
         for (String s : reviewRequestDto.getTagList()) {
@@ -68,10 +68,8 @@ public class ReviewService {
             tagList.add(new Tag(s, review));
         } // 태그 -> 엔티티 변환
 
-
         List<ReviewImage> reviewImageUrlList = new ArrayList<>();
         List<MultipartFile> newReviewImage = reviewRequestDto.getImageFile();
-
 
         // todo 이미지가 널값이 아니라면 업로드 실행
         if (newReviewImage != null && !newReviewImage.isEmpty()) {
@@ -82,10 +80,16 @@ public class ReviewService {
             } // 리뷰이미지 -> url -> 엔티티 변환
         }
 
-
         tagRepository.saveAll(tagList);
         reviewImageRepository.saveAll(reviewImageUrlList);
         reviewRepository.save(review); // 아래의 {store.updatePointAvg()} 보다 리뷰가 먼저 처리되게 해야한다.
+
+        updateAvg(store);
+    }
+
+    @Transactional
+//    @CacheEvict(value = "store", key = "#store.getId()", cacheManager = "cacheManager")
+    public void updateAvg(Store store) {
         storeRepository.save(store.updatePointAvg()); //별점 평균 구하는 코드
     }
 
@@ -130,7 +134,7 @@ public class ReviewService {
         List<ReviewResponseDto> reviewResponseDtoList = new ArrayList<>();
         for (Review review : reviewList) {
             ReviewResponseDto reviewResponseDto = new ReviewResponseDto(review);
-            User user = userRepository.findById(reviewResponseDto.getUserId()).orElseThrow(()-> new CustomException(ErrorCode.NO_USER_FOUND));
+            User user = userRepository.findById(reviewResponseDto.getUserId()).orElseThrow(() -> new CustomException(ErrorCode.NO_USER_FOUND));
             reviewResponseDto.userInfo(user);
             reviewResponseDtoList.add(reviewResponseDto);
         }
@@ -234,13 +238,17 @@ public class ReviewService {
     /**
      * 리뷰 삭제
      */
+    @Transactional
     public void reviewDelete(String socialId, int reviewId) {
 
-        User   user   = userRepository  .findBySocialId(socialId); if (user == null) { throw new CustomException(ErrorCode.NO_USER_FOUND); }   // 유저 유무 확인 예외처리
+        User user = userRepository.findBySocialId(socialId);
+        if (user == null) {
+            throw new CustomException(ErrorCode.NO_USER_FOUND);
+        }   // 유저 유무 확인 예외처리
         Review review = reviewRepository.findById(reviewId).orElseThrow(() -> new CustomException(ErrorCode.NO_REVIEW_FOUND));                       // 리뷰 유무 확인 예외처리;
-        Store store = storeRepository.findById(review.getStoreId().getId()).orElseThrow(()-> new CustomException(ErrorCode.NO_STORE_FOUND));
+        Store store = storeRepository.findById(review.getStoreId().getId()).orElseThrow(() -> new CustomException(ErrorCode.NO_STORE_FOUND));
 
-        List<ReviewImage> imageList =  review.getReviewImageList();
+        List<ReviewImage> imageList = review.getReviewImageList();
 
         // todo 1.리뷰삭제 -> 2.이미지 삭제
         reviewRepository.deleteById(review.getId()); // 1
@@ -252,10 +260,8 @@ public class ReviewService {
             }
         }
         store.removeReview(review);
-        storeRepository.save(store.updatePointAvg()); // 별점 평점 구하는 코드
+        updateAvg(store);
     }
-
-
 
 
     public List<ReviewMainResponseDto> getRecentReview(BigDecimal lat, BigDecimal lng, int limit) {

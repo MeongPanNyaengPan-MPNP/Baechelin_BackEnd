@@ -20,7 +20,7 @@ import java.util.List;
 @Slf4j
 @ApiOperation(value = "카카오톡 API를 통해 정보를 얻는 컨트롤러")
 public class LocationController {
-    private final LocationServiceRT locationService;
+    private final LocationServiceWC locationService;
 
     @ApiOperation(value = "위도, 경도를 주소로 바꾸는 함수")
     @GetMapping("/convert/geo")

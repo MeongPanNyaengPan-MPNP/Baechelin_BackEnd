@@ -2,6 +2,8 @@ package com.mpnp.baechelin.store.service;
 
 import com.mpnp.baechelin.bookmark.repository.BookmarkRepository;
 import com.mpnp.baechelin.common.QuerydslLocation;
+import com.mpnp.baechelin.exception.CustomException;
+import com.mpnp.baechelin.exception.ErrorCode;
 import com.mpnp.baechelin.store.domain.Store;
 import com.mpnp.baechelin.store.dto.StoreCardResponseDto;
 import com.mpnp.baechelin.store.dto.StoreDetailResponseDto;
@@ -16,6 +18,7 @@ import net.javacrumbs.shedlock.spring.annotation.EnableSchedulerLock;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -36,6 +39,7 @@ public class StoreService {
     private final StoreQueryRepository storeQueryRepository;
     private final UserRepository userRepository;
     private final BookmarkRepository bookmarkRepository;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     /**
      * 위도, 경도 두 개를 받아와서 시설, 카테고리에 해당하는 업장을 필터링하는 메서드
@@ -50,6 +54,7 @@ public class StoreService {
      * @param socialId 유저 소셜 로그인 아이디
      * @return 조건을 만족하는 업장의 DTO
      */
+
     public StorePagedResponseDto getStoreInTwoPointRange(BigDecimal latStart, BigDecimal latEnd, BigDecimal lngStart, BigDecimal lngEnd, String category, List<String> facility, Pageable pageable, String socialId) {
 //    public List<StoreCardResponseDto> getStoreInRange(BigDecimal latStart, BigDecimal latEnd, BigDecimal lngStart, BigDecimal lngEnd, String category, List<String> facility, Pageable pageable, String socialId) {
         User targetUser = socialId == null ? null : userRepository.findBySocialId(socialId);
@@ -145,8 +150,9 @@ public class StoreService {
      * @param socialId 유저 social 아이디
      * @return 업장 상세 정보
      */
+
     public StoreDetailResponseDto getStore(long storeId, String socialId) {
-        Store store = storeRepository.findById(storeId).orElseThrow(() -> new IllegalArgumentException("해당하는 업장이 존재하지 않습니다."));
+        Store store = storeRepository.findById(storeId).orElseThrow(() -> new CustomException(ErrorCode.NO_STORE_FOUND));
 
         List<String> storeImageList = new ArrayList<>();
 
@@ -158,7 +164,6 @@ public class StoreService {
 
         boolean isBookmark = bookmarkRepository.existsByStoreIdAndUserId(store, targetUser);
         return new StoreDetailResponseDto(store, isBookmark ? "Y" : "N", storeImageList);
-
     }
 
     /**
@@ -221,7 +226,7 @@ public class StoreService {
     }
 
     @Scheduled(cron = "0 0 0-23 * * *") // 1시간에 한 번
-    @SchedulerLock(name = "updateScheduler", lockAtLeastFor = "PT30M", lockAtMostFor = "PT58M")
+    @SchedulerLock(name = "updateScheduler", lockAtLeastFor = "PT50M", lockAtMostFor = "PT58M")
     public void updateSchedule() {
         log.info("AVG, BOOKMARK COUNT SCHEDULING");
         List<Store> storeList = storeRepository.findAll();

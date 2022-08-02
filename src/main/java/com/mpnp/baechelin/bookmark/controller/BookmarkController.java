@@ -7,6 +7,7 @@ import com.mpnp.baechelin.common.SuccessResponse;
 import com.mpnp.baechelin.exception.CustomException;
 import com.mpnp.baechelin.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -35,7 +36,6 @@ public class BookmarkController {
         bookmarkService.bookmark(bookmarkRequestDto, user.getUsername());
         return new SuccessResponse("북마크를 폴더에 저장 완료");
     }
-
     @DeleteMapping("/bookmark/{bookmarkId}")
     public SuccessResponse bookmarkDelete(@PathVariable int bookmarkId,
                                             @AuthenticationPrincipal User user) {

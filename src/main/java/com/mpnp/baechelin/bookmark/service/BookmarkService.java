@@ -14,6 +14,7 @@ import com.mpnp.baechelin.store.repository.StoreRepository;
 import com.mpnp.baechelin.user.domain.User;
 import com.mpnp.baechelin.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -49,7 +50,7 @@ public class BookmarkService {
 
         if (!bookmarkRepository.existsByStoreIdAndUserId(store, user)) {
             bookmarkRepository.save(bookmark);
-            storeRepository.save(store.updateBookmarkCount());
+            updateBookmarkCnt(store);
         }
     }
     @Transactional
@@ -59,7 +60,13 @@ public class BookmarkService {
         Store store = bookmark.getStoreId();
         store.removeBookmark(bookmark);
         bookmarkRepository.deleteById(bookmarkId);
-        storeRepository.save(store.updateBookmarkCount());
+        updateBookmarkCnt(store);
+    }
+    @Transactional
+//    @Cacheable(value="store", key="#store.id", cacheManager = "cacheManager")
+    public void updateBookmarkCnt(Store store){
+        int bookmarkCnt = storeRepository.getBookmarkCnt(store.getId());
+        storeRepository.updateBookmarkCnt(bookmarkCnt, store.getId());
     }
 
     @Transactional

@@ -1,17 +1,22 @@
 package com.mpnp.baechelin.store.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mpnp.baechelin.exception.CustomException;
 import com.mpnp.baechelin.exception.ErrorCode;
 import com.mpnp.baechelin.login.jwt.AuthToken;
 import com.mpnp.baechelin.login.jwt.AuthTokenProvider;
+import com.mpnp.baechelin.store.domain.Store;
 import com.mpnp.baechelin.store.dto.StoreDetailResponseDto;
 import com.mpnp.baechelin.store.dto.StorePagedResponseDto;
+import com.mpnp.baechelin.store.repository.StoreRepository;
 import com.mpnp.baechelin.store.service.StoreService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -30,6 +35,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @RequestMapping("/store")
 @Validated
+@Slf4j
 public class StoreController {
 
     private final StoreService storeService;
@@ -79,7 +85,7 @@ public class StoreController {
                                                              @AuthenticationPrincipal User user) {
         return storeService.getStoreInRangeHighBookmark(lat, lng, category, facility, pageable, user == null ? null : user.getUsername());
     }
-
+    @Cacheable(value="store", key="#storeId", cacheManager = "cacheManager")
     @ApiOperation(value = "업장 상세정보를 조회하는 메소드")
     @GetMapping("/detail/{storeId}")
     public StoreDetailResponseDto getStore(
@@ -92,7 +98,6 @@ public class StoreController {
         if (authToken != null && !authToken.tokenValidate()) {
             throw new CustomException(ErrorCode.INVALID_ACCESS_TOKEN);
         }
-
         return storeService.getStore(storeId, user == null ? null : user.getUsername());
     }
 

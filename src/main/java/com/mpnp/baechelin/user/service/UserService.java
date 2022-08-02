@@ -11,6 +11,7 @@ import com.mpnp.baechelin.user.repository.UserRepository;
 import com.mpnp.baechelin.util.CookieUtil;
 import com.mpnp.baechelin.util.HeaderUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.Cookie;
@@ -41,7 +42,7 @@ public class UserService {
         // DB에 저장되어 있는 refresh token 삭제
         userRefreshTokenRepository.deleteByRefreshToken(refreshToken);
     }
-
+    @Cacheable(value="user", key="#socialId", cacheManager = "cacheManager")
     public UserResponseDto getUserInfo(String socialId) {
         User targetUser = userRepository.findBySocialId(socialId);
         return new UserResponseDto(targetUser);

@@ -56,13 +56,16 @@ public class Review extends TimeStamped {
         this.storeId = store;
     }
 
-    public void setImage(List<ReviewImage> reviewImageList){
-        this.reviewImageList = reviewImageList;
-    }
 
     public void update(ReviewRequestDto reviewRequestDto){
         this.point   = reviewRequestDto.getPoint();
         this.content = reviewRequestDto.getContent();
     }
 
+    public void addImage(List<ReviewImage> reviewImageList) {
+        this.reviewImageList = reviewImageList;
+    }
+    public void addTag(List<Tag> tagList){
+        this.tagList= tagList;
+    }
 }

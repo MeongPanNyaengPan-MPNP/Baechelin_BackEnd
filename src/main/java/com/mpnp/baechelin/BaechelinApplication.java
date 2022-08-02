@@ -7,6 +7,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.*;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -22,6 +23,7 @@ import java.util.TimeZone;
 })
 @EnableScheduling
 @EnableSchedulerLock(defaultLockAtMostFor = "PT30S")
+@EnableCaching
 @SpringBootApplication(exclude = {SecurityAutoConfiguration.class})
 @PropertySources({@PropertySource("classpath:application-key.properties")})
 public class BaechelinApplication {

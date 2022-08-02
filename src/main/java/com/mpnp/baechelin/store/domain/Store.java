@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +24,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @Slf4j
-public class Store {
+public class Store implements Serializable {
     @Id
     private long id;
 
