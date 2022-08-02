@@ -250,6 +250,7 @@
 
 [Batch Reader Api 요청 속도](https://planet-punishment-427.notion.site/Batch-Reader-Api-188339e4d37a4186befd2980012a2512)
 
+[Batch 쿼리 줄이기](https://planet-punishment-427.notion.site/Batch-3ae16b43cf5c45318f84380d03454d21)
 
 <br>
 
