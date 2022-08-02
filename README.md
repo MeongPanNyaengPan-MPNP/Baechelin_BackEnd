@@ -130,8 +130,8 @@
 ### Deploy
 
 - Github Actions
-- Code Deploy
 - Nginx
+- AWS Code Deploy
 - AWS EC2
 - AWS S3
 - AWS RDS
