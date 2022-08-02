@@ -12,5 +12,5 @@ import lombok.NoArgsConstructor;
 @Builder
 public class FolderRequestDto {
 
-    private String folderName = "미분류";
+    private String folderName;
 }
