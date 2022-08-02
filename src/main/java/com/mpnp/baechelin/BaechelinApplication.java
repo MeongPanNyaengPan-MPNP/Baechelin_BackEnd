@@ -3,6 +3,7 @@ package com.mpnp.baechelin;
 import com.mpnp.baechelin.common.properties.AppProperties;
 import com.mpnp.baechelin.common.properties.CorsProperties;
 import net.javacrumbs.shedlock.spring.annotation.EnableSchedulerLock;
+import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
@@ -15,6 +16,7 @@ import javax.annotation.PostConstruct;
 import java.util.TimeZone;
 
 
+@EnableBatchProcessing
 @EnableJpaAuditing
 @EnableConfigurationProperties({
         CorsProperties.class,
