@@ -1,5 +1,8 @@
 package com.mpnp.baechelin.review.controller;
 
+import com.mpnp.baechelin.common.SuccessResponse;
+import com.mpnp.baechelin.exception.CustomException;
+import com.mpnp.baechelin.exception.ErrorCode;
 import com.mpnp.baechelin.review.domain.Review;
 import com.mpnp.baechelin.review.dto.PageInfoResponseDto;
 import com.mpnp.baechelin.review.dto.ReviewMainResponseDto;
@@ -34,22 +37,19 @@ public class ReviewController {
 
     private final ReviewService reviewService;
 
-    /** 리뷰 조회 */
+    /**
+     * 리뷰 조회
+     */
     @GetMapping("/review/{storeId}")
     public ResponseEntity<PageInfoResponseDto> getStoreReview(@PathVariable int storeId,
                                                               @AuthenticationPrincipal User user,
                                                               @PageableDefault(page = 0, size = 5, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
-
-        if (user != null) {
-            PageInfoResponseDto pageInfoResponseDto = reviewService.getReview(storeId, user.getUsername(), pageable);
-            return new ResponseEntity<>(pageInfoResponseDto, HttpStatus.OK);
-        }
-
         if (user == null) {
             PageInfoResponseDto pageInfoResponseDto = reviewService.getReview(storeId, pageable);
             return new ResponseEntity<>(pageInfoResponseDto, HttpStatus.OK);
         }
-        return null;
+        PageInfoResponseDto pageInfoResponseDto = reviewService.getReview(storeId, user.getUsername(), pageable);
+        return new ResponseEntity<>(pageInfoResponseDto, HttpStatus.OK);
     }
 
 //    @GetMapping("/review/{storeId}")
@@ -59,51 +59,58 @@ public class ReviewController {
 //        return new ResponseEntity<>(reviewList, HttpStatus.OK);
 //    }
 
-    /** 리뷰 작성 */
+    /**
+     * 리뷰 작성
+     */
     @PostMapping("/review")
-    public ResponseEntity<?> review(@ModelAttribute ReviewRequestDto reviewRequestDto,
-                                    @AuthenticationPrincipal User user) throws IOException {
-
-
-        if(user==null){ throw new IllegalArgumentException("해당하는 회원 정보가 없습니다.");}
+    public SuccessResponse review(@ModelAttribute ReviewRequestDto reviewRequestDto,
+                                  @AuthenticationPrincipal User user) throws IOException {
+        if (user == null) {
+            throw new CustomException(ErrorCode.ACCESS_DENIED);
+        }
         reviewService.review(reviewRequestDto, user.getUsername());
-
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new SuccessResponse("리뷰 등록 성공");
     }
 
-    /** 리뷰 수정 */
+    /**
+     * 리뷰 수정
+     */
     @PatchMapping("/review/{reviewId}")
-    public ResponseEntity<?> reviewUpdate(@ModelAttribute ReviewRequestDto reviewRequestDto,
-                                          @AuthenticationPrincipal User user,
-                                          @PathVariable int reviewId) throws IOException {
-
-        if(user==null){ throw new IllegalArgumentException("해당하는 회원 정보가 없습니다."); }
+    public SuccessResponse reviewUpdate(@ModelAttribute ReviewRequestDto reviewRequestDto,
+                                        @AuthenticationPrincipal User user,
+                                        @PathVariable int reviewId) {
+        if (user == null) {
+            throw new CustomException(ErrorCode.ACCESS_DENIED);
+        }
         reviewService.reviewUpdate(reviewRequestDto, user.getUsername(), reviewId);
-
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new SuccessResponse("리뷰 수정 성공");
     }
 
 
 
     @PostMapping("/review/imageUpload")
-    public ResponseEntity<?> imageUpload(@AuthenticationPrincipal User user,
-                                         @RequestParam MultipartFile imageFile){
+    public SuccessResponse imageUpload(@AuthenticationPrincipal User user,
+                                       @RequestParam MultipartFile imageFile) {
 
-        if(user==null){ throw new IllegalArgumentException("해당하는 회원 정보가 없습니다."); }
-
+        if (user == null) {
+            throw new CustomException(ErrorCode.ACCESS_DENIED);
+        }
         reviewService.imageUpload(imageFile, user.getUsername());
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new SuccessResponse("리뷰 이미지 등록 완료");
     }
 
-    /** 리뷰 삭제 */
+    /**
+     * 리뷰 삭제
+     */
     @DeleteMapping("/review/{reviewId}")
-    public ResponseEntity<?> reviewDelete(@AuthenticationPrincipal User user,
-                                          @PathVariable int reviewId) {
+    public SuccessResponse reviewDelete(@AuthenticationPrincipal User user,
+                                        @PathVariable int reviewId) {
 
-        if(user==null){ throw new IllegalArgumentException("해당하는 회원 정보가 없습니다."); }
+        if (user == null) {
+            throw new CustomException(ErrorCode.ACCESS_DENIED);
+        }
         reviewService.reviewDelete(user.getUsername(), reviewId);
-
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new SuccessResponse("리뷰 이미지 삭제 완료");
     }
 
     // 반경 넓히기
@@ -113,5 +120,4 @@ public class ReviewController {
                                                     @RequestParam int limit) {
         return reviewService.getRecentReview(lat, lng, limit);
     }
-
 }

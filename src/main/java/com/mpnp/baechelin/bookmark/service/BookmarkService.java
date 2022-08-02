@@ -6,6 +6,8 @@ import com.mpnp.baechelin.bookmark.dto.BookmarkInfoDto;
 import com.mpnp.baechelin.bookmark.dto.BookmarkRequestDto;
 import com.mpnp.baechelin.bookmark.repository.BookmarkRepository;
 import com.mpnp.baechelin.bookmark.repository.FolderRepository;
+import com.mpnp.baechelin.exception.CustomException;
+import com.mpnp.baechelin.exception.ErrorCode;
 import com.mpnp.baechelin.store.domain.Store;
 import com.mpnp.baechelin.store.repository.StoreImgRepository;
 import com.mpnp.baechelin.store.repository.StoreRepository;
@@ -33,10 +35,10 @@ public class BookmarkService {
 
     @Transactional
     public void bookmark(BookmarkRequestDto bookmarkRequestDto, String socialId) {
-
-        Folder folder = folderRepository.findById(bookmarkRequestDto.getFolderId()).orElseThrow(()-> new IllegalArgumentException("폴더가 존재하지 않습니다"));
-        Store  store  = storeRepository.findById((long) bookmarkRequestDto.getStoreId()).orElseThrow(()-> new IllegalArgumentException("가게가 존재하지 않습니다"));
-        User   user   = userRepository.findBySocialId(socialId); if(user == null) { throw new IllegalArgumentException("해당하는 유저가 없습니다."); }
+        // 북마크 폴더 생성하는 Flow를 따르므로 bookmarkRequestDto의 folderId는 존재
+        Folder folder = folderRepository.findById(bookmarkRequestDto.getFolderId()).orElseThrow(()-> new CustomException(ErrorCode.NO_FOLDER_FOUND));
+        Store  store  = storeRepository.findById((long) bookmarkRequestDto.getStoreId()).orElseThrow(()-> new CustomException(ErrorCode.NO_BOOKMARK_FOUND));
+        User   user   = userRepository.findBySocialId(socialId); if(user == null) {throw new CustomException(ErrorCode.NO_USER_FOUND); }
 
         Bookmark bookmark = Bookmark
                 .builder()
@@ -52,8 +54,8 @@ public class BookmarkService {
     }
     @Transactional
     public void bookmarkDelete(int bookmarkId, String socialId) {
-        User user = userRepository.findBySocialId(socialId); if(user == null) { throw new IllegalArgumentException("해당하는 유저가 없습니다."); }
-        Bookmark bookmark = bookmarkRepository.findById(bookmarkId).orElseThrow(() -> new IllegalArgumentException("해당하는 북마크는 이미 삭제 되었습니다"));
+        User user = userRepository.findBySocialId(socialId); if(user == null) { throw new CustomException(ErrorCode.NO_USER_FOUND); }
+        Bookmark bookmark = bookmarkRepository.findById(bookmarkId).orElseThrow(() -> new CustomException(ErrorCode.NO_BOOKMARK_FOUND));
         Store store = bookmark.getStoreId();
         store.removeBookmark(bookmark);
         bookmarkRepository.deleteById(bookmarkId);
@@ -65,7 +67,6 @@ public class BookmarkService {
 
         User user = userRepository.findBySocialId(socialId);
         Page<Bookmark> bookmarkPage = bookmarkRepository.findAllByUserId(user, pageable);
-
 
         List<BookmarkInfoDto> bookmarkList = new ArrayList<>();
         for(Bookmark bookmark: bookmarkPage){

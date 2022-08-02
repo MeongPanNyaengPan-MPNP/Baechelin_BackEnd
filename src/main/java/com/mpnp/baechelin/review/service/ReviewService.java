@@ -1,5 +1,7 @@
 package com.mpnp.baechelin.review.service;
 
+import com.mpnp.baechelin.exception.CustomException;
+import com.mpnp.baechelin.exception.ErrorCode;
 import com.mpnp.baechelin.review.domain.Review;
 import com.mpnp.baechelin.review.domain.ReviewImage;
 import com.mpnp.baechelin.review.dto.PageInfoResponseDto;
@@ -95,32 +97,28 @@ public class ReviewService {
     public PageInfoResponseDto getReview(long storeId, String socialId, Pageable pageable) {
 
         User myUser = userRepository.findBySocialId(socialId);
-        Store store = storeRepository.findById(storeId).orElseThrow(() -> new IllegalArgumentException("해당 가게가 없습니다"));
+        Store store = storeRepository.findById(storeId).orElseThrow(() -> new CustomException(ErrorCode.NO_STORE_FOUND));
         Page<Review> reviewList = reviewRepository.findAllByStoreId(store, pageable);
 
 
         List<ReviewResponseDto> reviewResponseDtoList = new ArrayList<>();
         for (Review review : reviewList) {
             ReviewResponseDto reviewResponseDto = new ReviewResponseDto(review);
-            Optional<User> user = userRepository.findById(reviewResponseDto.getUserId());
-            reviewResponseDto.userInfo(user.get(), myUser);
+            User user = userRepository.findById(reviewResponseDto.getUserId()).orElseThrow(() -> new CustomException(ErrorCode.NO_USER_FOUND));
+            reviewResponseDto.userInfo(user, myUser);
             reviewResponseDtoList.add(reviewResponseDto);
         }
 
-
-        PageInfoResponseDto pageInfoResponseDto = PageInfoResponseDto
+        return PageInfoResponseDto
                 .builder()
                 .totalElements((int) reviewList.getTotalElements())
                 .totalPages(reviewList.getTotalPages())
                 .number(reviewList.getNumber())
                 .size(reviewList.getSize())
                 .reviewResponseDtoList(reviewResponseDtoList)
-                .hasNextPage(reviewList.isFirst() ? false : true)
-                .hasPreviousPage(!reviewList.isLast() ? false : true)
+                .hasNextPage(!reviewList.isFirst())
+                .hasPreviousPage(reviewList.isLast())
                 .build();
-
-
-        return pageInfoResponseDto;
     }
 
     public PageInfoResponseDto getReview(long storeId, Pageable pageable) {
@@ -132,25 +130,22 @@ public class ReviewService {
         List<ReviewResponseDto> reviewResponseDtoList = new ArrayList<>();
         for (Review review : reviewList) {
             ReviewResponseDto reviewResponseDto = new ReviewResponseDto(review);
-            Optional<User> user = userRepository.findById(reviewResponseDto.getUserId());
-            reviewResponseDto.userInfo(user.get());
+            User user = userRepository.findById(reviewResponseDto.getUserId()).orElseThrow(()-> new CustomException(ErrorCode.NO_USER_FOUND));
+            reviewResponseDto.userInfo(user);
             reviewResponseDtoList.add(reviewResponseDto);
         }
 
 
-        PageInfoResponseDto pageInfoResponseDto = PageInfoResponseDto
+        return PageInfoResponseDto
                 .builder()
                 .totalElements((int) reviewList.getTotalElements())
                 .totalPages(reviewList.getTotalPages())
                 .number(reviewList.getNumber())
                 .size(reviewList.getSize())
                 .reviewResponseDtoList(reviewResponseDtoList)
-                .hasNextPage(reviewList.isFirst() ? false : true)
-                .hasPreviousPage(!reviewList.isLast() ? false : true)
+                .hasNextPage(reviewList.isFirst())
+                .hasPreviousPage(reviewList.isLast())
                 .build();
-
-
-        return pageInfoResponseDto;
     }
 
 
@@ -241,11 +236,9 @@ public class ReviewService {
      */
     public void reviewDelete(String socialId, int reviewId) {
 
-        User   user   = userRepository  .findBySocialId(socialId); if (user == null) { new IllegalArgumentException("해당하는 소셜아이디를 찾을 수 없습니다."); }   // 유저 유무 확인 예외처리
-        Review review = reviewRepository.findById(reviewId).orElseThrow(() -> new IllegalArgumentException("해당하는 리뷰가 이미 삭제 되었습니다."));                       // 리뷰 유무 확인 예외처리;
-        Optional<Store> store = storeRepository.findById(Long.valueOf(review.getStoreId().getId()));
-        if(store.isEmpty()){ throw new IllegalArgumentException("해당하는 업장이 없습니다.");}
-
+        User   user   = userRepository  .findBySocialId(socialId); if (user == null) { throw new CustomException(ErrorCode.NO_USER_FOUND); }   // 유저 유무 확인 예외처리
+        Review review = reviewRepository.findById(reviewId).orElseThrow(() -> new CustomException(ErrorCode.NO_REVIEW_FOUND));                       // 리뷰 유무 확인 예외처리;
+        Store store = storeRepository.findById(review.getStoreId().getId()).orElseThrow(()-> new CustomException(ErrorCode.NO_STORE_FOUND));
 
         List<ReviewImage> imageList =  review.getReviewImageList();
 
@@ -258,9 +251,8 @@ public class ReviewService {
                 awsS3Manager.deleteFile(reviewImage.getReviewImageUrl().substring(reviewImage.getReviewImageUrl().indexOf("com/") + 4));
             }
         }
-
-        store.get().removeReview(review);
-        storeRepository.save(store.get().updatePointAvg()); // 별점 평점 구하는 코드
+        store.removeReview(review);
+        storeRepository.save(store.updatePointAvg()); // 별점 평점 구하는 코드
     }
 
 
