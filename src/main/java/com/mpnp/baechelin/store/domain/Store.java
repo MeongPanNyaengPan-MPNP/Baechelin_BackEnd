@@ -18,7 +18,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity
+@Entity(name="Store")
 @Getter
 @NoArgsConstructor
 @Builder

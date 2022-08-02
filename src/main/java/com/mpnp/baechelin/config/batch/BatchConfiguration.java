@@ -167,25 +167,15 @@ public class BatchConfiguration {
 
         log.info("********** This is unPaidStoreWriter");
 
-//        return list -> {
-//            for(StoreApiUpdate storeApiUpdate: list){
-//                log.info("writer --> "+storeApiUpdate.getId());
-//            }
-//        };
+        return list -> {
+            for(StoreApiUpdate storeApiUpdate: list){
+                if(!storeApiUpdateRepository.existsById(storeApiUpdate.getId())){
+                    storeImageService.saveImage(storeApiUpdate.getId());
+                }
+            }
+            storeApiUpdateRepository.saveAll(list);
+        };
 
-//                // storeRepository 구현 시 save 호출하기
-//        for (StoreApiUpdate storeApiUpdate : storeList) {
-//            if (!storeRepository.existsById(storeApiUpdate.getId())) {
-//                storeApiUpdateRepository.save(storeApiUpdate);
-//                storeImageService.saveImage(storeApiUpdate.getId());
-//            }
-//        }
-//
-
-
-        JpaItemWriter<StoreApiUpdate> jpaItemWriter = new JpaItemWriter<>();
-        jpaItemWriter.setEntityManagerFactory(entityManagerFactory);
-        return jpaItemWriter;
     }
 
 
@@ -214,7 +204,7 @@ public class BatchConfiguration {
                 .name("jpaPageJob3_dbItemReader")
                 .entityManagerFactory(entityManagerFactory)
                 .pageSize(CHUNKSIZE)
-                .queryString("select a from store_api_update a left join store b on a.id = b.id where b.id is null order by a.id asc")
+                .queryString("select a from Store_api_update a left join Store b on a.id = b.id where b.id is null order by a.id asc")
                 .build();
     }
 
@@ -261,7 +251,7 @@ public class BatchConfiguration {
                 .name("jpaPageJob3_dbItemReader")
                 .entityManagerFactory(entityManagerFactory)
                 .pageSize(CHUNKSIZE)
-                .queryString("select a from store a left join store_api_update b on a.id = b.id where b.id is null order by a.id ASC")
+                .queryString("select a from Store a left join Store_api_update b on a.id = b.id where b.id is null order by a.id ASC")
                 .build();
     }
 
@@ -312,7 +302,7 @@ public class BatchConfiguration {
                 .name("jpaPageJob5_dbItemReader")
                 .entityManagerFactory(entityManagerFactory)
                 .pageSize(CHUNKSIZE)
-                .queryString("select a from store_api_update a join store b on a.id = b.id where a.id = b.id \n" +
+                .queryString("select a from Store_api_update a join Store b on a.id = b.id where a.id = b.id \n" +
                         "and a.approach != b.approach \n" +
                         "or a.address != b.address \n" +
                         "or a.elevator != b.elevator  \n" +
