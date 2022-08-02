@@ -6,6 +6,7 @@ import com.mpnp.baechelin.api.model.PublicApiV2Form;
 import com.mpnp.baechelin.bookmark.domain.Bookmark;
 import com.mpnp.baechelin.common.DataClarification;
 import com.mpnp.baechelin.review.domain.Review;
+import com.mpnp.baechelin.storeApiUpdate.StoreApiUpdate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,7 +18,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity
+@Entity(name="Store")
 @Getter
 @NoArgsConstructor
 @Builder
@@ -137,6 +138,53 @@ public class Store {
 
         this.phoneNumber = sr.getPhoneNumber();
         this.category = sr.getCategory();
+    }
+
+    public Store(StoreApiUpdate row){
+        this.id          = row.getId();
+        this.name        = row.getName();
+        this.address     = row.getAddress();
+        this.phoneNumber = row.getPhoneNumber();
+
+        /* 태그 */
+        //접근로
+        this.approach        = row.getApproach();
+        //주차장
+        this.parking         = row.getParking();
+        //승강기
+        this.elevator        = row.getElevator();
+        //화장실
+        this.toilet          = row.getToilet();
+        //높이차이제거
+        this.heightDifferent = row.getHeightDifferent();
+
+        this.category  = row.getCategory();
+        this.latitude  = row.getLatitude();
+        this.longitude = row.getLongitude();
+    }
+
+
+    public void apiUpdate(StoreApiUpdate row) {
+        this.id          = row.getId();
+        this.name        = row.getName();
+        this.address     = row.getAddress();
+        this.phoneNumber = row.getPhoneNumber();
+
+        /* 태그 */
+        //접근로
+        this.approach        = row.getApproach();
+        //주차장
+        this.parking         = row.getParking();
+        //승강기
+        this.elevator        = row.getElevator();
+        //화장실
+        this.toilet          = row.getToilet();
+        //높이차이제거
+        this.heightDifferent = row.getHeightDifferent();
+
+        this.category  = row.getCategory();
+        this.latitude  = row.getLatitude();
+        this.longitude = row.getLongitude();
     }
 
 }

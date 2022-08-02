@@ -77,6 +77,10 @@ dependencies {
 	implementation 'net.javacrumbs.shedlock:shedlock-provider-jdbc-template:4.36.0'
 	//redis
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	//guava
+	implementation 'com.google.guava:guava:31.1-jre'
+	//quartz
+	implementation 'org.springframework.boot:spring-boot-starter-quartz'
 }
 tasks.named('test') {
 	useJUnitPlatform()
