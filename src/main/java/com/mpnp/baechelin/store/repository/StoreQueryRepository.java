@@ -56,23 +56,7 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
         BigDecimal nowLat = (latStart.add(latEnd)).divide(new BigDecimal("2"), 22, RoundingMode.HALF_UP);
         BigDecimal nowLng = (lngStart.add(lngEnd)).divide(new BigDecimal("2"), 22, RoundingMode.HALF_UP);
         NumberPath<Double> path = Expressions.numberPath(Double.class, "realdist");
-        List<Tuple> tupleList =
-                queryFactory
-                        .select(store,
-                                acos(sin(radians(Expressions.constant(nowLat)))
-                                        .multiply(sin(radians(store.latitude)))
-                                        .add(cos(radians(Expressions.constant(nowLat))).multiply(cos(radians(store.latitude)))
-                                                .multiply(cos(radians(Expressions.constant(nowLng)).subtract(radians(store.longitude)))))).multiply(6371).as(path)
-                        )
-                        .from(store)
-                        .where(builder)
-                        .orderBy(path.desc())
-                        .limit(pageable.getPageSize())
-                        .offset(pageable.getOffset())
-                        .fetch();
-        List<Store> storeList = tupleList.stream().map(tuple -> tuple.get(store)).collect(Collectors.toList());
-        int fetchCount = queryFactory.selectFrom(store).where(builder).fetch().size();
-        return new PageImpl<>(storeList, pageable, fetchCount);
+        return getNearStores(nowLat, nowLng, pageable, builder, path);
     }
 
 
@@ -88,11 +72,11 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
         BooleanBuilder builder = QuerydslLocation.locAndConditions(latStart, latEnd, lngStart, lngEnd, category, facility);
         if (latStart == null || lngStart == null || lngEnd == null || latEnd == null)
             return findBetweenOnePointOrderNullCase(builder, pageable);
-        BigDecimal latH = new BigDecimal("110.852");
-        BigDecimal lngH = new BigDecimal("78.847");
         NumberPath<Double> path = Expressions.numberPath(Double.class, "realdist");
+        return getNearStores(lat, lng, pageable, builder, path);
+    }
 
-        NumberPath<BigDecimal> diff = Expressions.numberPath(BigDecimal.class, "diff");
+    private Page<Store> getNearStores(BigDecimal lat, BigDecimal lng, Pageable pageable, BooleanBuilder builder, NumberPath<Double> path) {
         List<Tuple> tupleList =
                 queryFactory
                         .select(store,
@@ -103,7 +87,6 @@ public class StoreQueryRepository extends QuerydslRepositorySupport {
                         )
                         .from(store)
                         .where(builder)
-//                        .orderBy(diff.asc())
                         .orderBy(path.asc())
                         .limit(pageable.getPageSize())
                         .offset(pageable.getOffset())
