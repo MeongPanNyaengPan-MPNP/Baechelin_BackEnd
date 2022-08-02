@@ -104,29 +104,29 @@ public class BatchConfiguration {
 
         List<StoreApiUpdate> storeApiUpdateList = new ArrayList<>();
 
-//        List<List<String>> csvList = readCSVFile("src/main/resources/static/sigungu.csv");
-//        List<List<List<String>>> csvListList = Lists.partition(csvList, csvList.size()/30);
-//
-//
-//        List<ApiUpdateThread> apiUpdateThreadList = new ArrayList<>();
-//        int index = 1;
-//        for(List<List<String>> csvListAvg: csvListList){
-//            ApiUpdateThread apiUpdateThread = new ApiUpdateThread(csvListAvg, storeApiUpdateList, 1, publicV2Key2, index);
-//            apiUpdateThread.start();
-//            apiUpdateThreadList.add(apiUpdateThread);
-//            index ++;
-//        }
-//
-//        try {
-//            for (ApiUpdateThread apiUpdateThread: apiUpdateThreadList){
-//                apiUpdateThread.join();
-//
-//            }
-//        } catch(Exception e){
-//            e.printStackTrace();
-//        }
-//
-//        log.info("store SIZE --> "+ storeApiUpdateList.size());
+        List<List<String>> csvList = readCSVFile("src/main/resources/static/sigungu.csv");
+        List<List<List<String>>> csvListList = Lists.partition(csvList, csvList.size()/30);
+
+
+        List<ApiUpdateThread> apiUpdateThreadList = new ArrayList<>();
+        int index = 1;
+        for(List<List<String>> csvListAvg: csvListList){
+            ApiUpdateThread apiUpdateThread = new ApiUpdateThread(csvListAvg, storeApiUpdateList, 1, publicV2Key2, kokoaApiKey, index);
+            apiUpdateThread.start();
+            apiUpdateThreadList.add(apiUpdateThread);
+            index ++;
+        }
+
+        try {
+            for (ApiUpdateThread apiUpdateThread: apiUpdateThreadList){
+                apiUpdateThread.join();
+
+            }
+        } catch(Exception e){
+            e.printStackTrace();
+        }
+
+        log.info("store SIZE --> "+ storeApiUpdateList.size());
 
         HttpHeaders  headers = new HttpHeaders();
         RestTemplate rest    = new RestTemplate();
@@ -416,6 +416,9 @@ public class BatchConfiguration {
 //        }
 //    }
 
+
+    @Value("${kakao.api.key}")
+    private String kokoaApiKey;
 
     @Value("${public.api.v2.key}")
     private String publicV2Key;

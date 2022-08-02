@@ -36,14 +36,16 @@ import java.util.stream.Collectors;
 public class ApiUpdateThread extends Thread {
 
 
-    private List<List<String>>    csvList;
-    private List<StoreApiUpdate>  storeApiUpdateList;
-    private int                   pageNo;
-    private String                publicKey;
-    private int                   threadCount;
+    private String               kakaoApiKey;
+    private List<List<String>>   csvList;
+    private List<StoreApiUpdate> storeApiUpdateList;
+    private int                  pageNo;
+    private String               publicKey;
+    private int                  threadCount;
 
 
-    public ApiUpdateThread(List<List<String>> csvList, List<StoreApiUpdate> storeApiUpdateList,int pageNo, String publicKey, int threadCount){
+    public ApiUpdateThread(List<List<String>> csvList, List<StoreApiUpdate> storeApiUpdateList,int pageNo, String publicKey, String kakaoApiKey,int threadCount){
+        this.kakaoApiKey        = kakaoApiKey;
         this.threadCount        = threadCount;
         this.publicKey          = publicKey;
         this.csvList            = csvList;
@@ -248,14 +250,12 @@ public class ApiUpdateThread extends Thread {
         }
     }
 
-    @Value("${kakao.api.key}")
-    private String kakaoApiKey;
 
     private LocationKeywordSearchForm getCategoryByCode(String lat, String lng, String storeName, String cateCode, int page) {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("Authorization", "KakaoAK 04940cceefec44d7adb62166b7971cd5");
+        headers.set("Authorization", kakaoApiKey);
         URI uri = UriComponentsBuilder
                 .fromUriString("https://dapi.kakao.com/v2/local/search/keyword.json")
                 .queryParam("query", storeName)
