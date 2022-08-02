@@ -78,8 +78,8 @@ public class BatchConfiguration {
     @Bean
     public Job JpaPageJob2_batchBuild1() throws JsonProcessingException{
         return jobBuilderFactory.get("JpaPageJob2_batchBuild_save")
-//                .start(JpaPageJob1_step1()) // store_api_update API 응답데이터 받기
-                .start(jpaPageJob1_step2())  // 추가된 업장이 있으면 store 테이블에 INSERT
+                .start(JpaPageJob1_step1()) // store_api_update API 응답데이터 받기
+                .next(jpaPageJob1_step2())  // 추가된 업장이 있으면 store 테이블에 INSERT
 //                .next(JpaPageJob2_step2())  // 사라진 업장이 있으면 store 테이블에 DELETE
                 .next(JpaPageJob1_step4()) // 수정된 업장이 있다면 store 테이블에 UPDATE
                 .build();
@@ -88,95 +88,95 @@ public class BatchConfiguration {
 
 
 
-//    @Bean
-//    public Step JpaPageJob1_step1() throws JsonProcessingException{
-//
-//        return stepBuilderFactory.get("JpaPageJob2_step1")
-//                //청크사이즈 설정
-//                .<StoreApiUpdate, StoreApiUpdate>chunk(CHUNKSIZE)
-//                .reader(jpaPageJob1_ItemReader())
-//                .processor(jpaPageJob1_Processor())
-//                .writer(jpaPageJob1_dbItemWriter())
-//                .build();
-//
-//    }
-//
-//        @Bean
-//        public ListItemReader<StoreApiUpdate> jpaPageJob1_ItemReader() throws JsonProcessingException{
-//
-//            List<StoreApiUpdate> storeApiUpdateList = new ArrayList<>();
-//
-//            List<List<String>> csvList = readCSVFile("src/main/resources/static/sigungu.csv");
-//            List<List<List<String>>> csvListList = Lists.partition(csvList, csvList.size()/30);
-//
-//
-//            List<ApiUpdateThread> apiUpdateThreadList = new ArrayList<>();
-//            int index = 1;
-//            for(List<List<String>> csvListAvg: csvListList){
-//                ApiUpdateThread apiUpdateThread = new ApiUpdateThread(csvListAvg, storeApiUpdateList, 1, publicV2Key2, kokoaApiKey, index);
-//                apiUpdateThread.start();
-//                apiUpdateThreadList.add(apiUpdateThread);
-//                index ++;
-//            }
-//
-//            try {
-//                for (ApiUpdateThread apiUpdateThread: apiUpdateThreadList){
-//                    apiUpdateThread.join();
-//
-//                }
-//            } catch(Exception e){
-//                e.printStackTrace();
-//            }
-//
-//            log.info("store SIZE --> "+ storeApiUpdateList.size());
-//
-//            HttpHeaders  headers = new HttpHeaders();
-//            RestTemplate rest    = new RestTemplate();
-//            String body          = "";
-//
-//            HttpEntity<String>      requestEntity  = new HttpEntity<String>(body, headers);
-//            ResponseEntity<String>  responseEntity = rest.exchange("http://openapi.seoul.go.kr:8088/5274616b45736f7933376e6c525658/json/touristFoodInfo/1/1000/", HttpMethod.GET, requestEntity, String.class);
-//            HttpStatus              httpStatus     = responseEntity.getStatusCode();
-//            String                  response       = responseEntity.getBody();
-//
-//
-//            JsonDTO jsonDTO = new Gson().fromJson(response, JsonDTO.class);  //conversion using Gson Library.
-//            setInfos(jsonDTO);
-//
-//            storeApiUpdateList.addAll(saveValidStores(jsonDTO.getTouristFoodInfo().getRow()));
-//
-//
-//            log.info("store SIZE --> "+ storeApiUpdateList.size());
-//
-//            STORE_SIZE = storeApiUpdateList.size();
-//            return new ListItemReader<>(storeApiUpdateList);
-//
-//
-//        }
-//
-//        private ItemProcessor<StoreApiUpdate, StoreApiUpdate> jpaPageJob1_Processor() {
-//            return storeApiUpdate -> {
-//
-//                log.info("********** This is jpaPageJob1_Processor");
-//                return storeApiUpdate;
-//
-//            };
-//        }
-//        @Bean
-//        public ItemWriter<StoreApiUpdate> jpaPageJob1_dbItemWriter(){
-//
-//            log.info("********** This is jpaPageJob1_dbItemWriter");
-//
-//            return list -> {
-//                for(StoreApiUpdate storeApiUpdate: list){
-//                    if(!storeApiUpdateRepository.existsById(storeApiUpdate.getId())){
-//                        storeImageService.saveImage(storeApiUpdate.getId());
-//                    }
-//                }
-//                storeApiUpdateRepository.saveAll(list);
-//            };
-//
-//        }
+    @Bean
+    public Step JpaPageJob1_step1() throws JsonProcessingException{
+
+        return stepBuilderFactory.get("JpaPageJob2_step1")
+                //청크사이즈 설정
+                .<StoreApiUpdate, StoreApiUpdate>chunk(CHUNKSIZE)
+                .reader(jpaPageJob1_ItemReader())
+                .processor(jpaPageJob1_Processor())
+                .writer(jpaPageJob1_dbItemWriter())
+                .build();
+
+    }
+
+        @Bean
+        public ListItemReader<StoreApiUpdate> jpaPageJob1_ItemReader() throws JsonProcessingException{
+
+            List<StoreApiUpdate> storeApiUpdateList = new ArrayList<>();
+
+            List<List<String>> csvList = readCSVFile("src/main/resources/static/sigungu.csv");
+            List<List<List<String>>> csvListList = Lists.partition(csvList, csvList.size()/30);
+
+
+            List<ApiUpdateThread> apiUpdateThreadList = new ArrayList<>();
+            int index = 1;
+            for(List<List<String>> csvListAvg: csvListList){
+                ApiUpdateThread apiUpdateThread = new ApiUpdateThread(csvListAvg, storeApiUpdateList, 1, publicV2Key2, kokoaApiKey, index);
+                apiUpdateThread.start();
+                apiUpdateThreadList.add(apiUpdateThread);
+                index ++;
+            }
+
+            try {
+                for (ApiUpdateThread apiUpdateThread: apiUpdateThreadList){
+                    apiUpdateThread.join();
+
+                }
+            } catch(Exception e){
+                e.printStackTrace();
+            }
+
+            log.info("store SIZE --> "+ storeApiUpdateList.size());
+
+            HttpHeaders  headers = new HttpHeaders();
+            RestTemplate rest    = new RestTemplate();
+            String body          = "";
+
+            HttpEntity<String>      requestEntity  = new HttpEntity<String>(body, headers);
+            ResponseEntity<String>  responseEntity = rest.exchange("http://openapi.seoul.go.kr:8088/5274616b45736f7933376e6c525658/json/touristFoodInfo/1/1000/", HttpMethod.GET, requestEntity, String.class);
+            HttpStatus              httpStatus     = responseEntity.getStatusCode();
+            String                  response       = responseEntity.getBody();
+
+
+            JsonDTO jsonDTO = new Gson().fromJson(response, JsonDTO.class);  //conversion using Gson Library.
+            setInfos(jsonDTO);
+
+            storeApiUpdateList.addAll(saveValidStores(jsonDTO.getTouristFoodInfo().getRow()));
+
+
+            log.info("store SIZE --> "+ storeApiUpdateList.size());
+
+            STORE_SIZE = storeApiUpdateList.size();
+            return new ListItemReader<>(storeApiUpdateList);
+
+
+        }
+
+        private ItemProcessor<StoreApiUpdate, StoreApiUpdate> jpaPageJob1_Processor() {
+            return storeApiUpdate -> {
+
+                log.info("********** This is jpaPageJob1_Processor");
+                return storeApiUpdate;
+
+            };
+        }
+        @Bean
+        public ItemWriter<StoreApiUpdate> jpaPageJob1_dbItemWriter(){
+
+            log.info("********** This is jpaPageJob1_dbItemWriter");
+
+            return list -> {
+                for(StoreApiUpdate storeApiUpdate: list){
+                    if(!storeApiUpdateRepository.existsById(storeApiUpdate.getId())){
+                        storeImageService.saveImage(storeApiUpdate.getId());
+                    }
+                }
+                storeApiUpdateRepository.saveAll(list);
+            };
+
+        }
 
 
 
