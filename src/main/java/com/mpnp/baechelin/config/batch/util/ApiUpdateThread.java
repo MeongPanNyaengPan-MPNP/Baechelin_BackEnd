@@ -95,10 +95,15 @@ public class ApiUpdateThread extends Thread {
 
             RestTemplate restTemplate = new RestTemplate();
             log.warn("thread "+ threadCount +" --> "+uri.toString());
-            ResponseEntity<PublicApiV2Form> resultRe = restTemplate.exchange(
-                    uri, HttpMethod.GET, new HttpEntity<>(headers), PublicApiV2Form.class
-            );
-            PublicApiV2Form result = resultRe.getBody();
+            PublicApiV2Form result = new PublicApiV2Form();
+
+            synchronized (this) {
+                ResponseEntity<PublicApiV2Form> resultRe = restTemplate.exchange(
+                        uri, HttpMethod.GET, new HttpEntity<>(headers), PublicApiV2Form.class
+                );
+                result = resultRe.getBody();
+            }
+
 
 
             if (result == null){      // 결과가 없으면 false 리턴

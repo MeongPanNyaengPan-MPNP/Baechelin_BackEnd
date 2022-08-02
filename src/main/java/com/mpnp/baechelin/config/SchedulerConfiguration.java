@@ -44,6 +44,9 @@ public class SchedulerConfiguration {
     private final BatchConfiguration batchConfiguration;
     @Scheduled(cron = "0 30 4 * * ?",zone = "Asia/Seoul")
     public void storeApiUpdate() {
+
+
+
         LocalDateTime now = LocalDateTime.now();
         System.out.println(now.getHour() + ":" + now.getMinute() + ":" + now.getSecond());
 
