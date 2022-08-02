@@ -3,6 +3,9 @@ package com.mpnp.baechelin.bookmark.controller;
 import com.mpnp.baechelin.bookmark.dto.BookmarkInfoDto;
 import com.mpnp.baechelin.bookmark.dto.BookmarkRequestDto;
 import com.mpnp.baechelin.bookmark.service.BookmarkService;
+import com.mpnp.baechelin.common.SuccessResponse;
+import com.mpnp.baechelin.exception.CustomException;
+import com.mpnp.baechelin.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -20,29 +23,32 @@ import java.util.List;
 public class BookmarkController {
     private final BookmarkService bookmarkService;
 
-    /** 북마크 생성 폴더 담기 */
+    /**
+     * 북마크 생성 폴더 담기
+     */
     @PostMapping("/bookmark")
-    public ResponseEntity<?> bookmark(@RequestBody BookmarkRequestDto bookmarkRequestDto,
-                                      @AuthenticationPrincipal User user){
-
-        if(user==null){ throw new IllegalArgumentException("해당하는 회원 정보가 없습니다."); }
+    public SuccessResponse bookmark(@RequestBody BookmarkRequestDto bookmarkRequestDto,
+                                    @AuthenticationPrincipal User user) {
+        if (user == null) {
+            throw new CustomException(ErrorCode.NO_USER_FOUND);
+        }
         bookmarkService.bookmark(bookmarkRequestDto, user.getUsername());
-
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new SuccessResponse("북마크를 폴더에 저장 완료");
     }
 
     @DeleteMapping("/bookmark/{bookmarkId}")
-    public ResponseEntity<?> bookmarkDelete(@PathVariable int bookmarkId,
-                                            @AuthenticationPrincipal User user){
-        if(user==null){ throw new IllegalArgumentException("해당하는 회원 정보가 없습니다."); }
+    public SuccessResponse bookmarkDelete(@PathVariable int bookmarkId,
+                                            @AuthenticationPrincipal User user) {
+        if (user == null) {
+            throw new CustomException(ErrorCode.NO_USER_FOUND);
+        }
         bookmarkService.bookmarkDelete(bookmarkId, user.getUsername());
-
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new SuccessResponse("북마크를 삭제 완료");
     }
 
     @GetMapping("/bookmarkTop")
-    public ResponseEntity<?> bookmarkTop(@AuthenticationPrincipal User user,
-                                         @PageableDefault(page = 0, size = 5, sort = "id", direction = Sort.Direction.DESC) Pageable pageable){
+    public ResponseEntity<List<BookmarkInfoDto>> bookmarkTop(@AuthenticationPrincipal User user,
+                                         @PageableDefault(page = 0, size = 5, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
 
         List<BookmarkInfoDto> bookmarkList = bookmarkService.bookmarkTop(user.getUsername(), pageable);
         return new ResponseEntity<>(bookmarkList, HttpStatus.OK);
