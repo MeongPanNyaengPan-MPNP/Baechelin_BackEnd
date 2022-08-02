@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mpnp.baechelin.config.batch.BatchConfiguration;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.batch.core.JobParameter;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersInvalidException;
@@ -26,7 +27,6 @@ import java.util.TimeZone;
 
 @Slf4j
 @Configuration
-@RequiredArgsConstructor
 public class SchedulerConfiguration {
     @Bean
     public LockProvider lockProvider(DataSource dataSource) {
@@ -40,32 +40,6 @@ public class SchedulerConfiguration {
 
 
 
-    private final JobLauncher jobLauncher;
-    private final BatchConfiguration batchConfiguration;
-    @Scheduled(cron = "0 30 4 * * ?",zone = "Asia/Seoul")
-    public void storeApiUpdate() {
 
-
-
-        LocalDateTime now = LocalDateTime.now();
-        System.out.println(now.getHour() + ":" + now.getMinute() + ":" + now.getSecond());
-
-        Map<String, JobParameter> confMap = new HashMap<>();
-        confMap.put("time", new JobParameter(System.currentTimeMillis()));
-
-        try{
-            jobLauncher.run(batchConfiguration.JpaPageJob2_batchBuild1(), new JobParameters());
-        }catch(JobExecutionAlreadyRunningException
-               | JobInstanceAlreadyCompleteException
-               | JobParametersInvalidException
-               | org.springframework.batch.core.repository.JobRestartException e){
-
-            log.error(e.getMessage());
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-
-
-    }
 }
 

@@ -13,6 +13,7 @@ import org.springframework.batch.core.JobParametersInvalidException;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
 import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
@@ -21,7 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
-@EnableScheduling
+@Configuration
 @RequiredArgsConstructor
 @EnableSchedulerLock(defaultLockAtMostFor = "PT10S")
 public class BatchScheduler {
@@ -31,7 +32,7 @@ public class BatchScheduler {
     private final JobLauncher jobLauncher;
 
     @Scheduled(cron = "0 30 4 1 1/1 ? *",zone = "Asia/Seoul")
-    @SchedulerLock(name = "JpaPageJob1_storeApiUpdate", lockAtLeastFor = "PT30M", lockAtMostFor = "PT58M")
+    @SchedulerLock(name = "updateScheduler", lockAtLeastFor = "PT58M", lockAtMostFor = "PT59M")
     public void storeApiUpdateJob() {
 
         LocalDateTime now = LocalDateTime.now();
@@ -39,9 +40,9 @@ public class BatchScheduler {
 
         Map<String, JobParameter> confMap = new HashMap<>();
         confMap.put("time", new JobParameter(System.currentTimeMillis()));
-
+        JobParameters jobParameters = new JobParameters(confMap);
         try{
-            jobLauncher.run(batchConfiguration.JpaPageJob1_storeApiUpdate(), new JobParameters());
+            jobLauncher.run(batchConfiguration.JpaPageJob1_storeApiUpdate(), jobParameters);
         }catch(JobExecutionAlreadyRunningException
                | JobInstanceAlreadyCompleteException
                | JobParametersInvalidException

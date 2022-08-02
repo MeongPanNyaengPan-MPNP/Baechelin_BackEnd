@@ -22,8 +22,7 @@ import com.mpnp.baechelin.storeApiUpdate.StoreApiUpdate;
 import com.mpnp.baechelin.storeApiUpdate.repository.StoreApiUpdateRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.Step;
+import org.springframework.batch.core.*;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.item.ItemProcessor;
@@ -38,6 +37,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.*;
+import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.util.ResourceUtils;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -76,11 +76,11 @@ public class BatchConfiguration {
 
 
     @Bean
-    public Job JpaPageJob2_batchBuild1() throws JsonProcessingException{
-        return jobBuilderFactory.get("JpaPageJob2_batchBuild_save")
-                .start(JpaPageJob1_step1()) // store_api_update API 응답데이터 받기
+    public Job JpaPageJob1_storeApiUpdate() throws JsonProcessingException{
+        return jobBuilderFactory.get("JpaPageJob1_storeApiUpdate")
+//                .start(JpaPageJob1_step1()) // store_api_update API 응답데이터 받기
                 .start(jpaPageJob1_step2())  // 추가된 업장이 있으면 store 테이블에 INSERT
-//                .next(JpaPageJob2_step2())  // 사라진 업장이 있으면 store 테이블에 DELETE
+//                .start(JpaPageJob4_step1())  // 사라진 업장이 있으면 store 테이블에 DELETE
                 .next(JpaPageJob1_step4()) // 수정된 업장이 있다면 store 테이블에 UPDATE
                 .build();
     }
@@ -88,102 +88,105 @@ public class BatchConfiguration {
 
 
 
-    @Bean
-    public Step JpaPageJob1_step1() throws JsonProcessingException{
-
-        return stepBuilderFactory.get("JpaPageJob2_step1")
-                //청크사이즈 설정
-                .<StoreApiUpdate, StoreApiUpdate>chunk(CHUNKSIZE)
-                .reader(jpaPageJob1_ItemReader())
-                .processor(jpaPageJob1_Processor())
-                .writer(jpaPageJob1_dbItemWriter())
-                .build();
-
-    }
-
-        @Bean
-        public ListItemReader<StoreApiUpdate> jpaPageJob1_ItemReader() throws JsonProcessingException{
-
-            // System.currentTimeMillis(); --- 현재 시간을 밀리초(ms, 천분의 일초) 단위로 반환
-            long sTime = System.currentTimeMillis(); // 시작시간
-            Double sec = (System.currentTimeMillis() - sTime) / 1000.0;
-            System.out.printf("시작 --- (%.2f초)%n", sec);
-            List<StoreApiUpdate> storeApiUpdateList = new ArrayList<>();
-
-            List<List<String>> csvList = readCSVFile("src/main/resources/static/sigungu.csv");
-            List<List<List<String>>> csvListList = Lists.partition(csvList, csvList.size()/30);
-
-            System.out.println("Thred 갯수 -- >: "+ csvListList.size());
-            List<ApiUpdateThread> apiUpdateThreadList = new ArrayList<>();
-            int index = 1;
-            for(List<List<String>> csvListAvg: csvListList){
-                ApiUpdateThread apiUpdateThread = new ApiUpdateThread(csvListAvg, storeApiUpdateList, 1, publicV2Key2, kokoaApiKey, index);
-                apiUpdateThread.start();
-                apiUpdateThreadList.add(apiUpdateThread);
-                index ++;
-            }
-
-            try {
-                for (ApiUpdateThread apiUpdateThread: apiUpdateThreadList){
-                    apiUpdateThread.join();
-
-                }
-            } catch(Exception e){
-                e.printStackTrace();
-            }
-
-            log.info("store SIZE --> "+ storeApiUpdateList.size());
-
-            HttpHeaders  headers = new HttpHeaders();
-            RestTemplate rest    = new RestTemplate();
-            String body          = "";
-
-            HttpEntity<String>      requestEntity  = new HttpEntity<String>(body, headers);
-            ResponseEntity<String>  responseEntity = rest.exchange("http://openapi.seoul.go.kr:8088/5274616b45736f7933376e6c525658/json/touristFoodInfo/1/1000/", HttpMethod.GET, requestEntity, String.class);
-            HttpStatus              httpStatus     = responseEntity.getStatusCode();
-            String                  response       = responseEntity.getBody();
-
-
-            JsonDTO jsonDTO = new Gson().fromJson(response, JsonDTO.class);  //conversion using Gson Library.
-            setInfos(jsonDTO);
-
-            storeApiUpdateList.addAll(saveValidStores(jsonDTO.getTouristFoodInfo().getRow()));
-
-
-            log.info("store SIZE --> "+ storeApiUpdateList.size());
-
-            STORE_SIZE = storeApiUpdateList.size();
-
-            sec = (System.currentTimeMillis() - sTime) / 1000.0;
-            System.out.printf("소요시간 --- (%.2f초)%n", sec);
-            return new ListItemReader<>(storeApiUpdateList);
-
-
-        }
-
-        private ItemProcessor<StoreApiUpdate, StoreApiUpdate> jpaPageJob1_Processor() {
-            return storeApiUpdate -> {
-
-                log.info("********** This is jpaPageJob1_Processor");
-                return storeApiUpdate;
-
-            };
-        }
-        @Bean
-        public ItemWriter<StoreApiUpdate> jpaPageJob1_dbItemWriter(){
-
-            log.info("********** This is jpaPageJob1_dbItemWriter");
-
-            return list -> {
-                for(StoreApiUpdate storeApiUpdate: list){
-                    if(!storeApiUpdateRepository.existsById(storeApiUpdate.getId())){
-                        storeImageService.saveImage(storeApiUpdate.getId());
-                    }
-                }
-                storeApiUpdateRepository.saveAll(list);
-            };
-
-        }
+//    @Bean
+//    public Step JpaPageJob1_step1() throws JsonProcessingException{
+//
+//        return stepBuilderFactory.get("JpaPageJob2_step1")
+//                //청크사이즈 설정
+//                .<StoreApiUpdate, StoreApiUpdate>chunk(CHUNKSIZE)
+//                .reader(jpaPageJob1_ItemReader())
+//                .processor(jpaPageJob1_Processor())
+//                .writer(jpaPageJob1_dbItemWriter())
+//                .build();
+//
+//    }
+//
+//        @Bean
+//        public ListItemReader<StoreApiUpdate> jpaPageJob1_ItemReader() throws JsonProcessingException{
+//
+//            // System.currentTimeMillis(); --- 현재 시간을 밀리초(ms, 천분의 일초) 단위로 반환
+//            long sTime = System.currentTimeMillis(); // 시작시간
+//            Double sec = (System.currentTimeMillis() - sTime) / 1000.0;
+//            System.out.printf("시작 --- (%.2f초)%n", sec);
+//
+//
+//
+//            List<StoreApiUpdate> storeApiUpdateList = new ArrayList<>();
+//
+//            List<List<String>> csvList = readCSVFile("src/main/resources/static/sigungu.csv");
+//            List<List<List<String>>> csvListList = Lists.partition(csvList, csvList.size()/30);
+//
+//            System.out.println("Thred 갯수 -- >: "+ csvListList.size());
+//            List<ApiUpdateThread> apiUpdateThreadList = new ArrayList<>();
+//            int index = 1;
+//            for(List<List<String>> csvListAvg: csvListList){
+//                ApiUpdateThread apiUpdateThread = new ApiUpdateThread(csvListAvg, storeApiUpdateList, 1, publicV2Key, kokoaApiKey, index);
+//                apiUpdateThread.start();
+//                apiUpdateThreadList.add(apiUpdateThread);
+//                index ++;
+//            }
+//
+//            try {
+//                for (ApiUpdateThread apiUpdateThread: apiUpdateThreadList){
+//                    apiUpdateThread.join();
+//
+//                }
+//            } catch(Exception e){
+//                e.printStackTrace();
+//            }
+//
+//            log.info("store SIZE --> "+ storeApiUpdateList.size());
+//
+//            HttpHeaders  headers = new HttpHeaders();
+//            RestTemplate rest    = new RestTemplate();
+//            String body          = "";
+//
+//            HttpEntity<String>      requestEntity  = new HttpEntity<String>(body, headers);
+//            ResponseEntity<String>  responseEntity = rest.exchange("http://openapi.seoul.go.kr:8088/5274616b45736f7933376e6c525658/json/touristFoodInfo/1/1000/", HttpMethod.GET, requestEntity, String.class);
+//            HttpStatus              httpStatus     = responseEntity.getStatusCode();
+//            String                  response       = responseEntity.getBody();
+//
+//
+//            JsonDTO jsonDTO = new Gson().fromJson(response, JsonDTO.class);  //conversion using Gson Library.
+//            setInfos(jsonDTO);
+//
+//            storeApiUpdateList.addAll(saveValidStores(jsonDTO.getTouristFoodInfo().getRow()));
+//
+//
+//            log.info("store SIZE --> "+ storeApiUpdateList.size());
+//
+//            STORE_SIZE = storeApiUpdateList.size();
+//
+//            sec = (System.currentTimeMillis() - sTime) / 1000.0;
+//            System.out.printf("소요시간 --- (%.2f초)%n", sec);
+//            return new ListItemReader<>(storeApiUpdateList);
+//
+//
+//        }
+//
+//        private ItemProcessor<StoreApiUpdate, StoreApiUpdate> jpaPageJob1_Processor() {
+//            return storeApiUpdate -> {
+//
+//                log.info("********** This is jpaPageJob1_Processor");
+//                return storeApiUpdate;
+//
+//            };
+//        }
+//        @Bean
+//        public ItemWriter<StoreApiUpdate> jpaPageJob1_dbItemWriter(){
+//
+//            log.info("********** This is jpaPageJob1_dbItemWriter");
+//
+//            return list -> {
+//                for(StoreApiUpdate storeApiUpdate: list){
+//                    if(!storeApiUpdateRepository.existsById(storeApiUpdate.getId())){
+//                        storeImageService.saveImage(storeApiUpdate.getId());
+//                    }
+//                }
+//                storeApiUpdateRepository.saveAll(list);
+//            };
+//
+//        }
 
 
 
@@ -223,9 +226,16 @@ public class BatchConfiguration {
 
         private ItemWriter<Store> jpaPageJob1_step2_dbItemWriter() {
             log.info("********** This is jpaPageJob1_step2_dbItemWriter");
-            JpaItemWriter<Store> jpaItemWriter = new JpaItemWriter<>();
-            jpaItemWriter.setEntityManagerFactory(entityManagerFactory);
-            return jpaItemWriter;
+            return list -> {
+                for(Store store: list){
+                    System.out.println(store.getId());
+                }
+
+            };
+
+//            JpaItemWriter<Store> jpaItemWriter = new JpaItemWriter<>();
+//            jpaItemWriter.setEntityManagerFactory(entityManagerFactory);
+//            return jpaItemWriter;
         }
 
 
@@ -245,18 +255,20 @@ public class BatchConfiguration {
 //    @Bean
 //    public JpaPagingItemReader<Store> jpaPageJob4_ItemReader() throws JsonProcessingException {
 //
+//
+//        System.out.println("test ㅅㅅㄷㄴㅅ");
 //        log.info("********** This is unPaidStoreReader");
 //        return new JpaPagingItemReaderBuilder<Store>()
 //                .name("jpaPageJob3_dbItemReader")
 //                .entityManagerFactory(entityManagerFactory)
 //                .pageSize(CHUNKSIZE)
-//                .queryString("select a from Store a left join Store_api_update b on a.id = b.id where b.id is null order by a.id ASC")
+//                .queryString("select a from Store_api_update a left join Store b on a.id = b.id where b.id is null order by a.id asc")
 //                .build();
 //    }
-
-
-
-
+//
+//
+//
+//
 //    private ItemProcessor<Store, Store> jpaPageJob4_Processor() {
 //        log.info("********** This is unPaidStoreProcessor");
 //        return new ItemProcessor<Store, Store>() {  //
@@ -536,6 +548,7 @@ public class BatchConfiguration {
 
         return storeList;
     }
+
 
 
 }
