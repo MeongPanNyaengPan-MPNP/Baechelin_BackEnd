@@ -14,6 +14,7 @@ import com.mpnp.baechelin.review.service.ReviewService;
 import com.mpnp.baechelin.store.domain.Store;
 import com.mpnp.baechelin.store.repository.StoreRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -108,7 +109,7 @@ public class ReviewController {
             throw new CustomException(ErrorCode.ACCESS_DENIED);
         }
         reviewService.reviewDelete(user.getUsername(), reviewId);
-        return new SuccessResponse("리뷰 이미지 삭제 완료");
+        return new SuccessResponse("리뷰 삭제 완료");
     }
 
     // 반경 넓히기

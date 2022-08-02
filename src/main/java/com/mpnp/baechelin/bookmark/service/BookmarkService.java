@@ -11,6 +11,7 @@ import com.mpnp.baechelin.exception.ErrorCode;
 import com.mpnp.baechelin.store.domain.Store;
 import com.mpnp.baechelin.store.repository.StoreImgRepository;
 import com.mpnp.baechelin.store.repository.StoreRepository;
+import com.mpnp.baechelin.store.service.StoreService;
 import com.mpnp.baechelin.user.domain.User;
 import com.mpnp.baechelin.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +33,7 @@ public class BookmarkService {
     private final StoreRepository    storeRepository;
     private final UserRepository     userRepository;
     private final StoreImgRepository storeImgRepository;
-//    private final StoreImageRepository storeImageRepository;
+    private final StoreService storeService;
 
     @Transactional
     public void bookmark(BookmarkRequestDto bookmarkRequestDto, String socialId) {
@@ -50,7 +51,7 @@ public class BookmarkService {
 
         if (!bookmarkRepository.existsByStoreIdAndUserId(store, user)) {
             bookmarkRepository.save(bookmark);
-            updateBookmarkCnt(store);
+            storeService.updateBookmarkCnt(store);
         }
     }
     @Transactional
@@ -60,14 +61,9 @@ public class BookmarkService {
         Store store = bookmark.getStoreId();
         store.removeBookmark(bookmark);
         bookmarkRepository.deleteById(bookmarkId);
-        updateBookmarkCnt(store);
+        storeService.updateBookmarkCnt(store);
     }
-    @Transactional
-//    @Cacheable(value="store", key="#store.id", cacheManager = "cacheManager")
-    public void updateBookmarkCnt(Store store){
-        int bookmarkCnt = storeRepository.getBookmarkCnt(store.getId());
-        storeRepository.updateBookmarkCnt(bookmarkCnt, store.getId());
-    }
+
 
     @Transactional
     public List<BookmarkInfoDto> bookmarkTop(String socialId, Pageable pageable) {

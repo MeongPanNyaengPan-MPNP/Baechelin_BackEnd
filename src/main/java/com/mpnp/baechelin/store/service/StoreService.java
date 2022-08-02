@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.spring.annotation.EnableSchedulerLock;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -240,5 +241,15 @@ public class StoreService {
                 storeRepository.updateBookmarkCnt(bookmarkCnt, store.getId());
             }
         }
+    }
+
+    @CacheEvict(value = "store", key = "#store.id", cacheManager = "cacheManager")
+    public void updateAvg(Store store){
+        storeRepository.save(store.updatePointAvg());
+    }
+
+    @CacheEvict(value = "store", key = "#store.id", cacheManager = "cacheManager")
+    public void updateBookmarkCnt(Store store){
+        storeRepository.save(store.updateBookmarkCount());
     }
 }

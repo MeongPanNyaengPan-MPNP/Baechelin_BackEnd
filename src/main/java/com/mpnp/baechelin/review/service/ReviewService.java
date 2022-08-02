@@ -13,6 +13,7 @@ import com.mpnp.baechelin.review.repository.ReviewQueryRepository;
 import com.mpnp.baechelin.review.repository.ReviewRepository;
 import com.mpnp.baechelin.store.domain.Store;
 import com.mpnp.baechelin.store.repository.StoreRepository;
+import com.mpnp.baechelin.store.service.StoreService;
 import com.mpnp.baechelin.tag.domain.Tag;
 import com.mpnp.baechelin.tag.repository.TagRepository;
 import com.mpnp.baechelin.user.domain.User;
@@ -49,7 +50,7 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final ReviewImageRepository reviewImageRepository;
     private final ReviewQueryRepository reviewQueryRepository;
-
+    private final StoreService storeService;
 
     /**
      * 리뷰 작성
@@ -83,15 +84,9 @@ public class ReviewService {
         tagRepository.saveAll(tagList);
         reviewImageRepository.saveAll(reviewImageUrlList);
         reviewRepository.save(review); // 아래의 {store.updatePointAvg()} 보다 리뷰가 먼저 처리되게 해야한다.
-
-        updateAvg(store);
+        storeService.updateAvg(store);
     }
 
-    @Transactional
-//    @CacheEvict(value = "store", key = "#store.getId()", cacheManager = "cacheManager")
-    public void updateAvg(Store store) {
-        storeRepository.save(store.updatePointAvg()); //별점 평균 구하는 코드
-    }
 
 
     /**
@@ -153,9 +148,7 @@ public class ReviewService {
     }
 
 
-    @Transactional
     /** 리뷰 수정 */
-
     public void reviewUpdate(ReviewRequestDto reviewRequestDto, String socialId, int reviewId) {
 
 
@@ -238,7 +231,7 @@ public class ReviewService {
     /**
      * 리뷰 삭제
      */
-    @Transactional
+
     public void reviewDelete(String socialId, int reviewId) {
 
         User user = userRepository.findBySocialId(socialId);
@@ -260,7 +253,7 @@ public class ReviewService {
             }
         }
         store.removeReview(review);
-        updateAvg(store);
+        storeService.updateAvg(store);
     }
 
 
