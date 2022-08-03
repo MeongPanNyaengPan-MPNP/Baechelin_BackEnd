@@ -85,7 +85,6 @@ public class StoreController {
                                                              @AuthenticationPrincipal User user) {
         return storeService.getStoreInRangeHighBookmark(lat, lng, category, facility, pageable, user == null ? null : user.getUsername());
     }
-    @Cacheable(value="store", key="#storeId", cacheManager = "cacheManager")
     @ApiOperation(value = "업장 상세정보를 조회하는 메소드")
     @GetMapping("/detail/{storeId}")
     public StoreDetailResponseDto getStore(

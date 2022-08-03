@@ -51,7 +51,7 @@ public class BookmarkService {
 
         if (!bookmarkRepository.existsByStoreIdAndUserId(store, user)) {
             bookmarkRepository.save(bookmark);
-            storeService.updateBookmarkCnt(store);
+            storeService.updateBookmarkCnt(store,socialId);
         }
     }
     @Transactional
@@ -61,7 +61,7 @@ public class BookmarkService {
         Store store = bookmark.getStoreId();
         store.removeBookmark(bookmark);
         bookmarkRepository.deleteById(bookmarkId);
-        storeService.updateBookmarkCnt(store);
+        storeService.updateBookmarkCnt(store,socialId);
     }
 
 

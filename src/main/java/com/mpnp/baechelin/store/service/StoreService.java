@@ -17,6 +17,8 @@ import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.spring.annotation.EnableSchedulerLock;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -86,8 +88,8 @@ public class StoreService {
     public StorePagedResponseDto getStoreInOnePointRange(BigDecimal lat, BigDecimal lng, String category, List<String> facility, Pageable pageable, String socialId) {
         BigDecimal[] range = QuerydslLocation.getRange(lat, lng, 2);
         if (range == null)
-            return getStoreInOnePointRange(null, null, null, null,lat,lng, category, facility, pageable, socialId);
-        return getStoreInOnePointRange(range[0], range[1], range[2], range[3],lat,lng, category, facility, pageable, socialId);
+            return getStoreInOnePointRange(null, null, null, null, lat, lng, category, facility, pageable, socialId);
+        return getStoreInOnePointRange(range[0], range[1], range[2], range[3], lat, lng, category, facility, pageable, socialId);
     }
 
     public StorePagedResponseDto getStoreInRangeMap(BigDecimal lat, BigDecimal lng, String category, List<String> facility, Pageable pageable, String socialId) {
@@ -151,7 +153,7 @@ public class StoreService {
      * @param socialId 유저 social 아이디
      * @return 업장 상세 정보
      */
-
+    @Cacheable(value = "store", key = "'id_'+#storeId+'user_'+#socialId", cacheManager = "cacheManager")
     public StoreDetailResponseDto getStore(long storeId, String socialId) {
         Store store = storeRepository.findById(storeId).orElseThrow(() -> new CustomException(ErrorCode.NO_STORE_FOUND));
 
@@ -242,14 +244,19 @@ public class StoreService {
             }
         }
     }
-
-    @CacheEvict(value = "store", key = "#store.id", cacheManager = "cacheManager")
-    public void updateAvg(Store store){
+    @Caching(evict = {
+            @CacheEvict(cacheNames = "store", key="'id_'+#store.id+'user_'+#socialId",cacheManager = "cacheManager"),
+            @CacheEvict(cacheNames = "store", key="'id_'+#store.id+'user_null'",cacheManager = "cacheManager")
+    })
+    public void updateAvg(Store store, String socialId) {
         storeRepository.save(store.updatePointAvg());
     }
 
-    @CacheEvict(value = "store", key = "#store.id", cacheManager = "cacheManager")
-    public void updateBookmarkCnt(Store store){
+    @Caching(evict = {
+            @CacheEvict(cacheNames = "store", key="'id_'+#store.id+'user_'+#socialId",cacheManager = "cacheManager"),
+            @CacheEvict(cacheNames = "store", key="'id_'+#store.id+'user_null'",cacheManager = "cacheManager")
+    })
+    public void updateBookmarkCnt(Store store, String socialId) {
         storeRepository.save(store.updateBookmarkCount());
     }
 }

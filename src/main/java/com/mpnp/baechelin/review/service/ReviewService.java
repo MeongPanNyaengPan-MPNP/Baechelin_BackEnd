@@ -84,7 +84,7 @@ public class ReviewService {
         tagRepository.saveAll(tagList);
         reviewImageRepository.saveAll(reviewImageUrlList);
         reviewRepository.save(review); // 아래의 {store.updatePointAvg()} 보다 리뷰가 먼저 처리되게 해야한다.
-        storeService.updateAvg(store);
+        storeService.updateAvg(store,socialId);
     }
 
 
@@ -253,7 +253,7 @@ public class ReviewService {
             }
         }
         store.removeReview(review);
-        storeService.updateAvg(store);
+        storeService.updateAvg(store,socialId);
     }
 
 
