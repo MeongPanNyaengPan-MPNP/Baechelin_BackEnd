@@ -21,11 +21,8 @@ import com.mpnp.baechelin.user.repository.UserRepository;
 import com.mpnp.baechelin.util.AwsS3Manager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.annotations.SQLDelete;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -33,9 +30,7 @@ import javax.transaction.Transactional;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -56,6 +51,15 @@ public class ReviewService {
      * 리뷰 작성
      */
     public void review(ReviewRequestDto reviewRequestDto, String socialId) throws IOException {
+
+
+        for(String tag: reviewRequestDto.getTagList()){
+            for(String tagsList: reviewRequestDto.Tags()){
+                if(tag != tagsList){
+                    new Exception("해당 태그명으로 리뷰 등록할 수 없습니다");
+                }
+            }
+        }
 
         long storeId = reviewRequestDto.getStoreId();
         Store store = storeRepository.findById(storeId).orElseThrow(() -> new IllegalArgumentException("해당하는 업장이 존재하지 않습니다."));
@@ -86,6 +90,7 @@ public class ReviewService {
         reviewRepository.save(review); // 아래의 {store.updatePointAvg()} 보다 리뷰가 먼저 처리되게 해야한다.
         storeRepository.save(store.updatePointAvg()); //별점 평균 구하는 코드
     }
+
 
 
 
