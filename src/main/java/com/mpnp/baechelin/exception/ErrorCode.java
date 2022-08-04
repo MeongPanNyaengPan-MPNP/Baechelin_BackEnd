@@ -30,7 +30,8 @@ public enum ErrorCode {
     NO_BOOKMARK_FOUND(500, "E-NBF", "북마크가 존재하지 않습니다."),
     NO_USER_FOUND(500, "E-NUF", "유저가 존재하지 않습니다."),
     NO_REVIEW_FOUND(500, "E-NRF", "리뷰가 존재하지 않습니다."),
-
+    BAD_IMAGE_INPUT(400, "E-BII", "올바르지 않은 이미지 형식입니다"),
+    IMAGE_SIZE_EXCESS(400, "E-ISE", "이미지 크기(3MB)를 초과했습니다.")
     ;
 
     private final int status;

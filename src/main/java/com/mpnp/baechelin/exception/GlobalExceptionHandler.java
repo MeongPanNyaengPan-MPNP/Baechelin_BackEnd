@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.RestClientException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @Slf4j
@@ -55,5 +56,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<ErrorResponse> handleUnsupportedJwtException(RestClientException e) {
         log.error("API 로드에 실패했습니다");
         return ErrorResponse.toResponseEntity(ErrorCode.API_LOAD_FAILURE);
+    }
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ErrorResponse> handleMaxUploadSizeExceededException(Exception ex){
+        log.warn("파일 용량 초과 문제: {}",ex.getMessage());
+        return ErrorResponse.toResponseEntity(ErrorCode.IMAGE_SIZE_EXCESS);
     }
 }

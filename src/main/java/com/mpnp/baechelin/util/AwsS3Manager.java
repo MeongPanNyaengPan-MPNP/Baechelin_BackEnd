@@ -6,7 +6,10 @@ import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.mpnp.baechelin.exception.CustomException;
+import com.mpnp.baechelin.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -15,13 +18,11 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AwsS3Manager {
 
     @Value("${cloud.aws.s3.bucket}")
@@ -32,9 +33,8 @@ public class AwsS3Manager {
     // 이미지 단건 저장
     public String uploadFile(MultipartFile file) {
         if (Objects.equals(file.getOriginalFilename(), "")) {
-            return "";
+            throw new CustomException(ErrorCode.BAD_IMAGE_INPUT);
         }
-
 
         // 파일은 단건만 추가 가능
         String fileName = createFileName(file.getOriginalFilename());
@@ -63,10 +63,16 @@ public class AwsS3Manager {
     }
 
     private String getFileExtension(String fileName) { // file 형식이 잘못된 경우를 확인하기 위해 만들어진 로직이며, 파일 타입과 상관없이 업로드할 수 있게 하기 위해 .의 존재 유무만 판단하였습니다.
+        String fileEx;
         try {
-            return fileName.substring(fileName.lastIndexOf("."));
+            fileEx = fileName.substring(fileName.lastIndexOf("."));
         } catch (StringIndexOutOfBoundsException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 형식의 파일(" + fileName + ") 입니다.");
         }
+        log.info("{} : ", fileEx.toLowerCase());
+        if (!Arrays.asList(".jpg", ".png", ".jpeg", ".gif", ".bmp").contains(fileEx.toLowerCase())) {
+            throw new CustomException(ErrorCode.BAD_IMAGE_INPUT);
+        }
+        return fileEx;
     }
 }
