@@ -7,11 +7,12 @@ import com.mpnp.baechelin.user.domain.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;
 
-public interface BookmarkRepository extends JpaRepository<Bookmark, Integer> {
-    List<Bookmark> findAllByFolderId(Folder folderId);
+public interface BookmarkRepository extends CrudRepository<Bookmark, Integer> {
+    Page<Bookmark> findAllByFolderId(Folder folderId, Pageable pageable);
     boolean existsByStoreIdAndUserId(Store store, User user);
 
     Page<Bookmark> findAllByUserId(User user, Pageable pageable);

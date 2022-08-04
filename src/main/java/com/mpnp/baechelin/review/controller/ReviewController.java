@@ -83,8 +83,6 @@ public class ReviewController {
         if (user == null) {
             throw new CustomException(ErrorCode.ACCESS_DENIED);
         }
-
-
         reviewService.reviewUpdate(reviewRequestDto, user.getUsername(), reviewId);
         return new SuccessResponse("리뷰 수정 성공");
     }
