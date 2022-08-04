@@ -188,4 +188,7 @@ public class Store implements Serializable {
         this.longitude = row.getLongitude();
     }
 
+    public void removeReviewImage(Review review) {
+        this.reviewList.remove(review);
+    }
 }

@@ -83,22 +83,23 @@ public class ReviewController {
         if (user == null) {
             throw new CustomException(ErrorCode.ACCESS_DENIED);
         }
+
+
         reviewService.reviewUpdate(reviewRequestDto, user.getUsername(), reviewId);
         return new SuccessResponse("리뷰 수정 성공");
     }
 
 
-
-    @PostMapping("/review/imageUpload")
-    public SuccessResponse imageUpload(@AuthenticationPrincipal User user,
-                                       @RequestParam MultipartFile imageFile) {
-
-        if (user == null) {
-            throw new CustomException(ErrorCode.ACCESS_DENIED);
-        }
-        reviewService.imageUpload(imageFile, user.getUsername());
-        return new SuccessResponse("리뷰 이미지 등록 완료");
-    }
+//    @PostMapping("/review/imageUpload")
+//    public SuccessResponse imageUpload(@AuthenticationPrincipal User user,
+//                                       @RequestParam MultipartFile imageFile) {
+//
+//        if (user == null) {
+//            throw new CustomException(ErrorCode.ACCESS_DENIED);
+//        }
+//        reviewService.imageUpload(imageFile, user.getUsername());
+//        return new SuccessResponse("리뷰 이미지 등록 완료");
+//    }
 
     /**
      * 리뷰 삭제

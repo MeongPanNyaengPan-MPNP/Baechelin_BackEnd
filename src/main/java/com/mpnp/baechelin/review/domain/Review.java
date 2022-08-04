@@ -65,7 +65,13 @@ public class Review extends TimeStamped {
     public void addImage(List<ReviewImage> reviewImageList) {
         this.reviewImageList = reviewImageList;
     }
-    public void addTag(List<Tag> tagList){
-        this.tagList= tagList;
+    public void addTag(List<Tag> tagList) {
+        this.tagList = tagList;
+    }
+
+    public void removeReviewImage(List<ReviewImage> reviewImagelist) {
+        for(ReviewImage reviewImage: reviewImagelist){
+            this.reviewImageList.remove(reviewImage);
+        }
     }
 }
