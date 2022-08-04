@@ -65,4 +65,10 @@ public class Review extends TimeStamped {
         this.content = reviewRequestDto.getContent();
     }
 
+
+    public void removeReviewImage(List<ReviewImage> reviewImagelist) {
+        for(ReviewImage reviewImage: reviewImagelist){
+            this.reviewImageList.remove(reviewImage);
+        }
+    }
 }

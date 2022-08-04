@@ -31,26 +31,26 @@ public class BatchScheduler {
 
     private final JobLauncher jobLauncher;
 
-    @Scheduled(cron = "0 30 4 1 1/1 ? *",zone = "Asia/Seoul")
-    @SchedulerLock(name = "updateScheduler", lockAtLeastFor = "PT58M", lockAtMostFor = "PT59M")
-    public void storeApiUpdateJob() {
-
-        LocalDateTime now = LocalDateTime.now();
-        System.out.println(now.getHour() + ":" + now.getMinute() + ":" + now.getSecond());
-
-        Map<String, JobParameter> confMap = new HashMap<>();
-        confMap.put("time", new JobParameter(System.currentTimeMillis()));
-        JobParameters jobParameters = new JobParameters(confMap);
-        try{
-            jobLauncher.run(batchConfiguration.JpaPageJob1_storeApiUpdate(), jobParameters);
-        }catch(JobExecutionAlreadyRunningException
-               | JobInstanceAlreadyCompleteException
-               | JobParametersInvalidException
-               | org.springframework.batch.core.repository.JobRestartException e){
-
-            log.error(e.getMessage());
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-    }
+//    @Scheduled(cron = "0 30 4 1 1/1 ? *",zone = "Asia/Seoul")
+//    @SchedulerLock(name = "updateScheduler", lockAtLeastFor = "PT58M", lockAtMostFor = "PT59M")
+//    public void storeApiUpdateJob() {
+//
+//        LocalDateTime now = LocalDateTime.now();
+//        System.out.println(now.getHour() + ":" + now.getMinute() + ":" + now.getSecond());
+//
+//        Map<String, JobParameter> confMap = new HashMap<>();
+//        confMap.put("time", new JobParameter(System.currentTimeMillis()));
+//        JobParameters jobParameters = new JobParameters(confMap);
+//        try{
+//            jobLauncher.run(batchConfiguration.JpaPageJob1_storeApiUpdate(), jobParameters);
+//        }catch(JobExecutionAlreadyRunningException
+//               | JobInstanceAlreadyCompleteException
+//               | JobParametersInvalidException
+//               | org.springframework.batch.core.repository.JobRestartException e){
+//
+//            log.error(e.getMessage());
+//        } catch (JsonProcessingException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
 }

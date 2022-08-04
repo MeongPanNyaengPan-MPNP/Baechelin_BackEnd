@@ -37,9 +37,5 @@ public class SchedulerConfiguration {
                         .build()
         );
     }
-
-
-
-
 }
 

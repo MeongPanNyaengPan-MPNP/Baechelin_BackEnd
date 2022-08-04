@@ -55,7 +55,7 @@ public class ReviewService {
 
         long storeId = reviewRequestDto.getStoreId();
         Store store = storeRepository.findById(storeId).orElseThrow(() -> new IllegalArgumentException("해당하는 업장이 존재하지 않습니다."));
-        User user = userRepository.findBySocialId(socialId);
+        User  user  = userRepository.findBySocialId(socialId);
         Review review = new Review(reviewRequestDto, store, user);
 
 
@@ -154,86 +154,78 @@ public class ReviewService {
     }
 
 
-    @Transactional
+
     /** 리뷰 수정 */
+    public void reviewUpdate(ReviewRequestDto reviewRequestDto, String socialId, int reviewId){
 
-    public void reviewUpdate(ReviewRequestDto reviewRequestDto, String socialId, int reviewId) {
+        long      storeId    = reviewRequestDto.getStoreId();
+        User      user       = userRepository.findBySocialId(socialId); if(user == null){ new IllegalArgumentException("해당하는 소셜아이디를 찾을 수 없습니다."); }
+        Store     store      = storeRepository.findById(storeId)       .orElseThrow(() -> new IllegalArgumentException("해당하는 업장이 존재하지 않습니다."));
+        Review    review     = reviewRepository.findById(reviewId)     .orElseThrow(() -> new IllegalArgumentException("해당하는 리뷰가 없습니다."));
 
 
-    }
+        List<MultipartFile> newImageFileList = reviewRequestDto.getImageFile(); // 새로운 이미지 파일
+        List<ReviewImage>   oldImageFileList = review.getReviewImageList();     // 기존에 이미지 파일
+        List<ReviewImage> reviewImageUrlList = new ArrayList<>();               // 이미지 파일을 담을 리스트
 
-//    @Transactional
-//    /** 리뷰 수정 */
-//    public void reviewUpdate(ReviewRequestDto reviewRequestDto, String socialId, int reviewId){
-//
-//        long      storeId    = reviewRequestDto.getStoreId();
-//        User      user       = userRepository.findBySocialId(socialId); if(user == null){ new IllegalArgumentException("해당하는 소셜아이디를 찾을 수 없습니다."); }
-//        Store     store      = storeRepository.findById(storeId)       .orElseThrow(() -> new IllegalArgumentException("해당하는 업장이 존재하지 않습니다."));
-//        Review    review     = reviewRepository.findById(reviewId)     .orElseThrow(() -> new IllegalArgumentException("해당하는 리뷰가 없습니다."));
-//
-//
-//        List<MultipartFile> newImageFileList = reviewRequestDto.getImageFile(); // 새로운 이미지 파일
-//        List<ReviewImage>   oldImageFileList = review.getReviewImageList();     // 기존에 이미지 파일
-//        List<ReviewImage> reviewImageUrlList = new ArrayList<>();               // 이미지 파일을 담을 리스트
-//
-//        List<ReviewImage> reviewImageList = reviewImageRepository.findAllByReviewId(review);
-//        List<Integer>          reviewImageIdList = new ArrayList<>();               //
-//
-//
-//        // todo 이미지 삭제 후 수정 작업 (1 -> 2)
-//        // 1.기존리뷰에 기존 이미지가 있다면 삭제
-//        if(!oldImageFileList.isEmpty()) {
-//            for (ReviewImage reviewImage : oldImageFileList) {
-//                System.out.println("check -> "  + reviewImage.getReviewImageUrl());
-//                System.out.println("delete -> " + reviewImage.getReviewImageUrl().substring(reviewImage.getReviewImageUrl().indexOf("com/") + 4));
-//                awsS3Manager.deleteFile(reviewImage.getReviewImageUrl().substring(reviewImage.getReviewImageUrl().indexOf("com/") + 4));
-//
-//            }
-//        }
-//
-//
-//        // 2.수정할 이미지가 있다면 업로드
-//        if(!newImageFileList.isEmpty()) {
-//            System.out.println("newImageFileList != null");
-//            for (MultipartFile reviewImageFile : newImageFileList) {
-//                String fileDir = awsS3Manager.uploadFile(reviewImageFile);
-//                System.out.println("update --> " + fileDir);
-//                reviewImageUrlList.add(ReviewImage.builder().reviewId(review).reviewImageUrl(fileDir).build());
-//            } // 리뷰이미지 -> url -> 엔티티 변환
-//        }
-//
-//
-//
-//        List<Tag>       tagList = new ArrayList<>();               // 태그를 담는 리스트
-//        List<String> newTagList = reviewRequestDto.getTagList();   // 새로운 태그
-//
-//
-//        // todo 태그 수정 작업
-//        List<Tag> oldTagList = tagRepository.findAllByReviewId(review);
-//        System.out.println("log Tag SIZE --> "+ oldTagList.size());
-//        // 1. 기존 태그 내용이 있다면 전체 삭제
-//        if (oldTagList != null){
-//            System.out.println("oldTagList != null");
-//            tagRepository.deleteAllByReviewId(review); }
-//        // 2. 태그 내용이 있다면 태그 수정
-//        if (newTagList != null) {
-//            for (String newTag : newTagList) {
-//                Tag tag = new Tag(newTag, review);
+        List<ReviewImage> reviewImageList = reviewImageRepository.findAllByReviewId(review);
+        List<Integer>   reviewImageIdList = new ArrayList<>();               //
+
+
+        // todo 이미지 삭제 후 수정 작업 (1 -> 2)
+        // 1.기존리뷰에 기존 이미지가 있다면 삭제
+        if(!oldImageFileList.isEmpty()) {
+            for (ReviewImage reviewImage : oldImageFileList) {
+                System.out.println("check -> "  + reviewImage.getReviewImageUrl());
+                System.out.println("delete -> " + reviewImage.getReviewImageUrl().substring(reviewImage.getReviewImageUrl().indexOf("com/") + 4));
+                awsS3Manager.deleteFile(reviewImage.getReviewImageUrl().substring(reviewImage.getReviewImageUrl().indexOf("com/") + 4));
+
+            }
+            reviewImageRepository.deleteAllInBatch(oldImageFileList);
+        }
+
+
+        // 2.수정할 이미지가 있다면 업로드
+        if(newImageFileList != null) {
+            System.out.println("newImageFileList != null");
+            for (MultipartFile reviewImageFile : newImageFileList) {
+                String fileDir = awsS3Manager.uploadFile(reviewImageFile);
+                System.out.println("update --> " + fileDir);
+                reviewImageUrlList.add(ReviewImage.builder().reviewId(review).reviewImageUrl(fileDir).build());
+            } // 리뷰이미지 -> url -> 엔티티 변환
+        }
+
+
+
+        List<Tag>       tagList = new ArrayList<>();               // 태그를 담는 리스트
+        List<String> newTagList = reviewRequestDto.getTagList();   // 새로운 태그
+
+
+        // todo 태그 수정 작업
+        List<Tag> oldTagList = tagRepository.findAllByReviewId(review);
+        System.out.println("log Tag SIZE --> "+ oldTagList.size());
+        // 1. 기존 태그 내용이 있다면 전체 삭제
+        if (oldTagList != null){
+
+            tagRepository.deleteAllInBatch(oldTagList);
+        }
+        // 2. 태그 내용이 있다면 태그 수정
+        if (newTagList != null) {
+            for (String newTag : newTagList) {
+                Tag tag = new Tag(newTag, review);
 //                review.addSingleTag(tag);
-//                tagList.add(tag);
-//            }
-//            tagRepository.saveAll(tagList);
-//        }
-//
-//
-//
-//        review.update(reviewRequestDto);
-//        reviewRepository.save(review); // 아래의 store.updatePointAvg() 보다 리뷰가 먼저 처리되게 해야한다.
-//        storeRepository .save(store.updatePointAvg()); // 별점 평점 구하는 코드
-//        reviewImageRepository.saveAll(reviewImageUrlList);
-//        System.out.println("=========delete========");
-//        reviewImageRepository.deleteAll(reviewImageList);
-//    }
+                tagList.add(tag);
+            }
+            tagRepository.saveAll(tagList);
+        }
+
+
+
+        review.update(reviewRequestDto);
+        reviewRepository.save(review); // 아래의 store.updatePointAvg() 보다 리뷰가 먼저 처리되게 해야한다.
+        storeRepository .save(store.updatePointAvg()); // 별점 평점 구하는 코드
+        reviewImageRepository.saveAll(reviewImageUrlList);
+    }
 
 
     /**
@@ -259,7 +251,7 @@ public class ReviewService {
             }
         }
 
-        store.get().removeReview(review);
+        store.get().removeReviewImage(review);
         storeRepository.save(store.get().updatePointAvg()); // 별점 평점 구하는 코드
     }
 
@@ -272,8 +264,4 @@ public class ReviewService {
                 .stream().map(review -> new ReviewMainResponseDto(review, review.getStoreId(), review.getUserId())).collect(Collectors.toList());
     }
 
-    public void imageUpload(MultipartFile imageFile, String socialId) {
-
-
-    }
 }

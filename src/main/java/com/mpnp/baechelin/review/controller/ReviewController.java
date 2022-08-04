@@ -71,11 +71,12 @@ public class ReviewController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+
     /** 리뷰 수정 */
     @PatchMapping("/review/{reviewId}")
     public ResponseEntity<?> reviewUpdate(@ModelAttribute ReviewRequestDto reviewRequestDto,
                                           @AuthenticationPrincipal User user,
-                                          @PathVariable int reviewId) throws IOException {
+                                          @PathVariable int reviewId) {
 
         if(user==null){ throw new IllegalArgumentException("해당하는 회원 정보가 없습니다."); }
         reviewService.reviewUpdate(reviewRequestDto, user.getUsername(), reviewId);
@@ -83,15 +84,6 @@ public class ReviewController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PostMapping("/review/imageUpload")
-    public ResponseEntity<?> imageUpload(@AuthenticationPrincipal User user,
-                                         @RequestParam MultipartFile imageFile){
-
-        if(user==null){ throw new IllegalArgumentException("해당하는 회원 정보가 없습니다."); }
-
-        reviewService.imageUpload(imageFile, user.getUsername());
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
 
     /** 리뷰 삭제 */
     @DeleteMapping("/review/{reviewId}")
