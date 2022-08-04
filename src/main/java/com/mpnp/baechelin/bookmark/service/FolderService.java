@@ -83,26 +83,4 @@ public class FolderService {
         }
         return folderResponseDtoList;
     }
-
-    @Transactional(readOnly = true)
-    public List<FolderResponseDto> folderListV2(String socialId) {
-        User user = userRepository.findBySocialId(socialId);
-        if (user == null) {
-            throw new CustomException(ErrorCode.NO_USER_FOUND);
-        }
-        List<FolderResponseDto> folderResponseDtoList = new ArrayList<>();
-        for (Folder obj : user.getFolderList()) {
-            FolderResponseDto folderResponseDto = FolderResponseDto.FolderDtoRes(obj);
-            // 폴더의 최신 업장 찾기
-            Long latestStoreId = bookmarkRepository.findLatestStore(obj.getId());
-            if (latestStoreId != null) {
-                Store latestStore = storeRepository.findById(latestStoreId).orElseThrow(() -> new CustomException(ErrorCode.NO_STORE_FOUND));
-                Optional<StoreImage> storeImage = latestStore.getStoreImageList().stream().findFirst();
-                storeImage.ifPresent(image -> folderResponseDto.setThumbNail(image.getStoreImageUrl()));
-            }
-            folderResponseDtoList.add(folderResponseDto);
-        }
-        return folderResponseDtoList;
-    }
-
 }

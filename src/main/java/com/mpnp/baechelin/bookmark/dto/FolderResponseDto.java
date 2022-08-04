@@ -1,11 +1,14 @@
 package com.mpnp.baechelin.bookmark.dto;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.mpnp.baechelin.bookmark.domain.Bookmark;
 import com.mpnp.baechelin.bookmark.domain.Folder;
 import com.mpnp.baechelin.store.domain.StoreImage;
 import lombok.*;
 
+import javax.persistence.Transient;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,26 +32,22 @@ public class FolderResponseDto {
 
         /** 북마크의 정보를 담는 작업 */
         List<BookmarkInfoDto> bookmarks = new ArrayList<>();
-
-        if(folder.getBookmarkList() != null) {
-            for (Bookmark bookmark : folder.getBookmarkList()) {
-                BookmarkInfoDto bookmarkInfoDto = new BookmarkInfoDto(bookmark);
-                bookmarks.add(bookmarkInfoDto);
-
-            }
-        } else if(folder.getBookmarkList() == null) {
+        if (folder.getBookmarkList() == null || folder.getBookmarkList().isEmpty()) {
             return FolderResponseDto.builder()
                     .folderName(folder.getFolderName())
                     .id(folder.getId())
                     .thumbNail(null)
                     .build();
         }
-
+        for (Bookmark bookmark : folder.getBookmarkList()) {
+            BookmarkInfoDto bookmarkInfoDto = new BookmarkInfoDto(bookmark);
+            bookmarks.add(bookmarkInfoDto);
+        }
         return FolderResponseDto.builder()
                 .folderName(folder.getFolderName())
                 .id(folder.getId())
                 .bookmarkList(bookmarks)
-                .thumbNail(null)
+                .thumbNail(bookmarks.size() == 0 ? null : bookmarks.get(bookmarks.size() - 1).getStoreImageList())
                 .build();
     }
 }

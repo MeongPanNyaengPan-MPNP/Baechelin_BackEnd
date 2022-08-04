@@ -48,9 +48,6 @@ public class BookmarkInfoDto {
 
         if(!bookmark.getStoreId().getStoreImageList().isEmpty()) {
             this.storeImageList = bookmark.getStoreId().getStoreImageList().get(0).getStoreImageUrl();
-
-        } else if(bookmark.getStoreId().getStoreImageList().isEmpty()) {
-            this.storeImageList = "";
         }
     }
 }
