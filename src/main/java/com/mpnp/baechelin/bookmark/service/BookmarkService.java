@@ -3,6 +3,7 @@ package com.mpnp.baechelin.bookmark.service;
 import com.mpnp.baechelin.bookmark.domain.Bookmark;
 import com.mpnp.baechelin.bookmark.domain.Folder;
 import com.mpnp.baechelin.bookmark.dto.BookmarkInfoDto;
+import com.mpnp.baechelin.bookmark.dto.BookmarkPagedResponseDto;
 import com.mpnp.baechelin.bookmark.dto.BookmarkRequestDto;
 import com.mpnp.baechelin.bookmark.repository.BookmarkRepository;
 import com.mpnp.baechelin.bookmark.repository.FolderRepository;
@@ -17,12 +18,14 @@ import com.mpnp.baechelin.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -32,7 +35,6 @@ public class BookmarkService {
     private final FolderRepository   folderRepository;
     private final StoreRepository    storeRepository;
     private final UserRepository     userRepository;
-    private final StoreImgRepository storeImgRepository;
     private final StoreService storeService;
 
     @Transactional
@@ -77,5 +79,16 @@ public class BookmarkService {
             bookmarkList.add(bookmarkInfoDto);
         }
         return bookmarkList;
+    }
+
+    @Transactional
+    public BookmarkPagedResponseDto bookmarkList(String socialId, int folderId, Pageable pageable) {
+        User user = userRepository.findBySocialId(socialId);
+        if (user == null) {
+            throw new CustomException(ErrorCode.NO_USER_FOUND);
+        }
+        Folder folder = folderRepository.findById(folderId).orElseThrow(()-> new CustomException(ErrorCode.NO_FOLDER_FOUND));
+        Page<Bookmark> pagedBookmark = bookmarkRepository.findAllByFolderId(folder, pageable);
+        return new BookmarkPagedResponseDto(pagedBookmark);
     }
 }
