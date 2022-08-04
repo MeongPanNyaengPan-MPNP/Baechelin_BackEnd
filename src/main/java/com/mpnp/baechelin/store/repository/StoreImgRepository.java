@@ -10,8 +10,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface StoreImgRepository extends JpaRepository<StoreImage, Integer> {
-    @Query("select si.storeImageUrl from StoreImage si where si.store=:storeId")
-    String findLatestImage(@Param("storeId") int storeId);
     List<StoreImage> findAllByStoreId(Long storeId);
 
     StoreImage findByStoreId(long storeId);

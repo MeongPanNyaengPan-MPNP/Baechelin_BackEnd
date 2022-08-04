@@ -10,6 +10,9 @@ import com.mpnp.baechelin.bookmark.repository.FolderRepository;
 
 import com.mpnp.baechelin.exception.CustomException;
 import com.mpnp.baechelin.exception.ErrorCode;
+import com.mpnp.baechelin.store.domain.Store;
+import com.mpnp.baechelin.store.domain.StoreImage;
+import com.mpnp.baechelin.store.repository.StoreRepository;
 import com.mpnp.baechelin.user.domain.User;
 import com.mpnp.baechelin.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +31,8 @@ public class FolderService {
     private final FolderRepository folderRepository;
     private final UserRepository userRepository;
     private final BookmarkRepository bookmarkRepository;
+    private final StoreRepository storeRepository;
+
     /**
      * 폴더 생성
      */
@@ -74,12 +79,11 @@ public class FolderService {
         List<FolderResponseDto> folderResponseDtoList = new ArrayList<>();
         for (Folder obj : user.getFolderList()) {
             FolderResponseDto folderResponseDto = FolderResponseDto.FolderDtoRes(obj);
-//            List<Integer> latestFolder = bookmarkRepository.findLatestFolder(obj.getId());
-//            folderResponseDto.setThumbNail();
             folderResponseDtoList.add(folderResponseDto);
         }
         return folderResponseDtoList;
     }
+
     @Transactional(readOnly = true)
     public List<FolderResponseDto> folderListV2(String socialId) {
         User user = userRepository.findBySocialId(socialId);
@@ -89,8 +93,13 @@ public class FolderService {
         List<FolderResponseDto> folderResponseDtoList = new ArrayList<>();
         for (Folder obj : user.getFolderList()) {
             FolderResponseDto folderResponseDto = FolderResponseDto.FolderDtoRes(obj);
-            List<Integer> latestFolder = bookmarkRepository.findLatestFolder(obj.getId());
-            //TODO ThumbNail
+            // 폴더의 최신 업장 찾기
+            Long latestStoreId = bookmarkRepository.findLatestStore(obj.getId());
+            if (latestStoreId != null) {
+                Store latestStore = storeRepository.findById(latestStoreId).orElseThrow(() -> new CustomException(ErrorCode.NO_STORE_FOUND));
+                Optional<StoreImage> storeImage = latestStore.getStoreImageList().stream().findFirst();
+                storeImage.ifPresent(image -> folderResponseDto.setThumbNail(image.getStoreImageUrl()));
+            }
             folderResponseDtoList.add(folderResponseDto);
         }
         return folderResponseDtoList;

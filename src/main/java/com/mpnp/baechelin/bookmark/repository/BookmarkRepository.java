@@ -19,9 +19,8 @@ public interface BookmarkRepository extends CrudRepository<Bookmark, Integer> {
     boolean existsByStoreIdAndUserId(Store store, User user);
 
     Optional<Bookmark> findByStoreIdAndUserId(Store store, User user);
-
-    @Query("select b.storeId from Bookmark b where b.folderId=:folderId order by b.createdAt desc")
-    List<Integer> findLatestFolder(@Param("folderId") int folderId);
-
     Page<Bookmark> findAllByUserId(User user, Pageable pageable);
+
+    @Query(value = "select b.store_id from bookmark b where b.folder_id=:folderId order by b.created_at desc limit 1;", nativeQuery = true)
+    Long findLatestStore(@Param("folderId") int folderId);
 }

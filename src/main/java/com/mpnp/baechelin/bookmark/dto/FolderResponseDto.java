@@ -18,7 +18,6 @@ public class FolderResponseDto {
     private int id;
     private String folderName;
     private String thumbNail;
-
     private List<BookmarkInfoDto> bookmarkList;
 
     public FolderResponseDto(Folder folder) {
@@ -38,13 +37,11 @@ public class FolderResponseDto {
 
             }
         } else if(folder.getBookmarkList() == null) {
-
             return FolderResponseDto.builder()
                     .folderName(folder.getFolderName())
                     .id(folder.getId())
                     .thumbNail(null)
                     .build();
-
         }
 
         return FolderResponseDto.builder()
