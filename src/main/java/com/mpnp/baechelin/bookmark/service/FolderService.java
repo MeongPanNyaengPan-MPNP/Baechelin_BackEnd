@@ -74,10 +74,24 @@ public class FolderService {
         List<FolderResponseDto> folderResponseDtoList = new ArrayList<>();
         for (Folder obj : user.getFolderList()) {
             FolderResponseDto folderResponseDto = FolderResponseDto.FolderDtoRes(obj);
-            List<Integer> latestFolder = bookmarkRepository.findLatestFolder(obj.getId());
+//            List<Integer> latestFolder = bookmarkRepository.findLatestFolder(obj.getId());
 //            folderResponseDto.setThumbNail();
-//            folderResponseDtoList.add();
-
+            folderResponseDtoList.add(folderResponseDto);
+        }
+        return folderResponseDtoList;
+    }
+    @Transactional(readOnly = true)
+    public List<FolderResponseDto> folderListV2(String socialId) {
+        User user = userRepository.findBySocialId(socialId);
+        if (user == null) {
+            throw new CustomException(ErrorCode.NO_USER_FOUND);
+        }
+        List<FolderResponseDto> folderResponseDtoList = new ArrayList<>();
+        for (Folder obj : user.getFolderList()) {
+            FolderResponseDto folderResponseDto = FolderResponseDto.FolderDtoRes(obj);
+            List<Integer> latestFolder = bookmarkRepository.findLatestFolder(obj.getId());
+            //TODO ThumbNail
+            folderResponseDtoList.add(folderResponseDto);
         }
         return folderResponseDtoList;
     }
