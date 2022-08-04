@@ -25,6 +25,7 @@ public class BookmarkInfoDto {
     private String approach;
     private int bookmarkId;
     private int storeId;
+    private String bookmark;
 
 
     public BookmarkInfoDto(Bookmark bookmark){
@@ -43,7 +44,7 @@ public class BookmarkInfoDto {
 
         this.bookmarkId      = bookmark.getId();
         this.storeId         = (int) bookmark.getStoreId().getId();
-
+        this.bookmark = "Y";
 
         if(!bookmark.getStoreId().getStoreImageList().isEmpty()) {
             this.storeImageList = bookmark.getStoreId().getStoreImageList().get(0).getStoreImageUrl();

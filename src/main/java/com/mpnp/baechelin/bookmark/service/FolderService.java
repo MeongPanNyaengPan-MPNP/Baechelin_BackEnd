@@ -1,8 +1,11 @@
 package com.mpnp.baechelin.bookmark.service;
 
+import com.mpnp.baechelin.bookmark.domain.Bookmark;
 import com.mpnp.baechelin.bookmark.domain.Folder;
+import com.mpnp.baechelin.bookmark.dto.BookmarkInfoDto;
 import com.mpnp.baechelin.bookmark.dto.FolderRequestDto;
 import com.mpnp.baechelin.bookmark.dto.FolderResponseDto;
+import com.mpnp.baechelin.bookmark.repository.BookmarkRepository;
 import com.mpnp.baechelin.bookmark.repository.FolderRepository;
 
 import com.mpnp.baechelin.exception.CustomException;
@@ -16,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
