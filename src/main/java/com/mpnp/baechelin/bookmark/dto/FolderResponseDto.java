@@ -17,6 +17,7 @@ import java.util.List;
 public class FolderResponseDto {
     private int id;
     private String folderName;
+    private String thumbNail;
 
     private List<BookmarkInfoDto> bookmarkList;
 
@@ -32,7 +33,6 @@ public class FolderResponseDto {
 
         if(folder.getBookmarkList() != null) {
             for (Bookmark bookmark : folder.getBookmarkList()) {
-
                 BookmarkInfoDto bookmarkInfoDto = new BookmarkInfoDto(bookmark);
                 bookmarks.add(bookmarkInfoDto);
 
@@ -42,6 +42,7 @@ public class FolderResponseDto {
             return FolderResponseDto.builder()
                     .folderName(folder.getFolderName())
                     .id(folder.getId())
+                    .thumbNail(null)
                     .build();
 
         }
@@ -50,6 +51,7 @@ public class FolderResponseDto {
                 .folderName(folder.getFolderName())
                 .id(folder.getId())
                 .bookmarkList(bookmarks)
+                .thumbNail(null)
                 .build();
     }
 }

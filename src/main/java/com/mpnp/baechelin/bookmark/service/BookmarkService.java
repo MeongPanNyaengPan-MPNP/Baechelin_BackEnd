@@ -57,12 +57,12 @@ public class BookmarkService {
         }
     }
     @Transactional
-    public void bookmarkDelete(int bookmarkId, String socialId) {
+    public void bookmarkDelete(Long storeId, String socialId) {
         User user = userRepository.findBySocialId(socialId); if(user == null) { throw new CustomException(ErrorCode.NO_USER_FOUND); }
-        Bookmark bookmark = bookmarkRepository.findById(bookmarkId).orElseThrow(() -> new CustomException(ErrorCode.NO_BOOKMARK_FOUND));
-        Store store = bookmark.getStoreId();
+        Store store = storeRepository.findById(storeId).orElseThrow(()-> new CustomException(ErrorCode.NO_STORE_FOUND));
+        Bookmark bookmark = bookmarkRepository.findByStoreIdAndUserId(store, user).orElseThrow(() -> new CustomException(ErrorCode.NO_BOOKMARK_FOUND));
         store.removeBookmark(bookmark);
-        bookmarkRepository.deleteById(bookmarkId);
+        bookmarkRepository.delete(bookmark);
         storeService.updateBookmarkCnt(store,socialId);
     }
 

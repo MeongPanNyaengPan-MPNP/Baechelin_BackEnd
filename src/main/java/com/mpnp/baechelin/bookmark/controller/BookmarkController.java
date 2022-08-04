@@ -40,30 +40,14 @@ public class BookmarkController {
         return new SuccessResponse("북마크를 폴더에 저장 완료");
     }
 
-    @DeleteMapping("/bookmark/{bookmarkId}")
-    public SuccessResponse bookmarkDelete(@PathVariable int bookmarkId,
+    @DeleteMapping("/bookmark/{storeId}")
+    public SuccessResponse bookmarkDelete(@PathVariable Long storeId,
                                           @AuthenticationPrincipal User user) {
         if (user == null) {
             throw new CustomException(ErrorCode.NO_USER_FOUND);
         }
-        bookmarkService.bookmarkDelete(bookmarkId, user.getUsername());
+        bookmarkService.bookmarkDelete(storeId, user.getUsername());
         return new SuccessResponse("북마크를 삭제 완료");
-    }
-
-    /**
-     * @param folderId 조회하고자 하는 폴더 아이디
-     * @param pageable 페이징 객체
-     * @param user 접근하는 유저
-     * @return 페이징된 객체와 List를 안에 넣어 리턴한다 - bookmark는 항상 "Y"
-     */
-    @GetMapping("/bookmark/{folderId}")
-    public BookmarkPagedResponseDto bookmarkList(@PathVariable int folderId,
-                                                 @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
-                                                 @AuthenticationPrincipal User user) {
-        if (user == null) {
-            throw new CustomException(ErrorCode.NO_USER_FOUND);
-        }
-        return bookmarkService.bookmarkList(user.getUsername(), folderId, pageable);
     }
 
     @GetMapping("/bookmarkTop")

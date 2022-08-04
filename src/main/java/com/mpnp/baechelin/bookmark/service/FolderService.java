@@ -27,7 +27,7 @@ public class FolderService {
 
     private final FolderRepository folderRepository;
     private final UserRepository userRepository;
-
+    private final BookmarkRepository bookmarkRepository;
     /**
      * 폴더 생성
      */
@@ -73,8 +73,13 @@ public class FolderService {
         }
         List<FolderResponseDto> folderResponseDtoList = new ArrayList<>();
         for (Folder obj : user.getFolderList()) {
-            folderResponseDtoList.add(FolderResponseDto.FolderDtoRes(obj));
+            FolderResponseDto folderResponseDto = FolderResponseDto.FolderDtoRes(obj);
+            List<Integer> latestFolder = bookmarkRepository.findLatestFolder(obj.getId());
+//            folderResponseDto.setThumbNail();
+//            folderResponseDtoList.add();
+
         }
         return folderResponseDtoList;
     }
+
 }
