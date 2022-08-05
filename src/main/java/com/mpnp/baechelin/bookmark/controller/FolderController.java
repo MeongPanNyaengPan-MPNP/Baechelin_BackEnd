@@ -19,6 +19,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -30,7 +31,7 @@ public class FolderController {
 
     /** 폴더 신규 생성 */
     @PostMapping("/folder")
-    public SuccessResponse folder (@RequestBody FolderRequestDto folderRequestDto,
+    public SuccessResponse folder (@RequestBody @Valid FolderRequestDto folderRequestDto,
                                    @AuthenticationPrincipal User user){
         if(user==null){
             throw new CustomException(ErrorCode.NO_USER_FOUND);

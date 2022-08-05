@@ -6,8 +6,10 @@ import com.mpnp.baechelin.tag.domain.Tag;
 import com.mpnp.baechelin.user.domain.User;
 import com.mpnp.baechelin.util.TimeStamped;
 import lombok.*;
+import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +28,8 @@ public class Review extends TimeStamped {
     private int id;
 
     //평가(댓글)내용
+    @NotBlank(message = "내용을 입력해주세요")
+    @Length(min = 20, max = 200, message = "20자 이상, 200자 이하로 작성해주세요")
     @Column(nullable = false)
     private String content;
 

@@ -24,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
@@ -51,11 +52,9 @@ public class ReviewService {
      * 리뷰 작성
      */
     public void review(ReviewRequestDto reviewRequestDto, String socialId) throws IOException {
-
-
-        for(String tag: reviewRequestDto.getTagList()){
-            for(String tagsList: reviewRequestDto.Tags()){
-                if(tag != tagsList){
+        for (String tag : reviewRequestDto.getTagList()) {
+            for (String tagsList : reviewRequestDto.Tags()) {
+                if (tag != tagsList) {
                     new Exception("해당 태그명으로 리뷰 등록할 수 없습니다");
                 }
             }
