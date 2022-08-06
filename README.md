@@ -129,9 +129,9 @@
 
 ### Deploy
 
-- Github Actions
-- Nginx
-- AWS Code Deploy
+- **Github Actions** : CI/CD
+- **AWS Code Deploy** : CI/CD
+- **Nginx** : 무중단 배포
 - AWS EC2
 - AWS S3
 - AWS RDS
@@ -139,17 +139,17 @@
 ### Tech
 
 - Spring Boot
-- Spring Security
-- Spring Batch
-- QueryDSL
+- **Spring Security** : 보안 설정을 위해 사용
+- **JWT** : 사용자 인증/인가를 위해 사용
+- **OAuth2.0** : 소셜 로그인을 위해 사용
+- **Spring Batch** : 대용량 데이터 처리를 위해 사용
+- **QueryDSL**
 - Spring Data JPA
-- JWT
-- OAuth2.0
-- Jsoup
+- **Jsoup** : 가게 사진을 크롤링하기 위해 사용
 - Swagger
-- WebClient & RestTemplate
+- **WebClient & RestTemplate** : Public API와 Kakao API를 호출하기 위해 사용
 
-### Others
+### Data Pipeline
 - Public API
 - Kakao Maps API
 
