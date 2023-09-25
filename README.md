@@ -268,3 +268,12 @@
 | <img src="https://user-images.githubusercontent.com/90380269/181727981-603a62e6-bc9d-4b69-ae87-5bf876bbc1c8.png" alt="진유진" width="200px"/> |  <img src="https://user-images.githubusercontent.com/90380269/181737024-7c476a43-c276-4d99-b756-8bfc14d189a1.jpeg" alt="김선현" width="200px"/> | <img src="https://user-images.githubusercontent.com/90380269/181737602-f12730e5-9997-4063-acb6-47d2d3c9f696.png" alt="정소이" width="200px" /> |
 | `Spring Security` `JWT` <br> `OAuth2.0` `소셜 로그인` <br> `가게 검색` `가게 상세 조회` <br> `가게 등록` `관리자 페이지` | `Spring Batch` `Scheduler` <br> `리뷰 작성, 삭제, 수정, 조회` <br> `북마크 및 북마크 폴더 생성, 삭제` <br> `최근 등록한 북마크 조회` | `Public API` `Kakao Map API` <br> `WebClient` `데이터수집 및 가공` <br> `가게 위치, 카테고리, 태그별 리스트 조회` <br> `현재 위치 조회` `회원 정보 조회`|
 
+<br>
+<br>
+
+## 이 프로젝트가 어떻게 진행되었는지 더 궁금하시다면?
+
+프로젝트에 대한 피땀눈물이 브이로그로 촬영되었습니다 😊
+아래의 유튜브를 함꼐 봐주세요 
+ <br>
+https://www.youtube.com/embed/HtIU0XeMp3Q
