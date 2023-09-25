@@ -107,7 +107,7 @@
 
 [발표영상](https://youtu.be/_0pyS0Lx0NU)
 
-[팀 노션](https://planet-punishment-427.notion.site/99-7-4-a179c828bbbf47aea74d2bea85f47372)    
+[팀 노션](https://annajin.notion.site/99-7-4-a179c828bbbf47aea74d2bea85f47372?pvs=4)    
 
 <br>
 
@@ -171,7 +171,7 @@
 
 ### API
 
-[API 설계](https://planet-punishment-427.notion.site/API-829b965bd9ed4347ab51701fcf1d3896)
+[API 설계](https://annajin.notion.site/API-829b965bd9ed4347ab51701fcf1d3896?pvs=4)
 
 
 <br>
@@ -238,19 +238,19 @@
 
 ### Trouble Shooting
 
-[WebClient & RestTemplate](https://planet-punishment-427.notion.site/WebClient-RestTemplate-1412e5edae0d4dac9a89cde89658812c)
+[WebClient & RestTemplate](https://annajin.notion.site/WebClient-RestTemplate-1412e5edae0d4dac9a89cde89658812c?pvs=4)
 
-[공공 API의 정보 가공](https://planet-punishment-427.notion.site/API-8adec124d1fd4a11b1a06d3e4039871d)
+[공공 API의 정보 가공](https://annajin.notion.site/API-8adec124d1fd4a11b1a06d3e4039871d?pvs=4)
 
-[무중단 배포에서의 스케쥴링락](https://planet-punishment-427.notion.site/672bab5cbbe84871b701268e43dcd543)
+[무중단 배포에서의 스케쥴링락](https://annajin.notion.site/672bab5cbbe84871b701268e43dcd543?pvs=4)
 
-[Refresh Token 적용](https://planet-punishment-427.notion.site/Refresh-Token-fee659681d4a4c2483a495a3ad567173)
+[Refresh Token 적용](https://annajin.notion.site/Refresh-Token-7ab672ce25e8495091f2e9e8bcd1afb8?pvs=4)
 
-[가게 검색 기능](https://planet-punishment-427.notion.site/6db6471276004027be4a0784de4964ed)
+[가게 검색 기능](https://annajin.notion.site/6db6471276004027be4a0784de4964ed?pvs=4)
 
-[Batch Reader Api 요청 속도](https://planet-punishment-427.notion.site/Batch-Reader-Api-188339e4d37a4186befd2980012a2512)
+[Batch Reader Api 요청 속도](https://annajin.notion.site/Batch-Reader-API-188339e4d37a4186befd2980012a2512?pvs=4)
 
-[Batch 쿼리 줄이기](https://planet-punishment-427.notion.site/Batch-3ae16b43cf5c45318f84380d03454d21)
+[Batch 쿼리 줄이기](https://annajin.notion.site/Batch-3ae16b43cf5c45318f84380d03454d21?pvs=4)
 
 <br>
 
